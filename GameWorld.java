@@ -3,7 +3,7 @@ class GameWorld {
   GameTile[] gameTiles;
   int width;
   int height;
-  static final int INITIAL_SNAKE_LENGTH = 10;
+  static final int INITIAL_SNAKE_LENGTH = 5;
 
   GameWorld(int width, int height) {
     this.width = width / GameTile.TILE_SIZE;

@@ -46,7 +46,7 @@ class GameWorld { //<>// //<>//
       this.snakeY++;
       break;
     case LEFT:
-      this.snakeY--;
+      this.snakeX--;
       break;
     }
     for (GameTile tile : this.gameTiles) {

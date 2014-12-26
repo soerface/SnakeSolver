@@ -16,3 +16,24 @@ void draw() {
     gameWorld.tick();
   }
 }
+
+void keyPressed() {
+  switch(key) {
+    case 'w':
+    case 'W':
+      this.gameWorld.snakeDirection = this.gameWorld.UP;
+      break;
+    case 'a':
+    case 'A':
+      this.gameWorld.snakeDirection = this.gameWorld.LEFT;
+      break;
+    case 's':
+    case 'S':
+      this.gameWorld.snakeDirection = this.gameWorld.DOWN;
+      break;
+    case 'd':
+    case 'D':
+      this.gameWorld.snakeDirection = this.gameWorld.RIGHT;
+      break;
+  }
+}

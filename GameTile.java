@@ -5,7 +5,7 @@ class GameTile {
   final int y;
   boolean occupied;
   // -1: indefinitely occupied; else, it will be decreased every tick by 1, giving the field free when reaching 0
-  int occupied_counter = -1;
+  int occupiedCounter = -1;
   
   GameTile(int x, int y) {
     this.x = x;
@@ -20,10 +20,10 @@ class GameTile {
   }
 
   void tick() {
-    if (this.occupied_counter > 0) {
-      occupied_counter--;
+    if (this.occupiedCounter > 0) {
+      occupiedCounter--;
     }
-    if (this.occupied_counter == 0) {
+    if (this.occupiedCounter == 0) {
       this.occupied = false;
     }
   }

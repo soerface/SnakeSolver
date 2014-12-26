@@ -9,7 +9,7 @@ class GameWorld {
     this.gameTiles = new GameTile[numberOfTiles]; //<>//
     for (int i=0; i<numberOfTiles; i++) {
       int x = i % (width / GameTile.TILE_SIZE);
-      int y = i / (height / GameTile.TILE_SIZE);
+      int y = i / (width / GameTile.TILE_SIZE);
       this.gameTiles[i] = new GameTile(x, y);
     }
   }

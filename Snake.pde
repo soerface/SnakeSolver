@@ -1,7 +1,7 @@
 GameWorld gameWorld;
 
 void setup() {
-  size(500, 500);
+  size(600, 500);
   this.gameWorld = new GameWorld(width, height);
   setup_walls();
 }

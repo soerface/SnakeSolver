@@ -1,6 +1,6 @@
 GameWorld gameWorld;
 int fames = 0;
-static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the game
+static final int TICKS_PER_FRAME = 25; // decrease this number to speedup the game
 
 void setup() {
   size(600, 500);

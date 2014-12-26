@@ -51,6 +51,11 @@ class GameWorld { //<>// //<>//
     }
     for (GameTile tile : this.gameTiles) {
       tile.tick();
+      // check for collision
+      if (tile.occupied && tile.x == this.snakeX && tile.y == this.snakeY) {
+        this.respawn();
+        return;
+      }
       if (tile.x == this.snakeX && tile.y == this.snakeY) {
         tile.occupied = true;
         tile.occupiedCounter = this.snakeLength;
@@ -68,6 +73,8 @@ class GameWorld { //<>// //<>//
     for (GameTile tile : this.gameTiles) {
       int rightBorder = this.width - 1;
       int bottomBorder = this.height - 1;
+      // initialize all with free blocks
+      tile.occupied = false;
       // setup walls
       if (tile.x == 0 || tile.y == 0 || tile.x == rightBorder || tile.y == bottomBorder) {
         tile.occupied = true;

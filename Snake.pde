@@ -4,7 +4,7 @@ static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the ga
 
 void setup() {
   size(600, 500);
-  this.gameWorld = new GameWorld(width, height);
+  this.gameWorld = new GameWorld(this);
 }
 
 void draw() {

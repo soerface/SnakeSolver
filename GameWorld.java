@@ -7,13 +7,17 @@ class GameWorld { //<>// //<>//
   int snakeY;
   int snakeDirection;
   int snakeLength;
+  Snake mainClass;
   static final int UP = 0;
   static final int RIGHT = 1;
   static final int DOWN = 2;
   static final int LEFT = 3;
   static final int INITIAL_SNAKE_LENGTH = 5;
 
-  GameWorld(int width, int height) {
+  GameWorld(Snake mainClass) {
+    this.mainClass = mainClass;
+    int width = mainClass.width;
+    int height = mainClass.height;
     this.width = width / GameTile.TILE_SIZE;
     this.height = height / GameTile.TILE_SIZE;
     int worldArea = width * height;
@@ -63,6 +67,18 @@ class GameWorld { //<>// //<>//
     }
   }
 
+  void spawnFood() {
+    int index = (int)this.mainClass.random(0, this.gameTiles.length);
+    GameTile tile = this.gameTiles[index];
+    if (tile.occupied) {
+      // darn! we got a tile which we will never be able to reach.
+      // Better place no food and instead try it again
+      this.spawnFood();
+      return;
+    }
+    tile.hasFood = true;
+  }
+
   void respawn() {
     this.respawn(true);
   }
@@ -75,6 +91,7 @@ class GameWorld { //<>// //<>//
       int bottomBorder = this.height - 1;
       // initialize all with free blocks
       tile.occupied = false;
+      tile.hasFood = false;
       // setup walls
       if (tile.x == 0 || tile.y == 0 || tile.x == rightBorder || tile.y == bottomBorder) {
         tile.occupied = true;
@@ -93,5 +110,6 @@ class GameWorld { //<>// //<>//
         i++;
       }
     }
+    this.spawnFood();
   }
 }

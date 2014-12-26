@@ -3,9 +3,17 @@ GameWorld gameWorld;
 void setup() {
   size(500, 500);
   this.gameWorld = new GameWorld(width, height);
-  for (GameTile tile : gameWorld.gameTiles) {
-    tile.occupied = random(0, 1) > 0.5;
-  }
+  setup_walls();
+}
+
+void setup_walls() {
+  for (GameTile tile : this.gameWorld.gameTiles) {
+    int rightBorder = width / tile.TILE_SIZE - 1;
+    int bottomBorder = height / tile.TILE_SIZE - 1;
+    if (tile.x == 0 || tile.y == 0 || tile.x == rightBorder || tile.y == bottomBorder) {
+      tile.occupied = true;
+    }
+  }  
 }
 
 void draw() {

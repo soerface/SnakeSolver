@@ -53,6 +53,7 @@ class GameWorld { //<>// //<>//
       this.snakeX--;
       break;
     }
+    boolean foodCollected = false;
     for (GameTile tile : this.gameTiles) {
       tile.tick();
       // check for collision
@@ -60,10 +61,27 @@ class GameWorld { //<>// //<>//
         this.respawn();
         return;
       }
+      // and for collected food
+      if (tile.hasFood && tile.x == this.snakeX && tile.y == this.snakeY) {
+        tile.hasFood = false;
+        foodCollected = true;
+      }
+      // and then set the new block to occupied
       if (tile.x == this.snakeX && tile.y == this.snakeY) {
         tile.occupied = true;
         tile.occupiedCounter = this.snakeLength;
       }
+    }
+    // we found some food! increase the occupiedCounter on each tile to increase the snakes length
+    if (foodCollected) {
+      for (GameTile tile : this.gameTiles) {
+        // do not increase it for negative counters. They are staying forever anyway
+        if (tile.occupiedCounter > 0) {
+          tile.occupiedCounter++;
+        }
+      }
+      this.snakeLength++;
+      this.spawnFood();
     }
   }
 

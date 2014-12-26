@@ -34,7 +34,7 @@ class GameWorld { //<>// //<>//
     this.respawn();
   }
 
-  void draw(Snake mainClass) {
+  void draw() {
     if (!this.gameStarted) {
       this.mainClass.textAlign(this.mainClass.CENTER);
       int x = this.mainClass.width / 2;

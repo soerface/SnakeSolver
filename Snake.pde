@@ -10,7 +10,7 @@ void setup() {
 void draw() {
   fill(0xff000000);
   rect(0, 0, width, height);
-  gameWorld.draw(this);
+  gameWorld.draw();
   frames++;
   if (frames % TICKS_PER_FRAME == 0) {
     gameWorld.tick();

@@ -18,6 +18,13 @@ void draw() {
 }
 
 void keyPressed() {
+  if (!gameWorld.gameStarted) {
+    if (key == 's' || key == 'S') {
+      gameWorld.gameStarted = true;
+    }
+    return;
+  }
+
   int pressedKey = key;
   // support for arrow keys
   if (key == CODED) {

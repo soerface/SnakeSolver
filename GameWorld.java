@@ -7,6 +7,7 @@ class GameWorld { //<>// //<>//
   int snakeY;
   int snakeDirection;
   int snakeLength;
+  boolean gameStarted;
   Snake mainClass;
   static final int UP = 0;
   static final int RIGHT = 1;
@@ -16,6 +17,7 @@ class GameWorld { //<>// //<>//
 
   GameWorld(Snake mainClass) {
     this.mainClass = mainClass;
+    this.gameStarted = false;
     int width = mainClass.width;
     int height = mainClass.height;
     this.width = width / GameTile.TILE_SIZE;
@@ -33,12 +35,24 @@ class GameWorld { //<>// //<>//
   }
 
   void draw(Snake mainClass) {
+    if (!this.gameStarted) {
+      this.mainClass.textAlign(this.mainClass.CENTER);
+      int x = this.mainClass.width / 2;
+      int y = this.mainClass.height / 2;
+      this.mainClass.fill(0xffffffff);
+      this.mainClass.textSize(32);
+      this.mainClass.text("Press s to start the game", x, y);
+      return;
+    }
     for (GameTile tile : this.gameTiles) {
       tile.draw(mainClass);
     }
   }
 
   void tick() {
+    if (!this.gameStarted) {
+      return;
+    }
     switch(this.snakeDirection) {
     case UP:
       this.snakeY--;

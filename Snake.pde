@@ -19,21 +19,29 @@ void draw() {
 
 void keyPressed() {
   switch(key) {
-    case 'w':
-    case 'W':
+  case 'w':
+  case 'W':
+    if (this.gameWorld.snakeDirection != this.gameWorld.DOWN) {
       this.gameWorld.snakeDirection = this.gameWorld.UP;
-      break;
-    case 'a':
-    case 'A':
+    }
+    break;
+  case 'a':
+  case 'A':
+    if (this.gameWorld.snakeDirection != this.gameWorld.RIGHT) {
       this.gameWorld.snakeDirection = this.gameWorld.LEFT;
-      break;
-    case 's':
-    case 'S':
+    }
+    break;
+  case 's':
+  case 'S':
+    if (this.gameWorld.snakeDirection != this.gameWorld.UP) {
       this.gameWorld.snakeDirection = this.gameWorld.DOWN;
-      break;
-    case 'd':
-    case 'D':
+    }
+    break;
+  case 'd':
+  case 'D':
+    if (this.gameWorld.snakeDirection != this.gameWorld.LEFT) {
       this.gameWorld.snakeDirection = this.gameWorld.RIGHT;
-      break;
+    }
+    break;
   }
 }

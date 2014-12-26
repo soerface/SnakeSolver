@@ -16,8 +16,13 @@ class GameWorld {
   
   void draw(Snake mainClass) {
     for (GameTile tile : this.gameTiles) {
-      tile.draw(mainClass); //<>//
+      tile.draw(mainClass);
     }
   }
   
+  void tick() {
+    for (GameTile tile : this.gameTiles) {
+      tile.tick();
+    }
+  } //<>//
 }

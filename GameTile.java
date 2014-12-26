@@ -13,7 +13,7 @@ class GameTile {
   }
 
   void draw(Snake mainClass) {
-    int color = this.occupied ? 0xff000000 : 0xffffffff;
+    int color = this.occupied ? 0xffffffff : 0xff000000;
     mainClass.fill(color);
     mainClass.stroke(0xffaaaaaa);
     mainClass.rect(this.x * TILE_SIZE, this.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);

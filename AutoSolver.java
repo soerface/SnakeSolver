@@ -53,7 +53,7 @@ class AutoSolver {
 
   int[] getTileCoordinates(int id) {
     int x = id % this.gameWorld.width;
-    int y = id / this.gameWorld.height;
+    int y = id / this.gameWorld.width;
     return new int[] {
       x, y
     };
@@ -98,7 +98,8 @@ class AutoSolver {
   }
 
   void draw() {
-    this.mainClass.fill(0xffff0000);
+    this.mainClass.fill(0xaaff0000);
+    this.mainClass.strokeWeight(0);
     for (Node node : this.openList) {
       int[] coordinates = getTileCoordinates(node.tileId);
       int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;

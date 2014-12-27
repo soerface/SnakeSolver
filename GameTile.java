@@ -17,13 +17,13 @@ class GameTile {
     int color = this.occupied ? 0xffffffff : 0xff000000;
     mainClass.fill(color);
     mainClass.stroke(0xff555555);
+    mainClass.strokeWeight(1);
     int x = this.x * TILE_SIZE;
     int y = this.y * TILE_SIZE;
     mainClass.rect(x, y, TILE_SIZE, TILE_SIZE);
     if (this.hasFood) {
       int margin = TILE_SIZE / 3;
       mainClass.stroke(0xffffffaa);
-      mainClass.strokeWeight(1);
       mainClass.line(x + margin, y + margin, x + TILE_SIZE - margin, y + TILE_SIZE - margin);
       mainClass.line(x + margin, y + TILE_SIZE - margin, x + TILE_SIZE - margin, y + margin);
     }

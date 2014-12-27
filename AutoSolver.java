@@ -6,7 +6,7 @@
 import java.util.ArrayList;
 
 class AutoSolver {
-  
+
   GameWorld gameWorld;
   Snake mainClass;
   ArrayList<Node> openList;
@@ -17,12 +17,14 @@ class AutoSolver {
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
     this.mainClass = mainClass;
+    this.openList = new ArrayList<Node>();
+    this.closedList = new ArrayList<Node>();
   }
-  
+
   void calculatePath() {
     this.openList = new ArrayList<Node>();
     this.closedList = new ArrayList<Node>();
-    
+
     int x = this.gameWorld.snakeX;
     int y = this.gameWorld.snakeY;
     int startTileId = this.getTileId(x, y);
@@ -35,7 +37,7 @@ class AutoSolver {
     int[] coordinates = getTileCoordinates(startNode.tileId);
     int x = coordinates[0];
     int y = coordinates[1];
-    for(int tileId : this.getNeighbourTileIds(x, y)) {
+    for (int tileId : this.getNeighbourTileIds (x, y)) {
       Node node = new Node(tileId);
       this.openList.add(node);
       node.parent = startNode;
@@ -48,15 +50,19 @@ class AutoSolver {
   int getTileId(int x, int y) {
     return x + y * this.gameWorld.width;
   }
-  
+
   int[] getTileCoordinates(int id) {
     int x = id % this.gameWorld.width;
     int y = id / this.gameWorld.height;
-    return new int[]{x, y};
+    return new int[] {
+      x, y
+    };
   }
 
   int[] getNeighbourTileIds(int x, int y) {
-    int[] potentialNeighbours = new int[]{-1, -1, -1, -1};
+    int[] potentialNeighbours = new int[] {
+      -1, -1, -1, -1
+    };
     if (x > 0) {
       potentialNeighbours[0] = getTileId(x-1, y);
     }
@@ -92,6 +98,13 @@ class AutoSolver {
   }
 
   void draw() {
+    this.mainClass.fill(0xffff0000);
+    for (Node node : this.openList) {
+      int[] coordinates = getTileCoordinates(node.tileId);
+      int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+      int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+      this.mainClass.ellipse(x, y, 5, 5);
+    }
   }
 
   void tick() {

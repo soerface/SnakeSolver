@@ -13,6 +13,7 @@ class AutoSolver {
   ArrayList<Node> closedList;
   ArrayList<Node> finalPath;
   boolean pathFound;
+  boolean goodLuck;
   int targetX;
   int targetY;
   Node nextNode;
@@ -24,6 +25,8 @@ class AutoSolver {
     this.closedList = new ArrayList<Node>();
     this.finalPath = new ArrayList<Node>();
     this.pathFound = false;
+    // in case we cant find a path
+    this.goodLuck = false;
   }
 
   void calculatePath() {
@@ -90,7 +93,6 @@ class AutoSolver {
     // check if this is the target node
     if (x == targetX && y == targetY) {
       this.nextNode = null;
-      this.gameWorld.gamePaused = false;
       this.generateFinalPath(startNode);
       this.pathFound = true;
       return;
@@ -103,6 +105,13 @@ class AutoSolver {
       }
       // usually, this is recursive. For visualization purposes, we just remember the next node.
       //this.checkNode(nextNode);
+    } else {
+      // okay, we didn't find a path, but there is nothing in the open list
+      // the food must be hidden behind us. Still calculate the path to the last node we found,
+      // but immediately try to find a new path after going a step
+      this.nextNode = null;
+      this.generateFinalPath(startNode);
+      this.goodLuck = true;
     }
   }
 
@@ -193,7 +202,7 @@ class AutoSolver {
   }
 
   void tick() {
-    if (!this.pathFound) {
+    if (!this.pathFound && !this.goodLuck) {
       this.gameWorld.gamePaused = true;
       this.calculatePath();
     } else {
@@ -201,6 +210,12 @@ class AutoSolver {
       int lastElement = this.finalPath.size() - 1;
       if (lastElement == 1) {
         this.pathFound = false;
+      }
+      if (this.finalPath.size() == 1) {
+        // we end up in a dead end. Just give up, theres nothing more to do
+        this.goodLuck = false;
+        this.finalPath = new ArrayList<Node>();
+        return;
       }
       Node fromNode = this.finalPath.get(lastElement);
       Node toNode = this.finalPath.get(lastElement-1);
@@ -220,6 +235,10 @@ class AutoSolver {
         this.gameWorld.snakeDirection = this.gameWorld.UP;
       }
       this.finalPath.remove(lastElement);
+      if (this.goodLuck) {
+        this.goodLuck = false;
+        this.finalPath = new ArrayList<Node>();
+      }
     }
   }
 }

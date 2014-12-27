@@ -41,7 +41,9 @@ class GameWorld { //<>// //<>//
       int y = this.mainClass.height / 2;
       this.mainClass.fill(0xffffffff);
       this.mainClass.textSize(32);
-      this.mainClass.text("Press s to start the game", x, y);
+      this.mainClass.text("Press [s] to start the game\n", x, y);
+      this.mainClass.textSize(24);
+      this.mainClass.text("\nOr [a] to let the computer play automatically", x, y);
       return;
     }
     for (GameTile tile : this.gameTiles) {

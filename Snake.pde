@@ -1,4 +1,5 @@
 GameWorld gameWorld;
+AutoSolver autoSolver;
 int frames = 0;
 static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the game
 
@@ -15,12 +16,19 @@ void draw() {
   if (frames % TICKS_PER_FRAME == 0) {
     gameWorld.tick();
   }
+  if (this.autoSolver != null) {
+    this.autoSolver.draw();
+  }
 }
 
 void keyPressed() {
-  if (!gameWorld.gameStarted) {
+  if (!this.gameWorld.gameStarted) {
     if (key == 's' || key == 'S') {
-      gameWorld.gameStarted = true;
+      this.gameWorld.gameStarted = true;
+    }
+    if (key == 'a' || key == 'A') {
+      this.gameWorld.gameStarted = true;
+      this.autoSolver = new AutoSolver(this.gameWorld);
     }
     return;
   }

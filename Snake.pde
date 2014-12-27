@@ -33,6 +33,11 @@ void keyPressed() {
       this.gameWorld.gameStarted = true;
       this.autoSolver = new AutoSolver(this, this.gameWorld);
     }
+    if (key == 'v' || key == 'V') {
+      this.gameWorld.gameStarted = true;
+      this.autoSolver = new AutoSolver(this, this.gameWorld);
+      this.autoSolver.visualize = true;
+    }
     return;
   }
   if (this.autoSolver != null) {

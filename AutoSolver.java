@@ -17,7 +17,8 @@ class AutoSolver {
   int targetX;
   int targetY;
   Node nextNode;
-  static final int DOT_SIZE = 2;
+  boolean visualize;
+  static final int DOT_SIZE = GameTile.TILE_SIZE / 4;
 
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
@@ -26,6 +27,7 @@ class AutoSolver {
     this.closedList = new ArrayList<Node>();
     this.finalPath = new ArrayList<Node>();
     this.pathFound = false;
+    this.visualize = false;
     // in case we cant find a path
     this.goodLuck = false;
   }
@@ -104,8 +106,10 @@ class AutoSolver {
       for (Node node : this.openList) {
         this.nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
       }
-      // usually, this is recursive. For visualization purposes, we just remember the next node.
-      //this.checkNode(nextNode);
+      // usually, this is recursive. For visualization purposes, we skip it and just remember the next node.
+      if (!this.visualize) {
+        this.checkNode(nextNode);
+      }
     } else {
       // okay, we didn't find a path, but there is nothing in the open list
       // the food must be hidden behind us. Still calculate the path to the last node we found,
@@ -197,8 +201,8 @@ class AutoSolver {
     for (Node node : this.finalPath) {
       int[] coordinates = this.getTileCoordinates(node.tileId);
       int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
+      int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;;
+     this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);;
     }
   }
 

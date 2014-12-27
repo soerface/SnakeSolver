@@ -3,10 +3,9 @@
  */
 class Node {
   int tileId;
-  int parentId;
+  Node parent;
   
   Node(int tileId) {
     this.tileId = tileId;
-    this.parentId = -1;
   }
 }

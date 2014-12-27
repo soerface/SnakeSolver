@@ -22,11 +22,12 @@ class AutoSolver {
     int x = this.gameWorld.snakeX;
     int y = this.gameWorld.snakeY;
     int startTileId = this.getTileId(x, y);
-    this.openList.add(new Node(startTileId));
+    Node startNode = new Node(startTileId);
+    this.openList.add(startNode);
     for(int tileId : this.getNeighbourTileIds(x, y)) {
       Node node = new Node(tileId);
       this.openList.add(node);
-      node.parentId = startTileId;
+      node.parent = startNode;
     }
   }
 

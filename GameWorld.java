@@ -114,7 +114,10 @@ class GameWorld { //<>// //<>//
   }
 
   void spawnFood(int tileId) {
-    this.gameTiles[tileId].hasFood = true;
+    GameTile tile = this.gameTiles[tileId];
+    if (!tile.occupied) {
+      tile.hasFood = true;
+    }
   }
 
   void spawnFood() {

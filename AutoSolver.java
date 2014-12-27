@@ -13,6 +13,7 @@ class AutoSolver {
   ArrayList<Node> closedList;
   int targetX;
   int targetY;
+  Node nextNode;
 
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
@@ -22,6 +23,10 @@ class AutoSolver {
   }
 
   void calculatePath() {
+    if (nextNode != null) {
+      this.checkNode(nextNode);
+      return;
+    }
     this.openList = new ArrayList<Node>();
     this.closedList = new ArrayList<Node>();
 
@@ -44,13 +49,26 @@ class AutoSolver {
       GameTile tile = this.gameWorld.gameTiles[tileId];
       node.hCost = this.calcHCost(tile.x, tile.y);
     }
-    for (int i = this.openList.size() - 1; i >= 0; i--) {
+    // move node from the open list to the closed list
+    for (int i = this.openList.size () - 1; i>=0; i--) {
       Node node = this.openList.get(i);
       if (node == startNode) {
         this.openList.remove(i);
       }
     }
     this.closedList.add(startNode);
+    // check if this is the target node
+    if (x == targetX && y == targetY) {
+      return;
+    }
+    // else, continue with the node with the least F cost
+    if (this.openList.size() > 0) {
+      nextNode = this.openList.get(0);
+      for (Node node : this.openList) {
+        nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
+      }
+      //this.checkNode(nextNode);
+    }
   }
 
   int getTileId(int x, int y) {
@@ -107,7 +125,7 @@ class AutoSolver {
     this.mainClass.fill(0xaaff0000);
     this.mainClass.strokeWeight(0);
     for (Node node : this.openList) {
-      int[] coordinates = getTileCoordinates(node.tileId);
+      int[] coordinates = this.getTileCoordinates(node.tileId);
       int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       this.mainClass.ellipse(x, y, 5, 5);

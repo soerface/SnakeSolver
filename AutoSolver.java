@@ -44,6 +44,12 @@ class AutoSolver {
       GameTile tile = this.gameWorld.gameTiles[tileId];
       node.hCost = this.calcHCost(tile.x, tile.y);
     }
+    for (int i = this.openList.size() - 1; i >= 0; i--) {
+      Node node = this.openList.get(i);
+      if (node == startNode) {
+        this.openList.remove(i);
+      }
+    }
     this.closedList.add(startNode);
   }
 

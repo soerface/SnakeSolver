@@ -42,11 +42,11 @@ class AutoSolver {
       }
     }
     Node startNode = new Node(startTileId);
+    this.openList.add(startNode);
     this.checkNode(startNode);
   }
 
   void checkNode(Node startNode) {
-    this.openList.add(startNode);
     int[] coordinates = getTileCoordinates(startNode.tileId);
     int x = coordinates[0];
     int y = coordinates[1];
@@ -56,6 +56,11 @@ class AutoSolver {
       for (Node node : this.openList) {
         if (node.tileId == tileId) {
           alreadyInOpenList = true;
+          int previousGCost = node.getGCost();
+          Node previousParent = node.parent;
+          node.parent = startNode;
+          int newGCost = node.getGCost();
+          node.parent = newGCost < previousGCost ? startNode : previousParent;
         }
       }
       boolean alreadyInClosedList = false;

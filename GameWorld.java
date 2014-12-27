@@ -21,7 +21,7 @@ class GameWorld { //<>// //<>//
     this.mainClass = mainClass;
     this.gameStarted = false;
     this.gamePaused = false;
-    this.spawnFood = false;
+    this.spawnFood = true;
     int width = mainClass.width;
     int height = mainClass.height;
     this.width = width / GameTile.TILE_SIZE;

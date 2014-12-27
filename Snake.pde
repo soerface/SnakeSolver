@@ -15,6 +15,9 @@ void draw() {
   frames++;
   if (frames % TICKS_PER_FRAME == 0) {
     gameWorld.tick();
+    if (this.autoSolver != null) {
+      this.autoSolver.tick();
+    }
   }
   if (this.autoSolver != null) {
     this.autoSolver.draw();
@@ -30,6 +33,9 @@ void keyPressed() {
       this.gameWorld.gameStarted = true;
       this.autoSolver = new AutoSolver(this.gameWorld);
     }
+    return;
+  }
+  if (this.autoSolver != null) {
     return;
   }
 

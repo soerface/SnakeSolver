@@ -51,10 +51,25 @@ class AutoSolver {
     int x = coordinates[0];
     int y = coordinates[1];
     for (int tileId : this.getNeighbourTileIds (x, y)) {
-      Node node = new Node(tileId);
-      this.openList.add(node);
-      node.parent = startNode;
-      node.hCost = this.calcHCost(x, y);
+      // check if neighbour tile is already in the open list
+      boolean alreadyInOpenList = false;
+      for (Node node : this.openList) {
+        if (node.tileId == tileId) {
+          alreadyInOpenList = true;
+        }
+      }
+      boolean alreadyInClosedList = false;
+      for (Node node : this.closedList) {
+        if (node.tileId == tileId) {
+          alreadyInClosedList = true;
+        }
+      }
+      if (!alreadyInOpenList && !alreadyInClosedList) {
+        Node newNode = new Node(tileId);
+        this.openList.add(newNode);
+        newNode.parent = startNode;
+        newNode.hCost = this.calcHCost(x, y);
+      }
     }
     // move node from the open list to the closed list
     for (int i = this.openList.size () - 1; i>=0; i--) {

@@ -11,6 +11,8 @@ class AutoSolver {
   Snake mainClass;
   ArrayList<Node> openList;
   ArrayList<Node> closedList;
+  ArrayList<Node> finalPath;
+  boolean pathFound;
   int targetX;
   int targetY;
   Node nextNode;
@@ -20,6 +22,8 @@ class AutoSolver {
     this.mainClass = mainClass;
     this.openList = new ArrayList<Node>();
     this.closedList = new ArrayList<Node>();
+    this.finalPath = new ArrayList<Node>();
+    this.pathFound = false;
   }
 
   void calculatePath() {
@@ -28,6 +32,7 @@ class AutoSolver {
     }
     this.openList = new ArrayList<Node>();
     this.closedList = new ArrayList<Node>();
+    this.finalPath = new ArrayList<Node>();
     int x = this.gameWorld.snakeX;
     int y = this.gameWorld.snakeY;
     int startTileId = this.getTileId(x, y);
@@ -86,6 +91,8 @@ class AutoSolver {
     if (x == targetX && y == targetY) {
       this.nextNode = null;
       this.gameWorld.gamePaused = false;
+      this.generateFinalPath(startNode);
+      this.pathFound = true;
       return;
     }
     // else, continue with the node with the least F cost
@@ -143,6 +150,13 @@ class AutoSolver {
     }
     return neighbourTiles;
   }
+  
+  void generateFinalPath(Node node) {
+    this.finalPath.add(node);
+    if (node.parent != null) {
+      generateFinalPath(node.parent);
+    }
+  }
 
   int calcHCost(int x, int y) {
     int distance = this.mainClass.abs(this.targetX - x) + this.mainClass.abs(this.targetY - y);
@@ -152,7 +166,6 @@ class AutoSolver {
   void draw() {
     if (nextNode != null) {
       this.checkNode(nextNode);
-      this.gameWorld.gamePaused = true;
     }
     
     this.mainClass.strokeWeight(0);
@@ -170,9 +183,21 @@ class AutoSolver {
       int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       this.mainClass.ellipse(x, y, 5, 5);
     }
+    this.mainClass.fill(0xffffff00);
+    for (Node node : this.finalPath) {
+      int[] coordinates = this.getTileCoordinates(node.tileId);
+      int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+      int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+      this.mainClass.ellipse(x, y, 5, 5);
+    }
   }
 
   void tick() {
-    this.calculatePath();
+    if (!this.pathFound) {
+      this.gameWorld.gamePaused = true;
+      this.calculatePath();
+    } else {
+      this.gameWorld.gamePaused = false;
+    }
   }
 }

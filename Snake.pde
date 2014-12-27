@@ -1,7 +1,7 @@
 GameWorld gameWorld;
 AutoSolver autoSolver;
 int frames = 0;
-static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the game
+static final int TICKS_PER_FRAME = 2; // decrease this number to speedup the game
 
 void setup() {
   size(600, 500);
@@ -35,6 +35,12 @@ void keyPressed() {
     }
     if (key == 'v' || key == 'V') {
       this.gameWorld.gameStarted = true;
+      this.autoSolver = new AutoSolver(this, this.gameWorld);
+      this.autoSolver.visualize = true;
+    }
+    if (key == 'i' || key == 'I') {
+      this.gameWorld.gameStarted = true;
+      this.gameWorld.spawnFood = false;
       this.autoSolver = new AutoSolver(this, this.gameWorld);
       this.autoSolver.visualize = true;
     }
@@ -89,5 +95,13 @@ void keyPressed() {
       this.gameWorld.snakeDirection = this.gameWorld.RIGHT;
     }
     break;
+  }
+}
+
+void mouseClicked() {
+  if (!this.gameWorld.spawnFood) {
+    int x = mouseX / GameTile.TILE_SIZE;
+    int y = mouseY / GameTile.TILE_SIZE;
+    this.gameWorld.spawnFood(x, y);
   }
 }

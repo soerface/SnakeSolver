@@ -9,6 +9,7 @@ class GameWorld { //<>// //<>//
   int snakeLength;
   boolean gameStarted;
   boolean gamePaused;
+  boolean spawnFood;
   Snake mainClass;
   static final int UP = 0;
   static final int RIGHT = 1;
@@ -20,6 +21,7 @@ class GameWorld { //<>// //<>//
     this.mainClass = mainClass;
     this.gameStarted = false;
     this.gamePaused = false;
+    this.spawnFood = false;
     int width = mainClass.width;
     int height = mainClass.height;
     this.width = width / GameTile.TILE_SIZE;
@@ -47,7 +49,8 @@ class GameWorld { //<>// //<>//
       this.mainClass.textSize(24);
       this.mainClass.text(
       "\n[a] to let the computer play automatically" +
-      "\n[v] to let the computer play with visualization", x, y);
+      "\n[v] to let the computer play with visualization" +
+      "\n[i] computer, set food interactive with click", x, y);
       return;
     }
     for (GameTile tile : this.gameTiles) {
@@ -104,8 +107,20 @@ class GameWorld { //<>// //<>//
       this.spawnFood();
     }
   }
+  
+  void spawnFood(int x, int y) {
+    int tileId = x % this.width + y * this.width;
+    this.spawnFood(tileId);
+  }
+
+  void spawnFood(int tileId) {
+    this.gameTiles[tileId].hasFood = true;
+  }
 
   void spawnFood() {
+    if (!this.spawnFood) {
+      return;
+    }
     int index = (int)this.mainClass.random(0, this.gameTiles.length);
     GameTile tile = this.gameTiles[index];
     if (tile.occupied) {

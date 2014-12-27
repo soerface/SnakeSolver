@@ -42,12 +42,17 @@ class AutoSolver {
     int y = this.gameWorld.snakeY;
     int startTileId = this.getTileId(x, y);
     // search for tile with food to set it as target
+    boolean foodFound = false;
     for (GameTile tile : this.gameWorld.gameTiles) {
       if (tile.hasFood) {
+        foodFound = true;
         this.targetX = tile.x;
         this.targetY = tile.y;
         break;
       }
+    }
+    if (!foodFound) {
+      return;
     }
     Node startNode = new Node(this.mainClass, startTileId);
     this.openList.add(startNode);

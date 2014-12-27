@@ -198,6 +198,28 @@ class AutoSolver {
       this.calculatePath();
     } else {
       this.gameWorld.gamePaused = false;
+      int lastElement = this.finalPath.size() - 1;
+      if (lastElement == 1) {
+        this.pathFound = false;
+      }
+      Node fromNode = this.finalPath.get(lastElement);
+      Node toNode = this.finalPath.get(lastElement-1);
+      int[] coordinates = this.getTileCoordinates(fromNode.tileId);
+      int fromX = coordinates[0];
+      int fromY = coordinates[1];
+      coordinates = this.getTileCoordinates(toNode.tileId);
+      int toX = coordinates[0];
+      int toY = coordinates[1];
+      if (toX > fromX) {
+        this.gameWorld.snakeDirection = this.gameWorld.RIGHT;
+      } else if (toX < fromX) {
+        this.gameWorld.snakeDirection = this.gameWorld.LEFT;
+      } else if (toY > fromY) {
+        this.gameWorld.snakeDirection = this.gameWorld.DOWN;
+      } else if (toY < fromY) {
+        this.gameWorld.snakeDirection = this.gameWorld.UP;
+      }
+      this.finalPath.remove(lastElement);
     }
   }
 }

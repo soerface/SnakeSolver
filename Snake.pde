@@ -14,10 +14,10 @@ void draw() {
   gameWorld.draw();
   frames++;
   if (frames % TICKS_PER_FRAME == 0) {
-    gameWorld.tick();
     if (this.autoSolver != null) {
       this.autoSolver.tick();
     }
+    gameWorld.tick();
   }
   if (this.autoSolver != null) {
     this.autoSolver.draw();

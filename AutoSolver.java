@@ -18,7 +18,6 @@ class AutoSolver {
   int targetY;
   Node nextNode;
   boolean visualize;
-  static final int DOT_SIZE = GameTile.TILE_SIZE / 4;
 
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
@@ -50,7 +49,7 @@ class AutoSolver {
         break;
       }
     }
-    Node startNode = new Node(startTileId);
+    Node startNode = new Node(this.mainClass, startTileId);
     this.openList.add(startNode);
     this.nextNode = startNode;
   }
@@ -79,7 +78,7 @@ class AutoSolver {
         }
       }
       if (!alreadyInOpenList && !alreadyInClosedList) {
-        Node newNode = new Node(tileId);
+        Node newNode = new Node(this.mainClass, tileId);
         this.openList.add(newNode);
         newNode.parent = startNode;
         newNode.hCost = this.calcHCost(x, y);
@@ -164,7 +163,7 @@ class AutoSolver {
     }
     return neighbourTiles;
   }
-  
+
   void generateFinalPath(Node node) {
     this.finalPath.add(node);
     if (node.parent != null) {
@@ -183,28 +182,14 @@ class AutoSolver {
     if (nextNode != null) {
       this.checkNode(nextNode);
     }
-    
-    this.mainClass.strokeWeight(0);
-    this.mainClass.fill(0xaa00ff00);
     for (Node node : this.openList) {
-      int[] coordinates = this.getTileCoordinates(node.tileId);
-      int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
+      node.draw(0xaa00ff00);
     }
-    this.mainClass.fill(0xaaff0000);
     for (Node node : this.closedList) {
-      int[] coordinates = this.getTileCoordinates(node.tileId);
-      int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
+      node.draw(0xaaff0000);
     }
-    this.mainClass.fill(0xffffff00);
     for (Node node : this.finalPath) {
-      int[] coordinates = this.getTileCoordinates(node.tileId);
-      int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;;
-     this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);;
+      node.draw(0xffffff00);
     }
   }
 

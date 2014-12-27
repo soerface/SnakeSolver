@@ -3,7 +3,7 @@
  */
 class Node {
   int tileId;
-  int hCost;
+  float hCost;
   Node parent;
 
   Node(int tileId) {
@@ -18,6 +18,6 @@ class Node {
   }
 
   int getFCost() {
-    return this.getGCost() + this.hCost;
+    return this.getGCost() + (int)this.hCost;
   }
 }

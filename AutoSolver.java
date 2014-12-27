@@ -172,8 +172,10 @@ class AutoSolver {
     }
   }
 
-  int calcHCost(int x, int y) {
-    int distance = this.mainClass.abs(this.targetX - x) + this.mainClass.abs(this.targetY - y);
+  float calcHCost(int x, int y) {
+    int a = this.targetX - x;
+    int b = this.targetY - y;
+    float distance = this.mainClass.sqrt(a*a + b*b);
     return distance;
   }
 

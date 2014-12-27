@@ -1,10 +1,10 @@
 GameWorld gameWorld;
 AutoSolver autoSolver;
 int frames = 0;
-static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the game
+static final int TICKS_PER_FRAME = 2; // decrease this number to speedup the game
 
 void setup() {
-  size(600, 500);
+  size(800, 800);
   this.gameWorld = new GameWorld(this);
 }
 
@@ -47,6 +47,21 @@ void keyPressed() {
     return;
   }
   if (this.autoSolver != null) {
+    if (key == 'v' || key == 'V') {
+      this.autoSolver.visualize = !this.autoSolver.visualize;
+    }
+    if (key == 'i' || key == 'I') {
+      this.gameWorld.spawnFood = !this.gameWorld.spawnFood;
+      if (this.gameWorld.spawnFood) {
+        // disabling interactive mode; spawn food if there is none.
+        for (GameTile tile : this.gameWorld.gameTiles) {
+          if (tile.hasFood) {
+            return;
+          }
+        }
+        this.gameWorld.spawnFood();
+      }
+    }
     return;
   }
 

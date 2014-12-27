@@ -219,6 +219,14 @@ class AutoSolver {
     for (Node node : this.finalPath) {
       node.draw(0xffffff00);
     }
+    this.mainClass.textAlign(this.mainClass.LEFT, this.mainClass.BOTTOM);
+    this.mainClass.textSize(10);
+    String text = "Press [v] to toggle visualization, [i] to toggle interactive mode";
+    float width = this.mainClass.textWidth(text);
+    this.mainClass.fill(0xffffffff);
+    this.mainClass.rect(5, this.mainClass.height - GameTile.TILE_SIZE, width, GameTile.TILE_SIZE);
+    this.mainClass.fill(0xff000000);
+    this.mainClass.text(text, 5, this.mainClass.height);
   }
 
   void tick() {

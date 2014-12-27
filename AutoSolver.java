@@ -8,11 +8,15 @@ import java.util.ArrayList;
 class AutoSolver {
   
   GameWorld gameWorld;
+  Snake mainClass;
   ArrayList<Node> openList;
   ArrayList<Node> closedList;
+  int targetX;
+  int targetY;
 
-  AutoSolver(GameWorld gameWorld) {
+  AutoSolver(Snake mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
+    this.mainClass = mainClass;
   }
   
   void calculatePath() {
@@ -28,6 +32,8 @@ class AutoSolver {
       Node node = new Node(tileId);
       this.openList.add(node);
       node.parent = startNode;
+      GameTile tile = this.gameWorld.gameTiles[tileId];
+      node.hCost = this.calcHCost(tile.x, tile.y);
     }
   }
 
@@ -64,6 +70,11 @@ class AutoSolver {
       }
     }
     return neighbourTiles;
+  }
+
+  int calcHCost(int x, int y) {
+    int distance = this.mainClass.abs(this.targetX - x) + this.mainClass.abs(this.targetY - y);
+    return distance;
   }
 
   void draw() {

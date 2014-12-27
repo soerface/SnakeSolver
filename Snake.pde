@@ -31,7 +31,7 @@ void keyPressed() {
     }
     if (key == 'a' || key == 'A') {
       this.gameWorld.gameStarted = true;
-      this.autoSolver = new AutoSolver(this.gameWorld);
+      this.autoSolver = new AutoSolver(this, this.gameWorld);
     }
     return;
   }

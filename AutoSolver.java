@@ -144,9 +144,16 @@ class AutoSolver {
   }
 
   void draw() {
-    this.mainClass.fill(0xaaff0000);
     this.mainClass.strokeWeight(0);
+    this.mainClass.fill(0xaa00ff00);
     for (Node node : this.openList) {
+      int[] coordinates = this.getTileCoordinates(node.tileId);
+      int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+      int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+      this.mainClass.ellipse(x, y, 5, 5);
+    }
+    this.mainClass.fill(0xaaff0000);
+    for (Node node : this.closedList) {
       int[] coordinates = this.getTileCoordinates(node.tileId);
       int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;

@@ -58,30 +58,35 @@ class AutoSolver {
     int[] coordinates = getTileCoordinates(startNode.tileId);
     int x = coordinates[0];
     int y = coordinates[1];
-    for (int tileId : this.getNeighbourTileIds (x, y)) {
-      // check if neighbour tile is already in the open list
+    for (Node neighbourNode : this.getNeighbourNodes (x, y, startNode)) {
+      // check if the node is already in the open list
       boolean alreadyInOpenList = false;
       for (Node node : this.openList) {
-        if (node.tileId == tileId) {
+        if (node.tileId == neighbourNode.tileId) {
           alreadyInOpenList = true;
+          // if we get faster to this node using the new one, change the parent accordingly...
           int previousGCost = node.getGCost();
           Node previousParent = node.parent;
           node.parent = startNode;
           int newGCost = node.getGCost();
-          node.parent = newGCost < previousGCost ? startNode : previousParent;
+          // but keep in mind that some nodes are only reachable after walking a certain distance (disappearing snake)
+          if (node.getNumberOfParents() > neighbourNode.minimumDistance) {
+            node.parent = newGCost < previousGCost ? startNode : previousParent;
+          } else {
+            node.parent = previousParent;
+          }
         }
       }
       boolean alreadyInClosedList = false;
       for (Node node : this.closedList) {
-        if (node.tileId == tileId) {
+        if (node.tileId == neighbourNode.tileId) {
           alreadyInClosedList = true;
         }
       }
       if (!alreadyInOpenList && !alreadyInClosedList) {
-        Node newNode = new Node(this.mainClass, tileId);
-        this.openList.add(newNode);
-        newNode.parent = startNode;
-        newNode.hCost = this.calcHCost(x, y);
+        this.openList.add(neighbourNode);
+        neighbourNode.parent = startNode;
+        neighbourNode.hCost = this.calcHCost(x, y);
       }
     }
     // move node from the open list to the closed list
@@ -131,7 +136,7 @@ class AutoSolver {
     };
   }
 
-  int[] getNeighbourTileIds(int x, int y) {
+  Node[] getNeighbourNodes(int x, int y, Node startNode) {
     int[] potentialNeighbours = new int[] {
       -1, -1, -1, -1
     };
@@ -149,19 +154,37 @@ class AutoSolver {
     }
     int totalNeighbours = 0;
     for (int n : potentialNeighbours) {
-      if (n > -1 && !this.gameWorld.gameTiles[n].occupied) {
-        totalNeighbours++;
+      if (n > -1) {
+        GameTile gameTile = this.gameWorld.gameTiles[n];
+        boolean willBeOccupied = gameTile.occupied;
+        if (gameTile.occupied) {
+          if (gameTile.occupiedCounter != -1 && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
+            willBeOccupied = false;
+          }
+        }
+        if (!willBeOccupied) {
+          totalNeighbours++;
+        }
       }
     }
-    int[] neighbourTiles = new int[totalNeighbours];
+    Node[] neighbourNodes = new Node[totalNeighbours];
     int i = 0;
     for (int n : potentialNeighbours) {
-      if (n > -1 && !this.gameWorld.gameTiles[n].occupied) {
-        neighbourTiles[i] = n;
-        i++;
+      if (n > -1) {
+        GameTile gameTile = this.gameWorld.gameTiles[n];
+        boolean willBeOccupied = gameTile.occupied;
+        if (gameTile.occupied) {
+          if (gameTile.occupiedCounter != -1 && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
+            willBeOccupied = false;
+          }
+        }
+        if (!willBeOccupied) {
+          neighbourNodes[i] = new Node(this.mainClass, n);
+          i++;
+        }
       }
     }
-    return neighbourTiles;
+    return neighbourNodes;
   }
 
   void generateFinalPath(Node node) {

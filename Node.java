@@ -4,6 +4,7 @@
 class Node {
   int tileId;
   float hCost;
+  int minimumDistance;
   Node parent;
   Snake mainClass;
   static int DOT_SIZE = GameTile.TILE_SIZE / 4;
@@ -11,6 +12,7 @@ class Node {
   Node(Snake mainClass, int tileId) {
     this.mainClass = mainClass;
     this.tileId = tileId;
+    this.minimumDistance = 0;
   }
 
   int getGCost() {
@@ -19,6 +21,14 @@ class Node {
     }
     return 0;
   }
+
+  int getNumberOfParents() {
+    if (this.parent != null) {
+      return this.parent.getNumberOfParents() + 1;
+    }
+    return 0;
+  }
+
 
   int getFCost() {
     return this.getGCost() + (int)this.hCost;

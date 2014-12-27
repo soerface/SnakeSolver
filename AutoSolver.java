@@ -27,7 +27,14 @@ class AutoSolver {
     int y = this.gameWorld.snakeY;
     int startTileId = this.getTileId(x, y);
     Node startNode = new Node(startTileId);
+    this.checkNode(startNode);
+  }
+
+  void checkNode(Node startNode) {
     this.openList.add(startNode);
+    int[] coordinates = getTileCoordinates(startNode.tileId);
+    int x = coordinates[0];
+    int y = coordinates[1];
     for(int tileId : this.getNeighbourTileIds(x, y)) {
       Node node = new Node(tileId);
       this.openList.add(node);
@@ -35,12 +42,19 @@ class AutoSolver {
       GameTile tile = this.gameWorld.gameTiles[tileId];
       node.hCost = this.calcHCost(tile.x, tile.y);
     }
+    this.closedList.add(startNode);
   }
 
   int getTileId(int x, int y) {
     return x + y * this.gameWorld.width;
   }
   
+  int[] getTileCoordinates(int id) {
+    int x = id % this.gameWorld.width;
+    int y = id / this.gameWorld.height;
+    return new int[]{x, y};
+  }
+
   int[] getNeighbourTileIds(int x, int y) {
     int[] potentialNeighbours = new int[]{-1, -1, -1, -1};
     if (x > 0) {

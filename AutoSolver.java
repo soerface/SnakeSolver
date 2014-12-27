@@ -33,6 +33,14 @@ class AutoSolver {
     int x = this.gameWorld.snakeX;
     int y = this.gameWorld.snakeY;
     int startTileId = this.getTileId(x, y);
+    // search for tile with food to set it as target
+    for (GameTile tile : this.gameWorld.gameTiles) {
+      if (tile.hasFood) {
+        this.targetX = tile.x;
+        this.targetY = tile.y;
+        break;
+      }
+    }
     Node startNode = new Node(startTileId);
     this.checkNode(startNode);
   }
@@ -46,8 +54,7 @@ class AutoSolver {
       Node node = new Node(tileId);
       this.openList.add(node);
       node.parent = startNode;
-      GameTile tile = this.gameWorld.gameTiles[tileId];
-      node.hCost = this.calcHCost(tile.x, tile.y);
+      node.hCost = this.calcHCost(x, y);
     }
     // move node from the open list to the closed list
     for (int i = this.openList.size () - 1; i>=0; i--) {

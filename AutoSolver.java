@@ -17,6 +17,7 @@ class AutoSolver {
   int targetX;
   int targetY;
   Node nextNode;
+  static final int DOT_SIZE = 2;
 
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
@@ -183,21 +184,21 @@ class AutoSolver {
       int[] coordinates = this.getTileCoordinates(node.tileId);
       int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      this.mainClass.ellipse(x, y, 5, 5);
+      this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
     }
     this.mainClass.fill(0xaaff0000);
     for (Node node : this.closedList) {
       int[] coordinates = this.getTileCoordinates(node.tileId);
       int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      this.mainClass.ellipse(x, y, 5, 5);
+      this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
     }
     this.mainClass.fill(0xffffff00);
     for (Node node : this.finalPath) {
       int[] coordinates = this.getTileCoordinates(node.tileId);
       int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      this.mainClass.ellipse(x, y, 5, 5);
+      this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
     }
   }
 

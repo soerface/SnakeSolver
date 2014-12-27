@@ -1,7 +1,7 @@
 /**
  * This class is implementing A* to play the game automatically.
- * It is not taking into account that the snake is moving and food may be blocked for a while.
- * I would appreciate feedback for optimizing the algorithm for this usecase.
+ * It is a bit helpless when it comes to save as much space as possible
+ * to maneuver out a dead end. Any idea how this could be handled?
  */
 import java.util.ArrayList;
 

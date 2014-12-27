@@ -7,5 +7,6 @@ class Node {
   
   Node(int tileId) {
     this.tileId = tileId;
+    this.parentId = -1;
   }
 }

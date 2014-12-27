@@ -8,6 +8,7 @@ class GameWorld { //<>// //<>//
   int snakeDirection;
   int snakeLength;
   boolean gameStarted;
+  boolean gamePaused;
   Snake mainClass;
   static final int UP = 0;
   static final int RIGHT = 1;
@@ -18,6 +19,7 @@ class GameWorld { //<>// //<>//
   GameWorld(Snake mainClass) {
     this.mainClass = mainClass;
     this.gameStarted = false;
+    this.gamePaused = false;
     int width = mainClass.width;
     int height = mainClass.height;
     this.width = width / GameTile.TILE_SIZE;
@@ -52,7 +54,7 @@ class GameWorld { //<>// //<>//
   }
 
   void tick() {
-    if (!this.gameStarted) {
+    if (!this.gameStarted || this.gamePaused) {
       return;
     }
     switch(this.snakeDirection) {

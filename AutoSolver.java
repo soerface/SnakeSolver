@@ -23,13 +23,11 @@ class AutoSolver {
   }
 
   void calculatePath() {
-    if (nextNode != null) {
-      this.checkNode(nextNode);
+    if (this.nextNode != null) {
       return;
     }
     this.openList = new ArrayList<Node>();
     this.closedList = new ArrayList<Node>();
-
     int x = this.gameWorld.snakeX;
     int y = this.gameWorld.snakeY;
     int startTileId = this.getTileId(x, y);
@@ -43,7 +41,7 @@ class AutoSolver {
     }
     Node startNode = new Node(startTileId);
     this.openList.add(startNode);
-    this.checkNode(startNode);
+    this.nextNode = startNode;
   }
 
   void checkNode(Node startNode) {
@@ -86,14 +84,17 @@ class AutoSolver {
     this.closedList.add(startNode);
     // check if this is the target node
     if (x == targetX && y == targetY) {
+      this.nextNode = null;
+      this.gameWorld.gamePaused = false;
       return;
     }
     // else, continue with the node with the least F cost
     if (this.openList.size() > 0) {
-      nextNode = this.openList.get(0);
+      this.nextNode = this.openList.get(0);
       for (Node node : this.openList) {
-        nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
+        this.nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
       }
+      // usually, this is recursive. For visualization purposes, we just remember the next node.
       //this.checkNode(nextNode);
     }
   }
@@ -149,6 +150,11 @@ class AutoSolver {
   }
 
   void draw() {
+    if (nextNode != null) {
+      this.checkNode(nextNode);
+      this.gameWorld.gamePaused = true;
+    }
+    
     this.mainClass.strokeWeight(0);
     this.mainClass.fill(0xaa00ff00);
     for (Node node : this.openList) {

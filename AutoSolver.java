@@ -179,8 +179,15 @@ class AutoSolver {
         GameTile gameTile = this.gameWorld.gameTiles[n];
         boolean willBeOccupied = gameTile.occupied;
         if (gameTile.occupied) {
-          if (gameTile.occupiedCounter != -1 && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
-            willBeOccupied = false;
+          if (gameTile.occupiedCounter != -1) {
+            // the field may be occupied at time checking, but since we need to move there,
+            // it might be free until we get there
+            if (startNode.getNumberOfParents() > gameTile.occupiedCounter) {
+              willBeOccupied = false;
+            } else {
+              // it will not be free, but it might be free if we take a slightly longer path,
+              // and still get a shorter total path to the food
+            }
           }
         }
         if (!willBeOccupied) {

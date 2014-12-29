@@ -146,7 +146,8 @@ class AutoSolver {
     if (this.potentialAlternativesList.size() > 0) {
       Node alternativeNode = this.potentialAlternativesList.get(0);
       for (Node node : this.potentialAlternativesList) {
-        alternativeNode = node.minimumDistance < alternativeNode.minimumDistance ? node : alternativeNode; 
+        alternativeNode = node.minimumDistance < alternativeNode.minimumDistance ? node : alternativeNode;
+        this.mainClass.print("Minimum Distance: " + node.minimumDistance + "\n");
       }
       // find a path to the alternative node.
       // we need to change the path so that it gets long enough when reaching this node
@@ -232,12 +233,14 @@ class AutoSolver {
               if (!alreadyInList) {
                 this.potentialAlternativesList.add(potentialNode);
                 potentialNode.parent = startNode;
+                potentialNode.minimumDistance = gameTile.occupiedCounter;
               }
             }
           }
         }
         if (!willBeOccupied) {
           neighbourNodes[i] = new Node(this.mainClass, n);
+          neighbourNodes[i].minimumDistance = gameTile.occupiedCounter;
           i++;
         }
       }

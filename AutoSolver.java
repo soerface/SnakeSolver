@@ -15,9 +15,12 @@ class AutoSolver {
   ArrayList<Node> potentialAlternativesList;
   boolean pathFound;
   boolean goodLuck;
+  boolean visualizationPaused;
+  boolean generateFinalPath;
   int targetX;
   int targetY;
   Node nextNode;
+  Node nextPathNode;
   boolean visualize;
 
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
@@ -29,6 +32,8 @@ class AutoSolver {
     this.potentialAlternativesList = new ArrayList<Node>();
     this.pathFound = false;
     this.visualize = false;
+    this.visualizationPaused = false;
+    this.generateFinalPath = false;
     // in case we cant find a path
     this.goodLuck = false;
   }
@@ -63,6 +68,9 @@ class AutoSolver {
   }
 
   void checkNode(Node startNode) {
+    if (startNode == null) {
+      return;
+    }
     int[] coordinates = getTileCoordinates(startNode.tileId);
     int x = coordinates[0];
     int y = coordinates[1];
@@ -240,7 +248,16 @@ class AutoSolver {
   void generateFinalPath(Node node) {
     this.finalPath.add(node);
     if (node.parent != null) {
-      generateFinalPath(node.parent);
+      // recursivly if no need of visualization, else, save the member and continue next draw() call
+      if (!this.visualize) {
+        this.generateFinalPath = false;
+        generateFinalPath(node.parent);
+      } else {
+        this.generateFinalPath = true;
+        this.nextPathNode = node.parent;
+      }
+    } else {
+      this.generateFinalPath = false;
     }
   }
 
@@ -250,10 +267,22 @@ class AutoSolver {
     float distance = this.mainClass.sqrt(a*a + b*b);
     return distance;
   }
+  
+  void nextVisualization() {
+    if (!this.visualizationPaused) {
+      return;
+    }
+    if (!this.pathFound) {
+      this.checkNode(this.nextNode);
+    }
+    if (this.generateFinalPath) {
+      this.generateFinalPath(this.nextPathNode);
+    }
+  }
 
   void draw() {
-    if (nextNode != null) {
-      this.checkNode(nextNode);
+    if (!this.visualizationPaused && this.generateFinalPath) {
+      this.generateFinalPath(nextPathNode);
     }
     for (Node node : this.openList) {
       node.draw(0xaa00ff00);
@@ -267,9 +296,20 @@ class AutoSolver {
     for (Node node : this.finalPath) {
       node.draw(0xffffff00);
     }
+    if (nextNode != null) {
+      int[] coordinates = getTileCoordinates(nextNode.tileId);
+      int x = coordinates[0] * GameTile.TILE_SIZE;
+      int y = coordinates[1] * GameTile.TILE_SIZE;
+      this.mainClass.fill(0xffffffff);
+      this.mainClass.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
+      nextNode.draw(0xff000000);
+      if (!this.visualize || !this.visualizationPaused) {
+        this.checkNode(nextNode);
+      }
+    }
     this.mainClass.textAlign(this.mainClass.LEFT, this.mainClass.BOTTOM);
     this.mainClass.textSize(10);
-    String text = "Press [v] to toggle visualization, [i] to toggle interactive mode";
+    String text = "Press [v] to toggle visualization, [i] to toggle interactive mode, [ ] to pause visualization, [n] to step through visualization";
     float width = this.mainClass.textWidth(text);
     this.mainClass.fill(0xffffffff);
     this.mainClass.rect(5, this.mainClass.height - GameTile.TILE_SIZE, width, GameTile.TILE_SIZE);
@@ -281,6 +321,8 @@ class AutoSolver {
     if (!this.pathFound && !this.goodLuck) {
       this.gameWorld.gamePaused = true;
       this.calculatePath();
+    } else if (this.generateFinalPath) {
+      this.gameWorld.gamePaused = true;
     } else {
       this.gameWorld.gamePaused = false;
       int lastElement = this.finalPath.size() - 1;

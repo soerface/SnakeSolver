@@ -62,6 +62,12 @@ void keyPressed() {
         this.gameWorld.spawnFood();
       }
     }
+    if (key == ' ') {
+      this.autoSolver.visualizationPaused = !this.autoSolver.visualizationPaused;
+    }
+    if ((key == 'n' || key == 'N')) {
+      this.autoSolver.nextVisualization();
+    }
     return;
   }
 

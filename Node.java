@@ -40,14 +40,18 @@ class Node {
     int[] coordinates = this.mainClass.autoSolver.getTileCoordinates(this.tileId);
     int x = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
     int y = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-    /*
+    this.mainClass.strokeWeight(1);
+    this.mainClass.stroke(color);
     if (this.parent != null) {
       coordinates = this.mainClass.autoSolver.getTileCoordinates(this.parent.tileId);
       int parentX = coordinates[0] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       int parentY = coordinates[1] * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-      this.mainClass.line(x, y, parentX, parentY);
+      float vectorX = parentX - x;
+      float vectorY = parentY - y;
+      vectorX *= 0.4;
+      vectorY *= 0.4;
+      this.mainClass.line(x, y, x+vectorX, y+vectorY);
     }
-    */
     this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
   }
 }

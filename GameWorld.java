@@ -100,10 +100,10 @@ class GameWorld { //<>// //<>//
       for (GameTile tile : this.gameTiles) {
         // do not increase it for negative counters. They are staying forever anyway
         if (tile.occupiedCounter > 0) {
-          tile.occupiedCounter++;
+          tile.occupiedCounter += 10;
         }
       }
-      this.snakeLength++;
+      this.snakeLength += 10;
       this.spawnFood();
     }
   }

@@ -1,6 +1,6 @@
 class GameTile {
   
-  static final int TILE_SIZE = 10; // I recommend a value of 20
+  static final int TILE_SIZE = 20; // I recommend a value of 20
   final int x;
   final int y;
   boolean hasFood;

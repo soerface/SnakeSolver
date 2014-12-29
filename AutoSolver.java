@@ -12,6 +12,7 @@ class AutoSolver {
   ArrayList<Node> openList;
   ArrayList<Node> closedList;
   ArrayList<Node> finalPath;
+  ArrayList<Node> potentialAlternativesList;
   boolean pathFound;
   boolean goodLuck;
   int targetX;
@@ -25,6 +26,7 @@ class AutoSolver {
     this.openList = new ArrayList<Node>();
     this.closedList = new ArrayList<Node>();
     this.finalPath = new ArrayList<Node>();
+    this.potentialAlternativesList = new ArrayList<Node>();
     this.pathFound = false;
     this.visualize = false;
     // in case we cant find a path
@@ -38,6 +40,7 @@ class AutoSolver {
     this.openList = new ArrayList<Node>();
     this.closedList = new ArrayList<Node>();
     this.finalPath = new ArrayList<Node>();
+    this.potentialAlternativesList = new ArrayList<Node>();
     int x = this.gameWorld.snakeX;
     int y = this.gameWorld.snakeY;
     int startTileId = this.getTileId(x, y);
@@ -107,6 +110,8 @@ class AutoSolver {
       this.nextNode = null;
       this.generateFinalPath(startNode);
       this.pathFound = true;
+      // we found a path, but we might be faster taking an alternative route
+      //this.checkAlternativePath();
       return;
     }
     // else, continue with the node with the least F cost
@@ -121,10 +126,31 @@ class AutoSolver {
       }
     } else {
       // okay, we didn't find a path, but there is nothing in the open list
-      // the food must be hidden behind us. Still calculate the path to the last node we found,
-      // but immediately try to find a new path after going a step
+      // the food must be hidden behind us.
+      // try to find an alternative path by making the path longer and therefore escape
       this.nextNode = null;
-      this.generateFinalPath(startNode);
+      this.checkAlternativePath();
+    }
+  }
+
+  void checkAlternativePath() {
+    // find the alternative node which will be the first one not beeing occupied
+    if (this.potentialAlternativesList.size() > 0) {
+      Node alternativeNode = this.potentialAlternativesList.get(0);
+      for (Node node : this.potentialAlternativesList) {
+        alternativeNode = node.minimumDistance < alternativeNode.minimumDistance ? node : alternativeNode; 
+      }
+      // find a path to the alternative node.
+      // we need to change the path so that it gets long enough when reaching this node
+      this.generateFinalPath(alternativeNode);
+      this.pathFound = true;
+    }
+    // seems we have no chance.
+    // Still calculate the path to the last node we checked,
+    // but immediately try to find a new path after going a step
+    if (!this.pathFound) {
+      Node luckyNode = this.closedList.get(this.closedList.size() - 1);
+      this.generateFinalPath(luckyNode);
       this.goodLuck = true;
     }
   }
@@ -187,6 +213,18 @@ class AutoSolver {
             } else {
               // it will not be free, but it might be free if we take a slightly longer path,
               // and still get a shorter total path to the food
+              Node potentialNode = new Node(this.mainClass, n);
+              boolean alreadyInList = false;
+              for (Node node : this.potentialAlternativesList) {
+                if (node.tileId == potentialNode.tileId) {
+                  alreadyInList = true;
+                  break;
+                }
+              }
+              if (!alreadyInList) {
+                this.potentialAlternativesList.add(potentialNode);
+                potentialNode.parent = startNode;
+              }
             }
           }
         }
@@ -222,6 +260,9 @@ class AutoSolver {
     }
     for (Node node : this.closedList) {
       node.draw(0xaaff0000);
+    }
+    for (Node node : this.potentialAlternativesList) {
+      node.draw(0xaa0000ff);
     }
     for (Node node : this.finalPath) {
       node.draw(0xffffff00);

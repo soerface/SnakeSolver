@@ -50,7 +50,7 @@ class GameWorld { //<>// //<>//
       this.mainClass.text(
       "\n[a] to let the computer play automatically" +
       "\n[v] to let the computer play with visualization" +
-      "\n[i] computer, set food interactive with click", x, y);
+      "\n[i] computer, set food interactively with click", x, y);
       return;
     }
     for (GameTile tile : this.gameTiles) {

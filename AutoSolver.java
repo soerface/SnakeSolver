@@ -1,7 +1,8 @@
 /**
- * This class is implementing A* to play the game automatically.
- * It is a bit helpless when it comes to save as much space as possible
- * to maneuver out a dead end. Any idea how this could be handled?
+ * This class is implementing a modified version of A* to play the game automatically.
+ *
+ * It contains nothing of the snake gamelogic, so you dont need to read it
+ * if you are just checking my homework.
  */
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ class AutoSolver {
   boolean goodLuck;
   boolean visualizationPaused;
   boolean generateFinalPath;
+  boolean continueGenerateAlternativePath;
   int targetX;
   int targetY;
   Node nextNode;
@@ -34,6 +36,7 @@ class AutoSolver {
     this.visualize = false;
     this.visualizationPaused = false;
     this.generateFinalPath = false;
+    this.continueGenerateAlternativePath = false;
     // in case we cant find a path
     this.goodLuck = false;
   }
@@ -74,7 +77,7 @@ class AutoSolver {
     int[] coordinates = getTileCoordinates(startNode.tileId);
     int x = coordinates[0];
     int y = coordinates[1];
-    for (Node neighbourNode : this.getNeighbourNodes (x, y, startNode)) {
+    for (Node neighbourNode : this.getNeighbourNodes (startNode)) {
       // check if the node is already in the open list
       boolean alreadyInOpenList = false;
       for (Node node : this.openList) {
@@ -119,7 +122,7 @@ class AutoSolver {
       this.generateFinalPath(startNode);
       this.pathFound = true;
       // we found a path, but we might be faster taking an alternative route
-      //this.checkAlternativePath();
+      //this.generateAlternativePath();
       return;
     }
     // else, continue with the node with the least F cost
@@ -137,31 +140,153 @@ class AutoSolver {
       // the food must be hidden behind us.
       // try to find an alternative path by making the path longer and therefore escape
       this.nextNode = null;
-      this.checkAlternativePath();
+      this.generateAlternativePath();
     }
   }
 
-  void checkAlternativePath() {
+  void generateAlternativePath() {
     // find the alternative node which will be the first one not beeing occupied
     if (this.potentialAlternativesList.size() > 0) {
-      Node alternativeNode = this.potentialAlternativesList.get(0);
-      for (Node node : this.potentialAlternativesList) {
-        alternativeNode = node.minimumDistance < alternativeNode.minimumDistance ? node : alternativeNode;
-        this.mainClass.print("Minimum Distance: " + node.minimumDistance + "\n");
+      if (!this.continueGenerateAlternativePath) {
+        Node alternativeNode = this.potentialAlternativesList.get(0);
+        for (Node node : this.potentialAlternativesList) {
+          if (checkPathLength(node) <= 3) {
+            // if we are too close to this node, we dont have a chance to make our path larger
+            // so skip it and try another one
+            continue;
+          }
+          alternativeNode = node.minimumDistance < alternativeNode.minimumDistance ? node : alternativeNode;
+        }
+        // find a path to the alternative node.
+        this.generateFinalPath(alternativeNode);
+        // member to make it work when not doing it recursivley:
+        if (this.visualize) {
+          this.continueGenerateAlternativePath = true;
+          return;
+        }
       }
-      // find a path to the alternative node.
       // we need to change the path so that it gets long enough when reaching this node
-      this.generateFinalPath(alternativeNode);
-      this.pathFound = true;
+      this.increasePathLength();
+      /*
+      if (this.finalPath.size() >= alternativeNode.minimumDistance) {
+       this.pathFound = true;
+       }*/
     }
-    // seems we have no chance.
-    // Still calculate the path to the last node we checked,
-    // but immediately try to find a new path after going a step
-    if (!this.pathFound) {
-      Node luckyNode = this.closedList.get(this.closedList.size() - 1);
-      this.generateFinalPath(luckyNode);
-      this.goodLuck = true;
+  }
+
+  void increasePathLength() {
+    boolean pathChanged = false;
+    if (this.finalPath.size() < 1) {
+      // not enough space to navigate
+      this.continueGenerateAlternativePath = false;
+      return;
     }
+    for (int nodeId = 1; nodeId<this.finalPath.size (); nodeId++) {
+      Node node = this.finalPath.get(nodeId);
+      ArrayList<Node> alternativeNodes = this.findAlternativeNodes(node);
+      for (Node alternativeNode : alternativeNodes) {
+        Node originalParentNode = node.parent;
+        node.parent = alternativeNode;
+        if (!checkPathValidity(this.finalPath.get(0))) {
+          // maybe we get a valid path when changing the parent of the alternative node
+
+          // findAlternativeNodes is calling getNeighbourNodes which is using getNumberOfParents().
+          // therefore, we may not produce an infinite path.
+          node.parent = originalParentNode;
+          ArrayList<Node> alternativesForAlternative = this.findAlternativeNodes(alternativeNode);
+          node.parent = alternativeNode;
+          Node alternativeNodeOriginalParent = alternativeNode.parent;
+          for (Node altNode : alternativesForAlternative) {
+            alternativeNode.parent = altNode;
+            if (checkPathValidity(this.finalPath.get(0))) {
+              if (checkPathLength(this.finalPath.get(0)) > this.finalPath.size()) {
+                pathChanged = true;
+                break;
+              }
+            }
+          }
+          if (!pathChanged) {
+            alternativeNode.parent = alternativeNodeOriginalParent;
+            node.parent = originalParentNode;
+          }
+        }
+        if (checkPathLength(this.finalPath.get(0)) <= this.finalPath.size()) {
+          node.parent = originalParentNode;
+        } else {
+          pathChanged = true;
+        }
+        if (pathChanged) {
+          break;
+        }
+      }
+      if (pathChanged) {
+        break;
+      }
+    }
+    Node targetNode = this.finalPath.get(0);
+    this.finalPath = new ArrayList<Node>();
+    this.pathFound = true;
+    this.generateFinalPath(targetNode);
+    if (pathChanged) {
+      // our path is now longer. is it long enough?
+      if (checkPathLength(targetNode) > targetNode.minimumDistance) {
+        this.continueGenerateAlternativePath = false;
+      } else {
+        this.continueGenerateAlternativePath = true;
+        if (!this.visualize) {
+          this.increasePathLength();
+        }
+      }
+    } else {
+      this.continueGenerateAlternativePath = false;
+    }
+  }
+
+  boolean checkPathValidity(Node node) {
+    ArrayList<Node> nodeList = new ArrayList<Node>();
+    nodeList.add(node);
+    return checkPathValidity(nodeList);
+  }
+
+  boolean checkPathValidity(ArrayList<Node> nodeList) {
+    Node lastNode = nodeList.get(nodeList.size()-1);
+    if (lastNode.parent == null) {
+      return true;
+    }
+    for (Node node : nodeList) {
+      // this node is already in the list. This would lead to an infinite path, so it is invalid
+      if (node.tileId == lastNode.parent.tileId) {
+        return false;
+      }
+    }
+    nodeList.add(lastNode.parent);
+    return checkPathValidity(nodeList);
+  }
+
+  int checkPathLength(Node node) {
+    if (node.parent == null) {
+      return 1;
+    }
+    return checkPathLength(node.parent) + 1;
+  }
+
+  ArrayList<Node> findAlternativeNodes(Node targetNode) {
+    ArrayList<Node> alternativeNodes = new ArrayList<Node>();
+    if (targetNode.parent == null) {
+      // doesnt make sense to change the starting node (snake head)
+      return alternativeNodes;
+    }
+    // is there another node in the closed list around us besides the one that is the parent?
+    Node[] neighbourNodes = this.getNeighbourNodes(targetNode);
+    int i = 0;
+    for (Node node : this.closedList) {
+      for (Node neighbourNode : neighbourNodes) {
+        if (node.tileId == neighbourNode.tileId && node != targetNode.parent) {
+          alternativeNodes.add(node);
+        }
+      }
+    }
+    return alternativeNodes;
   }
 
   int getTileId(int x, int y) {
@@ -176,7 +301,10 @@ class AutoSolver {
     };
   }
 
-  Node[] getNeighbourNodes(int x, int y, Node startNode) {
+  Node[] getNeighbourNodes(Node startNode) {
+    int[] coordinates = getTileCoordinates(startNode.tileId);
+    int x = coordinates[0];
+    int y = coordinates[1];
     int[] potentialNeighbours = new int[] {
       -1, -1, -1, -1
     };
@@ -249,9 +377,16 @@ class AutoSolver {
   }
 
   void generateFinalPath(Node node) {
+    for (Node previousNode : this.finalPath) {
+      if (node.tileId == previousNode.tileId) {
+        this.mainClass.print("Invalid path!\n");
+        this.generateFinalPath = false;
+        return;
+      }
+    }
     this.finalPath.add(node);
     if (node.parent != null) {
-      // recursivly if no need of visualization, else, save the member and continue next draw() call
+      // recursivly if no need of visualization, else, save the member and continue on next draw() call
       if (!this.visualize) {
         this.generateFinalPath = false;
         generateFinalPath(node.parent);
@@ -270,22 +405,28 @@ class AutoSolver {
     float distance = this.mainClass.sqrt(a*a + b*b);
     return distance;
   }
-  
+
   void nextVisualization() {
     if (!this.visualizationPaused) {
       return;
     }
-    if (!this.pathFound) {
+    if (this.nextNode != null) {
       this.checkNode(this.nextNode);
     }
     if (this.generateFinalPath) {
       this.generateFinalPath(this.nextPathNode);
+    } else if (this.continueGenerateAlternativePath) {
+      this.generateAlternativePath();
     }
   }
 
   void draw() {
-    if (!this.visualizationPaused && this.generateFinalPath) {
-      this.generateFinalPath(nextPathNode);
+    if (!this.visualizationPaused) {
+      if (this.generateFinalPath) {
+        this.generateFinalPath(nextPathNode);
+      } else if (this.continueGenerateAlternativePath) {
+        this.generateAlternativePath();
+      }
     }
     for (Node node : this.openList) {
       node.draw(0xaa00ff00);
@@ -321,10 +462,10 @@ class AutoSolver {
   }
 
   void tick() {
-    if (!this.pathFound && !this.goodLuck) {
+    if (!this.pathFound && !this.goodLuck && !this.continueGenerateAlternativePath && !this.generateFinalPath) {
       this.gameWorld.gamePaused = true;
       this.calculatePath();
-    } else if (this.generateFinalPath) {
+    } else if (this.generateFinalPath || this.continueGenerateAlternativePath) {
       this.gameWorld.gamePaused = true;
     } else {
       this.gameWorld.gamePaused = false;

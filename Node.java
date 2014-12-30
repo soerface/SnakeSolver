@@ -23,10 +23,7 @@ class Node {
   }
 
   int getNumberOfParents() {
-    if (this.parent != null) {
-      return this.parent.getNumberOfParents() + 1;
-    }
-    return 0;
+    return getGCost();
   }
 
 

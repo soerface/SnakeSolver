@@ -148,14 +148,18 @@ class AutoSolver {
     // find the alternative node which will be the first one not beeing occupied
     if (this.potentialAlternativesList.size() > 0) {
       if (!this.continueGenerateAlternativePath) {
-        Node alternativeNode = this.potentialAlternativesList.get(0);
+        Node alternativeNode = null;
         for (Node node : this.potentialAlternativesList) {
           if (checkPathLength(node) <= 3) {
             // if we are too close to this node, we dont have a chance to make our path larger
             // so skip it and try another one
             continue;
           }
-          alternativeNode = node.minimumDistance < alternativeNode.minimumDistance ? node : alternativeNode;
+          if (alternativeNode == null) {
+            alternativeNode = node;
+          } else {
+            alternativeNode = node.minimumDistance < alternativeNode.minimumDistance ? node : alternativeNode;
+          }
         }
         // find a path to the alternative node.
         this.generateFinalPath(alternativeNode);

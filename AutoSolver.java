@@ -174,6 +174,54 @@ class AutoSolver {
     }
   }
 
+  boolean changeNode(Node node, ArrayList<Node> alreadyChangedNodes, ArrayList<Node> originalParents) {
+    // findAlternativeNodes is calling getNeighbourNodes which is using getNumberOfParents().
+    // therefore, we may not produce an infinite path, so reset original parents
+    int size = alreadyChangedNodes.size();
+    Node[] modifiedParents = new Node[size];
+    for (int i=0; i<size; i++) {
+      modifiedParents[i] = alreadyChangedNodes.get(i).parent;
+      alreadyChangedNodes.get(i).parent = originalParents.get(i);
+    }
+    ArrayList<Node> alternativeNodes = this.findAlternativeNodes(node);
+    for (int i=0; i<size; i++) {
+      alreadyChangedNodes.get(i).parent = modifiedParents[i];
+    }
+    alreadyChangedNodes.add(node);
+    Node originalParent = node.parent;
+    originalParents.add(node.parent);
+    boolean skip = false;
+    for (Node alternativeNode : alternativeNodes) {
+      for (Node prevNodes : alreadyChangedNodes) {
+        if (alternativeNode.tileId == prevNodes.tileId) {
+          skip = true;
+        }
+      }
+      if (skip) {
+        skip = false;
+        continue;
+      }
+      node.parent = alternativeNode;
+      if (!checkPathValidity(this.finalPath.get(0))) {
+        if (changeNode(alternativeNode, alreadyChangedNodes, originalParents)) {
+          return true;
+        }
+      } else if (checkPathLength(this.finalPath.get(0)) > this.finalPath.size()) {
+        return true;
+      }
+    }
+    node.parent = originalParent;
+    return false;
+  }
+
+  boolean changeNode(Node node) {
+    ArrayList<Node> alreadyChangedNodes = new ArrayList<Node>();
+    ArrayList<Node> originalParents = new ArrayList<Node>();
+    alreadyChangedNodes.add(node);
+    originalParents.add(node.parent);
+    return changeNode(node, alreadyChangedNodes, originalParents);
+  }
+
   void increasePathLength() {
     boolean pathChanged = false;
     if (this.finalPath.size() < 1) {
@@ -183,42 +231,7 @@ class AutoSolver {
     }
     for (int nodeId = 1; nodeId<this.finalPath.size (); nodeId++) {
       Node node = this.finalPath.get(nodeId);
-      ArrayList<Node> alternativeNodes = this.findAlternativeNodes(node);
-      for (Node alternativeNode : alternativeNodes) {
-        Node originalParentNode = node.parent;
-        node.parent = alternativeNode;
-        if (!checkPathValidity(this.finalPath.get(0))) {
-          // maybe we get a valid path when changing the parent of the alternative node
-
-          // findAlternativeNodes is calling getNeighbourNodes which is using getNumberOfParents().
-          // therefore, we may not produce an infinite path.
-          node.parent = originalParentNode;
-          ArrayList<Node> alternativesForAlternative = this.findAlternativeNodes(alternativeNode);
-          node.parent = alternativeNode;
-          Node alternativeNodeOriginalParent = alternativeNode.parent;
-          for (Node altNode : alternativesForAlternative) {
-            alternativeNode.parent = altNode;
-            if (checkPathValidity(this.finalPath.get(0))) {
-              if (checkPathLength(this.finalPath.get(0)) > this.finalPath.size()) {
-                pathChanged = true;
-                break;
-              }
-            }
-          }
-          if (!pathChanged) {
-            alternativeNode.parent = alternativeNodeOriginalParent;
-            node.parent = originalParentNode;
-          }
-        }
-        if (checkPathLength(this.finalPath.get(0)) <= this.finalPath.size()) {
-          node.parent = originalParentNode;
-        } else {
-          pathChanged = true;
-        }
-        if (pathChanged) {
-          break;
-        }
-      }
+      pathChanged = changeNode(node);
       if (pathChanged) {
         break;
       }

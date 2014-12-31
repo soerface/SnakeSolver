@@ -473,7 +473,8 @@ class AutoSolver {
     String text = "Press [v] to toggle visualization, [i] to toggle interactive mode, [ ] to pause visualization, [n] to step through visualization";
     float width = this.mainClass.textWidth(text);
     this.mainClass.fill(0xffffffff);
-    this.mainClass.rect(5, this.mainClass.height - GameTile.TILE_SIZE, width, GameTile.TILE_SIZE);
+    this.mainClass.strokeWeight(0);
+    this.mainClass.rect(1, this.mainClass.height - GameTile.TILE_SIZE, width, GameTile.TILE_SIZE);
     this.mainClass.fill(0xff000000);
     this.mainClass.text(text, 5, this.mainClass.height);
   }

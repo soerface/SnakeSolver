@@ -14,6 +14,7 @@ class AutoSolver {
   ArrayList<Node> closedList;
   ArrayList<Node> finalPath;
   ArrayList<Node> potentialAlternativesList;
+  ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
   boolean pathFound;
   boolean goodLuck;
   boolean visualizationPaused;
@@ -23,6 +24,7 @@ class AutoSolver {
   int targetY;
   Node nextNode;
   Node nextPathNode;
+  Node alternativeNode;
   boolean visualize;
 
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
@@ -32,6 +34,7 @@ class AutoSolver {
     this.closedList = new ArrayList<Node>();
     this.finalPath = new ArrayList<Node>();
     this.potentialAlternativesList = new ArrayList<Node>();
+    this.potentialAlternativesBlackList = new ArrayList<Integer>();
     this.pathFound = false;
     this.visualize = false;
     this.visualizationPaused = false;
@@ -122,6 +125,7 @@ class AutoSolver {
       this.generateFinalPath(startNode);
       this.pathFound = true;
       // we found a path, but we might be faster taking an alternative route
+      this.potentialAlternativesBlackList = new ArrayList<Integer>();
       //this.generateAlternativePath();
       return;
     }
@@ -148,21 +152,22 @@ class AutoSolver {
     // find the alternative node which will be the first one not beeing occupied
     if (this.potentialAlternativesList.size() > 0) {
       if (!this.continueGenerateAlternativePath) {
-        Node alternativeNode = null;
+        // this is a member to make it also work when not doing it recursivley
+        this.alternativeNode = null;
         for (Node node : this.potentialAlternativesList) {
           if (checkPathLength(node) <= 3) {
             // if we are too close to this node, we dont have a chance to make our path larger
             // so skip it and try another one
             continue;
           }
-          if (alternativeNode == null) {
-            alternativeNode = node;
+          if (this.alternativeNode == null) {
+            this.alternativeNode = node;
           } else {
-            alternativeNode = node.minimumDistance < alternativeNode.minimumDistance ? node : alternativeNode;
+            this.alternativeNode = node.minimumDistance < this.alternativeNode.minimumDistance ? node : this.alternativeNode;
           }
         }
         // find a path to the alternative node.
-        this.generateFinalPath(alternativeNode);
+        this.generateFinalPath(this.alternativeNode);
         // member to make it work when not doing it recursivley:
         if (this.visualize) {
           this.continueGenerateAlternativePath = true;
@@ -170,11 +175,25 @@ class AutoSolver {
         }
       }
       // we need to change the path so that it gets long enough when reaching this node
-      this.increasePathLength();
-      /*
-      if (this.finalPath.size() >= alternativeNode.minimumDistance) {
-       this.pathFound = true;
-       }*/
+      boolean ret;
+      ret = this.increasePathLength();
+      if (!ret) {
+        // it was not possible to generate a longer path.
+        // remove our alternative node from the alternative nodes list to try it again
+        this.potentialAlternativesBlackList.add(this.alternativeNode.tileId);
+        //this.generateAlternativePath();
+        this.pathFound = false;
+        this.continueGenerateAlternativePath = false;
+        this.generateFinalPath = false;
+        this.goodLuck = false;
+        this.calculatePath();
+        if (!this.visualize) {
+          this.checkNode(this.nextNode);
+        }
+      } else if(!this.continueGenerateAlternativePath) {
+        // theres a solution. Clear the blacklist
+        this.potentialAlternativesBlackList = new ArrayList<Integer>();
+      }
     }
   }
 
@@ -226,12 +245,12 @@ class AutoSolver {
     return changeNode(node, alreadyChangedNodes, originalParents);
   }
 
-  void increasePathLength() {
+  boolean increasePathLength() {
     boolean pathChanged = false;
     if (this.finalPath.size() < 1) {
       // not enough space to navigate
       this.continueGenerateAlternativePath = false;
-      return;
+      return false;
     }
     for (int nodeId = 1; nodeId<this.finalPath.size (); nodeId++) {
       Node node = this.finalPath.get(nodeId);
@@ -251,11 +270,13 @@ class AutoSolver {
       } else {
         this.continueGenerateAlternativePath = true;
         if (!this.visualize) {
-          this.increasePathLength();
+          return this.increasePathLength();
         }
       }
+      return true;
     } else {
       this.continueGenerateAlternativePath = false;
+      return false;
     }
   }
 
@@ -368,14 +389,20 @@ class AutoSolver {
               // it will not be free, but it might be free if we take a slightly longer path,
               // and still get a shorter total path to the food
               Node potentialNode = new Node(this.mainClass, n);
-              boolean alreadyInList = false;
+              boolean addToList = true;
               for (Node node : this.potentialAlternativesList) {
                 if (node.tileId == potentialNode.tileId) {
-                  alreadyInList = true;
+                  addToList = false;
                   break;
                 }
               }
-              if (!alreadyInList) {
+              for (int tileId : this.potentialAlternativesBlackList) {
+                if (tileId == potentialNode.tileId) {
+                  addToList = false;
+                  break;
+                }
+              }
+              if (addToList) {
                 this.potentialAlternativesList.add(potentialNode);
                 potentialNode.parent = startNode;
                 potentialNode.minimumDistance = gameTile.occupiedCounter;
@@ -491,7 +518,7 @@ class AutoSolver {
       if (lastElement == 1) {
         this.pathFound = false;
       }
-      if (this.finalPath.size() == 1) {
+      if (this.finalPath.size() <= 1) {
         // we end up in a dead end. Just give up, theres nothing more to do
         this.goodLuck = false;
         this.finalPath = new ArrayList<Node>();

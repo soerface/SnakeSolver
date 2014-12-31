@@ -155,16 +155,17 @@ class AutoSolver {
         // this is a member to make it also work when not doing it recursivley
         this.alternativeNode = null;
         for (Node node : this.potentialAlternativesList) {
-          if (checkPathLength(node) <= 3) {
-            // if we are too close to this node, we dont have a chance to make our path larger
-            // so skip it and try another one
-            continue;
-          }
           if (this.alternativeNode == null) {
             this.alternativeNode = node;
           } else {
             this.alternativeNode = node.minimumDistance < this.alternativeNode.minimumDistance ? node : this.alternativeNode;
           }
+        }
+        if (this.alternativeNode == null) {
+          // we couldn't find an alternative node... just give up
+          this.goodLuck = true;
+          this.generateFinalPath(this.closedList.get(0));
+          return;
         }
         // find a path to the alternative node.
         this.generateFinalPath(this.alternativeNode);
@@ -194,6 +195,10 @@ class AutoSolver {
         // theres a solution. Clear the blacklist
         this.potentialAlternativesBlackList = new ArrayList<Integer>();
       }
+    } else {
+      // there are no alternatives. Give up.
+      this.goodLuck = true;
+      this.generateFinalPath(this.closedList.get(0));
     }
   }
 

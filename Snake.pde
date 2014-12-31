@@ -1,7 +1,7 @@
 GameWorld gameWorld;
 AutoSolver autoSolver;
 int frames = 0;
-static final int TICKS_PER_FRAME = 1; // decrease this number to speedup the game
+static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the game
 
 void setup() {
   size(600, 500);

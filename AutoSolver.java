@@ -126,7 +126,12 @@ class AutoSolver {
       this.pathFound = true;
       // we found a path, but we might be faster taking an alternative route
       this.potentialAlternativesBlackList = new ArrayList<Integer>();
-      //this.generateAlternativePath();
+      //this.generateAlternativePath(); (not that important to find an even shorter path
+
+      // TODO: We need to check if we are running into a dead end.
+      // in order to do this, we just need to see if we could reach our tail after we arrive at the food
+      // because if we can reach our tail we will be able to reach every other field, too
+      // if we can not reach it, increase the length of our path, so the path before us becomes free.
       return;
     }
     // else, continue with the node with the least F cost

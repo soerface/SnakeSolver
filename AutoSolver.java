@@ -191,7 +191,7 @@ class AutoSolver {
         if (!this.visualize) {
           this.checkNode(this.nextNode);
         }
-      } else if(!this.continueGenerateAlternativePath) {
+      } else if (!this.continueGenerateAlternativePath) {
         // theres a solution. Clear the blacklist
         this.potentialAlternativesBlackList = new ArrayList<Integer>();
       }
@@ -202,54 +202,6 @@ class AutoSolver {
     }
   }
 
-  boolean changeNode(Node node, ArrayList<Node> alreadyChangedNodes, ArrayList<Node> originalParents) {
-    // findAlternativeNodes is calling getNeighbourNodes which is using getNumberOfParents().
-    // therefore, we may not produce an infinite path, so reset original parents
-    int size = alreadyChangedNodes.size();
-    Node[] modifiedParents = new Node[size];
-    for (int i=0; i<size; i++) {
-      modifiedParents[i] = alreadyChangedNodes.get(i).parent;
-      alreadyChangedNodes.get(i).parent = originalParents.get(i);
-    }
-    ArrayList<Node> alternativeNodes = this.findAlternativeNodes(node);
-    for (int i=0; i<size; i++) {
-      alreadyChangedNodes.get(i).parent = modifiedParents[i];
-    }
-    alreadyChangedNodes.add(node);
-    Node originalParent = node.parent;
-    originalParents.add(node.parent);
-    boolean skip = false;
-    for (Node alternativeNode : alternativeNodes) {
-      for (Node prevNodes : alreadyChangedNodes) {
-        if (alternativeNode.tileId == prevNodes.tileId) {
-          skip = true;
-        }
-      }
-      if (skip) {
-        skip = false;
-        continue;
-      }
-      node.parent = alternativeNode;
-      if (!checkPathValidity(this.finalPath.get(0))) {
-        if (changeNode(alternativeNode, alreadyChangedNodes, originalParents)) {
-          return true;
-        }
-      } else if (checkPathLength(this.finalPath.get(0)) > this.finalPath.size()) {
-        return true;
-      }
-    }
-    node.parent = originalParent;
-    return false;
-  }
-
-  boolean changeNode(Node node) {
-    ArrayList<Node> alreadyChangedNodes = new ArrayList<Node>();
-    ArrayList<Node> originalParents = new ArrayList<Node>();
-    alreadyChangedNodes.add(node);
-    originalParents.add(node.parent);
-    return changeNode(node, alreadyChangedNodes, originalParents);
-  }
-
   boolean increasePathLength() {
     boolean pathChanged = false;
     if (this.finalPath.size() < 1) {
@@ -257,9 +209,37 @@ class AutoSolver {
       this.continueGenerateAlternativePath = false;
       return false;
     }
-    for (int nodeId = 1; nodeId<this.finalPath.size (); nodeId++) {
-      Node node = this.finalPath.get(nodeId);
-      pathChanged = changeNode(node);
+    for (Node node : this.finalPath) {
+      if (node.parent == null) {
+        continue;
+      }
+      Node originalParent = node.parent;
+      for (Node firstNeighbourNode : this.findAlternativeNodes (node)) {
+        // make sure we process a node which is not yet part of our path
+        if (this.nodeInList(firstNeighbourNode, this.finalPath)) {
+          continue;
+        }
+        for (Node secondNeighbourNode : this.findAlternativeNodes (firstNeighbourNode)) {
+          if (this.nodeInList(secondNeighbourNode, this.finalPath)) {
+            continue;
+          }
+          for (Node thirdNeighbourNode : this.findAlternativeNodes (secondNeighbourNode)) {
+            if (thirdNeighbourNode == originalParent) {
+              node.parent = firstNeighbourNode;
+              firstNeighbourNode.parent = secondNeighbourNode;
+              secondNeighbourNode.parent = originalParent;
+              pathChanged = true;
+              break;
+            }
+          }
+          if (pathChanged) {
+            break;
+          }
+        }
+        if (pathChanged) {
+          break;
+        }
+      }
       if (pathChanged) {
         break;
       }
@@ -285,25 +265,13 @@ class AutoSolver {
     }
   }
 
-  boolean checkPathValidity(Node node) {
-    ArrayList<Node> nodeList = new ArrayList<Node>();
-    nodeList.add(node);
-    return checkPathValidity(nodeList);
-  }
-
-  boolean checkPathValidity(ArrayList<Node> nodeList) {
-    Node lastNode = nodeList.get(nodeList.size()-1);
-    if (lastNode.parent == null) {
-      return true;
-    }
-    for (Node node : nodeList) {
-      // this node is already in the list. This would lead to an infinite path, so it is invalid
-      if (node.tileId == lastNode.parent.tileId) {
-        return false;
+  boolean nodeInList(Node node, ArrayList<Node> list) {
+    for (Node listNode : list) {
+      if (node == listNode) {
+        return true;
       }
     }
-    nodeList.add(lastNode.parent);
-    return checkPathValidity(nodeList);
+    return false;
   }
 
   int checkPathLength(Node node) {
@@ -324,7 +292,7 @@ class AutoSolver {
     int i = 0;
     for (Node node : this.closedList) {
       for (Node neighbourNode : neighbourNodes) {
-        if (node.tileId == neighbourNode.tileId && node != targetNode.parent) {
+        if (node.tileId == neighbourNode.tileId) {
           alternativeNodes.add(node);
         }
       }
@@ -452,6 +420,7 @@ class AutoSolver {
     int a = this.targetX - x;
     int b = this.targetY - y;
     float distance = this.mainClass.sqrt(a*a + b*b);
+    //float distance = this.mainClass.abs(this.targetX - x) + this.mainClass.abs(this.targetY - y);
     return distance;
   }
 

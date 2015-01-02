@@ -2,9 +2,11 @@ GameWorld gameWorld;
 AutoSolver autoSolver;
 int frames = 0;
 static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the game
+static final int BOARD_HORIZONTAL_SIZE = 60;
+static final int BOARD_VERTICAL_SIZE = 50;
 
 void setup() {
-  size(600, 500);
+  size(BOARD_HORIZONTAL_SIZE * GameTile.TILE_SIZE, BOARD_VERTICAL_SIZE * GameTile.TILE_SIZE);
   this.gameWorld = new GameWorld(this);
 }
 

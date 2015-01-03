@@ -77,9 +77,8 @@ class AutoSolver {
     if (startNode == null) {
       return;
     }
-    int[] coordinates = getTileCoordinates(startNode.tileId);
-    int x = coordinates[0];
-    int y = coordinates[1];
+    int x = startNode.getX();
+    int y = startNode.getY();
     for (Node neighbourNode : this.getNeighbourNodes (startNode)) {
       // check if the node is already in the open list
       boolean alreadyInOpenList = false;
@@ -309,18 +308,9 @@ class AutoSolver {
     return x + y * this.gameWorld.width;
   }
 
-  int[] getTileCoordinates(int id) {
-    int x = id % this.gameWorld.width;
-    int y = id / this.gameWorld.width;
-    return new int[] {
-      x, y
-    };
-  }
-
   Node[] getNeighbourNodes(Node startNode) {
-    int[] coordinates = getTileCoordinates(startNode.tileId);
-    int x = coordinates[0];
-    int y = coordinates[1];
+    int x = startNode.getX();
+    int y = startNode.getY();
     int[] potentialNeighbours = new int[] {
       -1, -1, -1, -1
     };
@@ -464,9 +454,8 @@ class AutoSolver {
       node.draw(0xffffff00);
     }
     if (nextNode != null) {
-      int[] coordinates = getTileCoordinates(nextNode.tileId);
-      int x = coordinates[0] * GameTile.TILE_SIZE;
-      int y = coordinates[1] * GameTile.TILE_SIZE;
+      int x = nextNode.getX() * GameTile.TILE_SIZE;
+      int y = nextNode.getY() * GameTile.TILE_SIZE;
       this.mainClass.fill(0xffffffff);
       this.mainClass.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
       nextNode.draw(0xff000000);
@@ -505,12 +494,10 @@ class AutoSolver {
       }
       Node fromNode = this.finalPath.get(lastElement);
       Node toNode = this.finalPath.get(lastElement-1);
-      int[] coordinates = this.getTileCoordinates(fromNode.tileId);
-      int fromX = coordinates[0];
-      int fromY = coordinates[1];
-      coordinates = this.getTileCoordinates(toNode.tileId);
-      int toX = coordinates[0];
-      int toY = coordinates[1];
+      int fromX = fromNode.getX();
+      int fromY = fromNode.getY();
+      int toX = toNode.getX();
+      int toY = toNode.getY();
       if (toX > fromX) {
         this.gameWorld.snakeDirection = this.gameWorld.RIGHT;
       } else if (toX < fromX) {

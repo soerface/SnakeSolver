@@ -16,6 +16,7 @@ class GameTile {
   void draw(Snake mainClass) {
     this.draw(mainClass, 0xffffffff, 0xff000000, 0xff333333);
   }
+
   void draw(Snake mainClass, int occupiedColor, int freeColor, int strokeColor) {
     int color = this.occupied ? occupiedColor : freeColor;
     mainClass.fill(color);
@@ -29,6 +30,12 @@ class GameTile {
       mainClass.stroke(0xffffffaa);
       mainClass.line(x + margin, y + margin, x + TILE_SIZE - margin, y + TILE_SIZE - margin);
       mainClass.line(x + margin, y + TILE_SIZE - margin, x + TILE_SIZE - margin, y + margin);
+    }
+    if (mainClass.DEBUG) {
+      color = this.occupied ? freeColor : occupiedColor;
+      mainClass.fill(color);
+      mainClass.textAlign(mainClass.LEFT, mainClass.TOP);
+      mainClass.text(this.occupiedCounter, x+1, y);
     }
   }
 

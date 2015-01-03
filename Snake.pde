@@ -1,3 +1,5 @@
+final static boolean DEBUG = true;
+
 GameWorld gameWorld;
 AutoSolver autoSolver;
 int frames = 0;

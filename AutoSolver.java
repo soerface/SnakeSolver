@@ -121,19 +121,24 @@ class AutoSolver {
     this.closedList.add(startNode);
     // check if this is the target node
     if (x == targetX && y == targetY) {
-      this.nextNode = null;
-      this.generateFinalPath(startNode);
-      this.pathFound = true;
-      // we found a path, but we might be faster taking an alternative route
-      this.potentialAlternativesBlackList = new ArrayList<Integer>();
-      //this.generateAlternativePath(); (not that important to find an even shorter path
-
       // TODO: We need to check if we are running into a dead end.
       // in order to do this, we just need to see if we could reach our tail after we arrive at the food
       // because if we can reach our tail we will be able to reach every other field, too
       // if we can not reach it, increase the length of our path, so the path before us becomes free.
+      this.generateFinalPath(startNode, true); // force recursive calculation, we need the final path
       this.futureGameTiles = this.simulatePath(this.finalPath);
-      return;
+
+      if (true) {
+        // found a path which does not lead into a dead end
+        this.nextNode = null;
+        this.finalPath = new ArrayList<Node>();
+        this.generateFinalPath(startNode);
+        this.pathFound = true;
+        // we found a path, but we might be faster taking an alternative route
+        this.potentialAlternativesBlackList = new ArrayList<Integer>();
+        //this.generateAlternativePath(); (not that important to find an even shorter path
+        return;
+      }
     }
     // else, continue with the node with the least F cost
     if (this.openList.size() > 0) {
@@ -156,10 +161,29 @@ class AutoSolver {
 
   GameTile[] simulatePath(ArrayList<Node> path) {
     GameTile[] newTiles = new GameTile[this.gameWorld.gameTiles.length];
+    int pathLength = path.size() - 1;
     int i=0;
     for (GameTile tile : this.gameWorld.gameTiles) {
       newTiles[i] = new GameTile(tile.x, tile.y);
-      newTiles[i].occupied = tile.occupied;
+      if (tile.occupied && tile.occupiedCounter == -1) {
+        // tile which are forever occupied
+        newTiles[i].occupied = true;
+      } else if (tile.occupied && tile.occupiedCounter - pathLength > 0) {
+        // tiles which will still be occupied after moving
+        newTiles[i].occupied = true;
+        newTiles[i].occupiedCounter = tile.occupiedCounter - pathLength;
+      }
+      i++;
+    }
+    i = 0;
+    for (Node node : path) {
+      GameTile tile = newTiles[node.tileId];
+      if (this.gameWorld.snakeLength - i > 0) {
+        tile.occupied = true;
+        tile.occupiedCounter = this.gameWorld.snakeLength - i + 1; // + 1 since we will have collected food when arriving
+      } else {
+        break;
+      }
       i++;
     }
     return newTiles;
@@ -402,6 +426,10 @@ class AutoSolver {
   }
 
   void generateFinalPath(Node node) {
+    this.generateFinalPath(node, false);
+  }
+
+  void generateFinalPath(Node node, boolean forceRecursive) {
     for (Node previousNode : this.finalPath) {
       if (node.tileId == previousNode.tileId) {
         this.mainClass.print("Invalid path!\n");
@@ -412,9 +440,9 @@ class AutoSolver {
     this.finalPath.add(node);
     if (node.parent != null) {
       // recursivly if no need of visualization, else, save the member and continue on next draw() call
-      if (!this.visualize) {
+      if (!this.visualize || forceRecursive) {
         this.generateFinalPath = false;
-        generateFinalPath(node.parent);
+        this.generateFinalPath(node.parent, forceRecursive);
       } else {
         this.generateFinalPath = true;
         this.nextPathNode = node.parent;
@@ -478,7 +506,7 @@ class AutoSolver {
     }
     if (this.futureGameTiles != null) {
       for (GameTile tile : futureGameTiles) {
-        tile.draw(this.mainClass, 0x55ff00ff, 0x01000000, 0xaa333333);
+        tile.draw(this.mainClass, 0x55ff00ff, 0xaa00ffff, 0xaa333333);
       }
     }
     this.mainClass.textAlign(this.mainClass.LEFT, this.mainClass.BOTTOM);

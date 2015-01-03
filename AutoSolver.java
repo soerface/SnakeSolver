@@ -26,6 +26,7 @@ class AutoSolver {
   Node nextPathNode;
   Node alternativeNode;
   boolean visualize;
+  GameTile[] futureGameTiles;
 
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
@@ -131,7 +132,7 @@ class AutoSolver {
       // in order to do this, we just need to see if we could reach our tail after we arrive at the food
       // because if we can reach our tail we will be able to reach every other field, too
       // if we can not reach it, increase the length of our path, so the path before us becomes free.
-      //this.simulatePath();
+      this.futureGameTiles = this.simulatePath(this.finalPath);
       return;
     }
     // else, continue with the node with the least F cost
@@ -151,6 +152,17 @@ class AutoSolver {
       this.nextNode = null;
       this.generateAlternativePath();
     }
+  }
+
+  GameTile[] simulatePath(ArrayList<Node> path) {
+    GameTile[] newTiles = new GameTile[this.gameWorld.gameTiles.length];
+    int i=0;
+    for (GameTile tile : this.gameWorld.gameTiles) {
+      newTiles[i] = new GameTile(tile.x, tile.y);
+      newTiles[i].occupied = tile.occupied;
+      i++;
+    }
+    return newTiles;
   }
 
   void generateAlternativePath() {
@@ -462,6 +474,11 @@ class AutoSolver {
       nextNode.draw(0xff000000);
       if (!this.visualize || !this.visualizationPaused) {
         this.checkNode(nextNode);
+      }
+    }
+    if (this.futureGameTiles != null) {
+      for (GameTile tile : futureGameTiles) {
+        tile.draw(this.mainClass, 0x55ff00ff, 0x01000000, 0xaa333333);
       }
     }
     this.mainClass.textAlign(this.mainClass.LEFT, this.mainClass.BOTTOM);

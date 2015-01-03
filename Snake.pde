@@ -3,9 +3,9 @@ final static boolean DEBUG = true;
 GameWorld gameWorld;
 AutoSolver autoSolver;
 int frames = 0;
-static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the game
-static final int BOARD_HORIZONTAL_SIZE = 60;
-static final int BOARD_VERTICAL_SIZE = 50;
+static final int TICKS_PER_FRAME = 1; // decrease this number to speedup the game
+static final int BOARD_HORIZONTAL_SIZE = 30;
+static final int BOARD_VERTICAL_SIZE = 20;
 
 void setup() {
   size(BOARD_HORIZONTAL_SIZE * GameTile.TILE_SIZE, BOARD_VERTICAL_SIZE * GameTile.TILE_SIZE);

@@ -79,7 +79,7 @@ class AutoSolver {
     }
     int x = startNode.getX();
     int y = startNode.getY();
-    for (Node neighbourNode : this.getNeighbourNodes (startNode)) {
+    for (Node neighbourNode : this.getNeighbourNodes (startNode, this.gameWorld.gameTiles)) {
       // check if the node is already in the open list
       boolean alreadyInOpenList = false;
       for (Node node : this.openList) {
@@ -131,6 +131,7 @@ class AutoSolver {
       // in order to do this, we just need to see if we could reach our tail after we arrive at the food
       // because if we can reach our tail we will be able to reach every other field, too
       // if we can not reach it, increase the length of our path, so the path before us becomes free.
+      //this.simulatePath();
       return;
     }
     // else, continue with the node with the least F cost
@@ -292,7 +293,7 @@ class AutoSolver {
       return alternativeNodes;
     }
     // is there another node in the closed list around us besides the one that is the parent?
-    Node[] neighbourNodes = this.getNeighbourNodes(targetNode);
+    Node[] neighbourNodes = this.getNeighbourNodes(targetNode, this.gameWorld.gameTiles);
     int i = 0;
     for (Node node : this.closedList) {
       for (Node neighbourNode : neighbourNodes) {
@@ -308,7 +309,7 @@ class AutoSolver {
     return x + y * this.gameWorld.width;
   }
 
-  Node[] getNeighbourNodes(Node startNode) {
+  Node[] getNeighbourNodes(Node startNode, GameTile[] gameTiles) {
     int x = startNode.getX();
     int y = startNode.getY();
     int[] potentialNeighbours = new int[] {
@@ -329,7 +330,7 @@ class AutoSolver {
     int totalNeighbours = 0;
     for (int n : potentialNeighbours) {
       if (n > -1) {
-        GameTile gameTile = this.gameWorld.gameTiles[n];
+        GameTile gameTile = gameTiles[n];
         boolean willBeOccupied = gameTile.occupied;
         if (gameTile.occupied) {
           if (gameTile.occupiedCounter != -1 && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
@@ -345,7 +346,7 @@ class AutoSolver {
     int i = 0;
     for (int n : potentialNeighbours) {
       if (n > -1) {
-        GameTile gameTile = this.gameWorld.gameTiles[n];
+        GameTile gameTile = gameTiles[n];
         boolean willBeOccupied = gameTile.occupied;
         if (gameTile.occupied) {
           if (gameTile.occupiedCounter != -1) {

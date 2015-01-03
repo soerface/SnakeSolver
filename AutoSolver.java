@@ -170,6 +170,7 @@ class AutoSolver {
           // increase path length
         }
       }
+      this.mainClass.print("\n");
 
       if (true || success) {
         // found a path which does not lead into a dead end
@@ -224,7 +225,7 @@ class AutoSolver {
       return;
     }
     ArrayList<Integer> blackList = new ArrayList<Integer>();
-    for (Node neighbourNode : getNeighbourNodes (nextNode, gameTiles, snakeNodes, blackList)) {
+    for (Node neighbourNode : getNeighbourNodes (nextNode, gameTiles, snakeNodes, blackList, true)) {
       boolean addToList = true;
       for (Node node : openList) {
         if (neighbourNode.tileId == node.tileId) {
@@ -348,6 +349,10 @@ class AutoSolver {
   }
 
   boolean increasePathLength() {
+    return  increasePathLength(false);
+  }
+
+  boolean increasePathLength(boolean forceRecursive) {
     boolean pathChanged = false;
     if (this.finalPath.size() < 1) {
       // not enough space to navigate
@@ -399,7 +404,7 @@ class AutoSolver {
         this.continueGenerateAlternativePath = false;
       } else {
         this.continueGenerateAlternativePath = true;
-        if (!this.visualize) {
+        if (!this.visualize || forceRecursive) {
           return this.increasePathLength();
         }
       }
@@ -450,6 +455,10 @@ class AutoSolver {
   }
 
   Node[] getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList) {
+    return getNeighbourNodes(startNode, gameTiles, potentialAlternativesList, potentialAlternativesBlackList, false);
+  }
+
+  Node[] getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList, boolean ignoreMoving) {
     int x = startNode.getX();
     int y = startNode.getY();
     int[] potentialNeighbours = new int[] {
@@ -473,7 +482,7 @@ class AutoSolver {
         GameTile gameTile = gameTiles[n];
         boolean willBeOccupied = gameTile.occupied;
         if (gameTile.occupied) {
-          if (gameTile.occupiedCounter != -1 && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
+          if (!ignoreMoving && gameTile.occupiedCounter != -1 && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
             willBeOccupied = false;
           }
         }
@@ -492,7 +501,7 @@ class AutoSolver {
           if (gameTile.occupiedCounter != -1) {
             // the field may be occupied at time checking, but since we need to move there,
             // it might be free until we get there
-            if (startNode.getNumberOfParents() > gameTile.occupiedCounter) {
+            if (!ignoreMoving && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
               willBeOccupied = false;
             } else {
               // it will not be free, but it might be free if we take a slightly longer path,

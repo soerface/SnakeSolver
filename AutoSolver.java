@@ -140,9 +140,38 @@ class AutoSolver {
       Node futureStartNode = new Node(this.mainClass, futureSnakeHeadTileId);
       ArrayList<Node> snakeNodes = this.findSnakeNodes(futureStartNode, futureGameTiles);
       this.snakeNodes = snakeNodes;
+      // now that we have the nodes of the snake which are reachable, we just need to find a single
+      // one which we will be able to reach when it becomesfree. Because this is essentially our tail
+      // its basically the same calculation as the generateAlternativePath() method does
+      boolean success = false;
+      while (!success) {
+        Node targetNode = null;
+        for (Node node : snakeNodes) {
+          if (targetNode == null) {
+            targetNode = node;
+          } else {
+            targetNode = node.minimumDistance < targetNode.minimumDistance ? node : targetNode;
+          }
+        }
+        if (targetNode == null) {
+          // all nodes were checked, we cant find a path to the tail
+          break;
+        }
+        for (i = snakeNodes.size () - 1; i>=0; i--) {
+          Node node = snakeNodes.get(i);
+          if (node == targetNode) {
+            snakeNodes.remove(i);
+          }
+        }
+        this.mainClass.print(targetNode.tileId + ": " + this.checkPathLength(targetNode) + " " + targetNode.minimumDistance + "\n");
+        if (this.checkPathLength(targetNode) > targetNode.minimumDistance) {
+          success = true;
+        } else {
+          // increase path length
+        }
+      }
 
-
-      if (true) {
+      if (true || success) {
         // found a path which does not lead into a dead end
         this.nextNode = null;
         this.finalPath = new ArrayList<Node>();
@@ -200,6 +229,15 @@ class AutoSolver {
       for (Node node : openList) {
         if (neighbourNode.tileId == node.tileId) {
           addToList = false;
+          int previousGCost = node.getGCost();
+          Node previousParent = node.parent;
+          node.parent = nextNode;
+          int newGCost = node.getGCost();
+          if (node.getNumberOfParents() > neighbourNode.minimumDistance) {
+            node.parent = newGCost < previousGCost ? nextNode : previousParent;
+          } else {
+            node.parent = previousParent;
+          }
         }
       }
       for (Node node : closedList) {
@@ -207,9 +245,11 @@ class AutoSolver {
           addToList = false;
         }
       }
-      if (addToList) {
-        openList.add(neighbourNode);
+      if (!addToList) {
+        continue;
       }
+      neighbourNode.parent = nextNode;
+      openList.add(neighbourNode);
     }
     // move node from the open list to the closed list
     for (int i = openList.size () - 1; i>=0; i--) {

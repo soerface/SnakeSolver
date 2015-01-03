@@ -56,5 +56,12 @@ class Node {
       this.mainClass.line(x, y, x+vectorX, y+vectorY);
     }
     this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
+    if (this.mainClass.DEBUG) {
+      mainClass.fill(color);
+      mainClass.textAlign(mainClass.LEFT, mainClass.BOTTOM);
+      x = this.getX() * GameTile.TILE_SIZE;
+      y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE;
+      mainClass.text(this.tileId, x+1, y);
+    }
   }
 }

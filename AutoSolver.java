@@ -14,6 +14,7 @@ class AutoSolver {
   ArrayList<Node> closedList;
   ArrayList<Node> finalPath;
   ArrayList<Node> potentialAlternativesList;
+  ArrayList<Node> snakeNodes;
   ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
   boolean pathFound;
   boolean goodLuck;
@@ -26,7 +27,6 @@ class AutoSolver {
   Node nextPathNode;
   Node alternativeNode;
   boolean visualize;
-  GameTile[] futureGameTiles;
 
   AutoSolver(Snake mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
@@ -80,7 +80,7 @@ class AutoSolver {
     }
     int x = startNode.getX();
     int y = startNode.getY();
-    for (Node neighbourNode : this.getNeighbourNodes (startNode, this.gameWorld.gameTiles)) {
+    for (Node neighbourNode : this.getNeighbourNodes (startNode, this.gameWorld.gameTiles, this.potentialAlternativesList, this.potentialAlternativesBlackList)) {
       // check if the node is already in the open list
       boolean alreadyInOpenList = false;
       for (Node node : this.openList) {
@@ -126,7 +126,21 @@ class AutoSolver {
       // because if we can reach our tail we will be able to reach every other field, too
       // if we can not reach it, increase the length of our path, so the path before us becomes free.
       this.generateFinalPath(startNode, true); // force recursive calculation, we need the final path
-      this.futureGameTiles = this.simulatePath(this.finalPath);
+      GameTile[] futureGameTiles = this.simulatePath(this.finalPath);
+      int i = 0;
+      int futureSnakeHeadTileId = 0;
+      GameTile futureSnakeHeadTile = futureGameTiles[0];
+      for (GameTile tile : futureGameTiles) {
+        if (futureSnakeHeadTile.occupiedCounter < tile.occupiedCounter) {
+          futureSnakeHeadTile =  tile;
+          futureSnakeHeadTileId = i;
+        }
+        i++;
+      }
+      Node futureStartNode = new Node(this.mainClass, futureSnakeHeadTileId);
+      ArrayList<Node> snakeNodes = this.findSnakeNodes(futureStartNode, futureGameTiles);
+      this.snakeNodes = snakeNodes;
+
 
       if (true) {
         // found a path which does not lead into a dead end
@@ -157,6 +171,56 @@ class AutoSolver {
       this.nextNode = null;
       this.generateAlternativePath();
     }
+  }
+
+  ArrayList<Node> findSnakeNodes(Node startNode, GameTile[] gameTiles) {
+    ArrayList<Node> openList = new ArrayList<Node>();
+    ArrayList<Node> closedList = new ArrayList<Node>();
+    ArrayList<Node> snakeNodes = new ArrayList<Node>();
+    ArrayList<Integer> blackList = new ArrayList<Integer>();
+    openList.add(startNode);
+    this.findSnakeNodes(gameTiles, openList, closedList, snakeNodes);
+    return snakeNodes;
+  }
+
+  void findSnakeNodes(GameTile[] gameTiles, ArrayList<Node> openList, ArrayList<Node> closedList, ArrayList<Node> snakeNodes) {
+    nextNode = null;
+    for (Node node : openList) {
+      if (nextNode == null) {
+        nextNode = node;
+      };
+      nextNode = node.getGCost() < nextNode.getGCost() ? node : nextNode;
+    }
+    if (nextNode == null) {
+      return;
+    }
+    ArrayList<Integer> blackList = new ArrayList<Integer>();
+    for (Node neighbourNode : getNeighbourNodes (nextNode, gameTiles, snakeNodes, blackList)) {
+      boolean addToList = true;
+      for (Node node : openList) {
+        if (neighbourNode.tileId == node.tileId) {
+          addToList = false;
+        }
+      }
+      for (Node node : closedList) {
+        if (neighbourNode.tileId == node.tileId) {
+          addToList = false;
+        }
+      }
+      if (addToList) {
+        openList.add(neighbourNode);
+      }
+    }
+    // move node from the open list to the closed list
+    for (int i = openList.size () - 1; i>=0; i--) {
+      Node node = openList.get(i);
+      if (node == nextNode) {
+        openList.remove(i);
+      }
+    }
+    closedList.add(nextNode);
+
+    this.findSnakeNodes(gameTiles, openList, closedList, snakeNodes);
   }
 
   GameTile[] simulatePath(ArrayList<Node> path) {
@@ -329,7 +393,7 @@ class AutoSolver {
       return alternativeNodes;
     }
     // is there another node in the closed list around us besides the one that is the parent?
-    Node[] neighbourNodes = this.getNeighbourNodes(targetNode, this.gameWorld.gameTiles);
+    Node[] neighbourNodes = this.getNeighbourNodes(targetNode, this.gameWorld.gameTiles, this.potentialAlternativesList, this.potentialAlternativesBlackList);
     int i = 0;
     for (Node node : this.closedList) {
       for (Node neighbourNode : neighbourNodes) {
@@ -345,7 +409,7 @@ class AutoSolver {
     return x + y * this.gameWorld.width;
   }
 
-  Node[] getNeighbourNodes(Node startNode, GameTile[] gameTiles) {
+  Node[] getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList) {
     int x = startNode.getX();
     int y = startNode.getY();
     int[] potentialNeighbours = new int[] {
@@ -395,20 +459,20 @@ class AutoSolver {
               // and still get a shorter total path to the food
               Node potentialNode = new Node(this.mainClass, n);
               boolean addToList = true;
-              for (Node node : this.potentialAlternativesList) {
+              for (Node node : potentialAlternativesList) {
                 if (node.tileId == potentialNode.tileId) {
                   addToList = false;
                   break;
                 }
               }
-              for (int tileId : this.potentialAlternativesBlackList) {
+              for (int tileId : potentialAlternativesBlackList) {
                 if (tileId == potentialNode.tileId) {
                   addToList = false;
                   break;
                 }
               }
               if (addToList) {
-                this.potentialAlternativesList.add(potentialNode);
+                potentialAlternativesList.add(potentialNode);
                 potentialNode.parent = startNode;
                 potentialNode.minimumDistance = gameTile.occupiedCounter;
               }
@@ -504,9 +568,9 @@ class AutoSolver {
         this.checkNode(nextNode);
       }
     }
-    if (this.futureGameTiles != null) {
-      for (GameTile tile : futureGameTiles) {
-        tile.draw(this.mainClass, 0x55ff00ff, 0xaa00ffff, 0xaa333333);
+    if (this.snakeNodes != null) {
+      for (Node node : this.snakeNodes) {
+        node.draw(0xffff00ff);
       }
     }
     this.mainClass.textAlign(this.mainClass.LEFT, this.mainClass.BOTTOM);

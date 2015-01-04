@@ -72,6 +72,8 @@ class Node {
       x = this.getX() * GameTile.TILE_SIZE;
       y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE;
       mainClass.text(this.getGCost(), x+1, y);
+      mainClass.textAlign(mainClass.RIGHT, mainClass.BOTTOM);
+      mainClass.text(this.tileId, x+GameTile.TILE_SIZE-1, y);
     }
   }
 }

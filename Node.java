@@ -8,22 +8,32 @@ class Node {
   Node parent;
   Snake mainClass;
   static int DOT_SIZE = GameTile.TILE_SIZE / 4;
+  int costs;
 
   Node(Snake mainClass, int tileId) {
     this.mainClass = mainClass;
     this.tileId = tileId;
     this.minimumDistance = 0;
+    this.costs = 1;
+    for (int tile : this.mainClass.autoSolver.punishedTiles) {
+      if (tile == tileId) {
+        this.costs*=2;
+      }
+    }
   }
 
   int getGCost() {
     if (this.parent != null) {
-      return this.parent.getGCost() + 1;
+      return this.parent.getGCost() + this.costs;
     }
     return 0;
   }
 
   int getNumberOfParents() {
-    return getGCost();
+    if (this.parent != null) {
+      return this.parent.getNumberOfParents() + 1;
+    }
+    return 0;
   }
 
 
@@ -61,7 +71,7 @@ class Node {
       mainClass.textAlign(mainClass.LEFT, mainClass.BOTTOM);
       x = this.getX() * GameTile.TILE_SIZE;
       y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE;
-      mainClass.text(this.tileId, x+1, y);
+      mainClass.text(this.getGCost(), x+1, y);
     }
   }
 }

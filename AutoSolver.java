@@ -75,7 +75,7 @@ class AutoSolver {
     this.openList.add(startNode);
     this.nextNode = startNode;
   }
-  
+
   void checkNode(Node startNode) {
     checkNode(startNode, false);
   }
@@ -112,9 +112,13 @@ class AutoSolver {
         }
       }
       if (!alreadyInOpenList && !alreadyInClosedList) {
-        this.openList.add(neighbourNode);
         neighbourNode.parent = startNode;
         neighbourNode.hCost = this.calcHCost(x, y);
+        // do not add nodes which were punished too hard to avoid infinite searches.
+        int maxGCost = this.mainClass.BOARD_HORIZONTAL_SIZE * this.mainClass.BOARD_VERTICAL_SIZE;
+        if (neighbourNode.getGCost() < maxGCost) {
+          this.openList.add(neighbourNode);
+        }
       }
     }
     // move node from the open list to the closed list
@@ -369,8 +373,9 @@ class AutoSolver {
           this.checkNode(this.nextNode);
         }
       } else if (!this.continueGenerateAlternativePath) {
-        // theres a solution. Clear the blacklist
+        // theres a solution. Clear the blacklist and the punishlist
         this.potentialAlternativesBlackList = new ArrayList<Integer>();
+        this.punishedTiles = new ArrayList<Integer>();
       }
     } else {
       // there are no alternatives. Give up.
@@ -431,7 +436,7 @@ class AutoSolver {
     this.generateFinalPath(targetNode, forceRecursive);
     if (pathChanged) {
       // our path is now longer. is it long enough?
-      if (checkPathLength(targetNode) > targetNode.minimumDistance) {
+      if (checkPathLength(targetNode) > targetNode.minimumDistance+1) {
         this.continueGenerateAlternativePath = false;
       } else {
         this.continueGenerateAlternativePath = true;
@@ -507,7 +512,7 @@ class AutoSolver {
     if (y < this.gameWorld.height) {
       potentialNeighbours[3] = getTileId(x, y+1);
     }
- 
+
     ArrayList<Node> neighbourNodes = new ArrayList<Node>(); //new Node[totalNeighbours];
     for (int n : potentialNeighbours) {
       if (n > -1) {

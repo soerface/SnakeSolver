@@ -98,7 +98,7 @@ class AutoSolver {
           node.parent = startNode;
           int newGCost = node.getGCost();
           // but keep in mind that some nodes are only reachable after walking a certain distance (disappearing snake)
-          if (node.getNumberOfParents() > neighbourNode.minimumDistance) {
+          if (node.getNumberOfParents() >= neighbourNode.minimumDistance) {
             node.parent = newGCost < previousGCost ? startNode : previousParent;
           } else {
             node.parent = previousParent;
@@ -224,7 +224,7 @@ class AutoSolver {
           snakeNodes.remove(i);
         }
       }
-      if (targetNode.getNumberOfParents() > targetNode.minimumDistance) {
+      if (targetNode.getNumberOfParents() >= targetNode.minimumDistance) {
         isDeadEnd = false;
       } else {
         this.finalPath = new ArrayList<Node>();
@@ -268,7 +268,7 @@ class AutoSolver {
           Node previousParent = node.parent;
           node.parent = nextNode;
           int newGCost = node.getGCost();
-          if (node.getNumberOfParents() > neighbourNode.minimumDistance + 1) {
+          if (node.getNumberOfParents() >= neighbourNode.minimumDistance + 1) {
             node.parent = newGCost < previousGCost ? nextNode : previousParent;
           } else {
             node.parent = previousParent;
@@ -435,7 +435,7 @@ class AutoSolver {
     this.generateFinalPath(targetNode, forceRecursive);
     if (pathChanged) {
       // our path is now longer. is it long enough?
-      if (targetNode.getNumberOfParents() > targetNode.minimumDistance) {
+      if (targetNode.getNumberOfParents() >= targetNode.minimumDistance) {
         this.continueGenerateAlternativePath = false;
       } else {
         this.continueGenerateAlternativePath = true;
@@ -514,7 +514,7 @@ class AutoSolver {
           if (gameTile.occupiedCounter != -1) {
             // the field may be occupied at time checking, but since we need to move there,
             // it might be free until we get there
-            if (!ignoreMoving && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
+            if (!ignoreMoving && startNode.getNumberOfParents() >= gameTile.occupiedCounter) {
               willBeOccupied = false;
             } else {
               // it will not be free, but it might be free if we take a slightly longer path,

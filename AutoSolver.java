@@ -415,6 +415,20 @@ class AutoSolver {
               secondNeighbourNode.parent = originalParent;
               pathChanged = true;
               break;
+            } else {
+              if (this.nodeInList(thirdNeighbourNode, this.finalPath)) {
+                continue;
+              }
+              for (Node fourthNeighbourNode : this.findAlternativeNodes (thirdNeighbourNode, gameTiles, closedList, alternativesList, alternativesBlackList)) {
+                if (fourthNeighbourNode == originalParent) {
+                  node.parent = firstNeighbourNode;
+                  firstNeighbourNode.parent = secondNeighbourNode;
+                  secondNeighbourNode.parent = thirdNeighbourNode;
+                  thirdNeighbourNode.parent = originalParent;
+                  pathChanged = true;
+                  break;
+                }
+              }
             }
           }
           if (pathChanged) {
@@ -466,11 +480,11 @@ class AutoSolver {
       return alternativeNodes;
     }
     // is there another node in the closed list around us besides the one that is the parent?
-    ArrayList<Node> neighbourNodes = this.getNeighbourNodes(targetNode, gameTiles, alternativesList, alternativesBlackList);
+    int[] neighbourTileIds = this.getNeighbourTileIds(targetNode);
     int i = 0;
     for (Node node : closedList) {
-      for (Node neighbourNode : neighbourNodes) {
-        if (node.tileId == neighbourNode.tileId) {
+      for (int tileId : neighbourTileIds) {
+        if (node.tileId == tileId) {
           alternativeNodes.add(node);
         }
       }
@@ -486,24 +500,34 @@ class AutoSolver {
     return getNeighbourNodes(startNode, gameTiles, potentialAlternativesList, potentialAlternativesBlackList, false);
   }
 
-  ArrayList<Node> getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList, boolean ignoreMoving) {
-    int x = startNode.getX();
-    int y = startNode.getY();
-    int[] potentialNeighbours = new int[] {
+  int[] getNeighbourTileIds(Node node) {
+    int x = node.getX();
+    int y = node.getY();
+    return this.getNeighbourTileIds(x, y);
+  }
+
+  int[] getNeighbourTileIds(int x, int y) {
+    int[] tileIds = new int[] {
       -1, -1, -1, -1
     };
     if (x > 0) {
-      potentialNeighbours[0] = getTileId(x-1, y);
+      tileIds[0] = this.getTileId(x-1, y);
     }
     if (y > 0) {
-      potentialNeighbours[1] = getTileId(x, y-1);
+      tileIds[1] = this.getTileId(x, y-1);
     }
     if (x < this.gameWorld.width) {
-      potentialNeighbours[2] = getTileId(x+1, y);
+      tileIds[2] = this.getTileId(x+1, y);
     }
     if (y < this.gameWorld.height) {
-      potentialNeighbours[3] = getTileId(x, y+1);
+      tileIds[3] = this.getTileId(x, y+1);
     }
+    return tileIds;
+  }
+
+  ArrayList<Node> getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList, boolean ignoreMoving) {
+
+    int[] potentialNeighbours = this.getNeighbourTileIds(startNode);
 
     ArrayList<Node> neighbourNodes = new ArrayList<Node>(); //new Node[totalNeighbours];
     for (int n : potentialNeighbours) {

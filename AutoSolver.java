@@ -469,7 +469,7 @@ class AutoSolver {
       return alternativeNodes;
     }
     // is there another node in the closed list around us besides the one that is the parent?
-    Node[] neighbourNodes = this.getNeighbourNodes(targetNode, gameTiles, alternativesList, alternativesBlackList);
+    ArrayList<Node> neighbourNodes = this.getNeighbourNodes(targetNode, gameTiles, alternativesList, alternativesBlackList);
     int i = 0;
     for (Node node : closedList) {
       for (Node neighbourNode : neighbourNodes) {
@@ -485,12 +485,11 @@ class AutoSolver {
     return x + y * this.gameWorld.width;
   }
 
-  Node[] getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList) {
+  ArrayList<Node> getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList) {
     return getNeighbourNodes(startNode, gameTiles, potentialAlternativesList, potentialAlternativesBlackList, false);
   }
 
-  Node[] getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList, boolean ignoreMoving) {
-    // nodes which are punished too hard should be handled as dead ends
+  ArrayList<Node> getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList, boolean ignoreMoving) {
     int x = startNode.getX();
     int y = startNode.getY();
     int[] potentialNeighbours = new int[] {
@@ -508,23 +507,8 @@ class AutoSolver {
     if (y < this.gameWorld.height) {
       potentialNeighbours[3] = getTileId(x, y+1);
     }
-    int totalNeighbours = 0;
-    for (int n : potentialNeighbours) {
-      if (n > -1) {
-        GameTile gameTile = gameTiles[n];
-        boolean willBeOccupied = gameTile.occupied;
-        if (gameTile.occupied) {
-          if (!ignoreMoving && gameTile.occupiedCounter != -1 && startNode.getNumberOfParents() > gameTile.occupiedCounter) {
-            willBeOccupied = false;
-          }
-        }
-        if (!willBeOccupied) {
-          totalNeighbours++;
-        }
-      }
-    }
-    Node[] neighbourNodes = new Node[totalNeighbours];
-    int i = 0;
+ 
+    ArrayList<Node> neighbourNodes = new ArrayList<Node>(); //new Node[totalNeighbours];
     for (int n : potentialNeighbours) {
       if (n > -1) {
         GameTile gameTile = gameTiles[n];
@@ -561,9 +545,9 @@ class AutoSolver {
           }
         }
         if (!willBeOccupied) {
-          neighbourNodes[i] = new Node(this.mainClass, n);
-          neighbourNodes[i].minimumDistance = gameTile.occupiedCounter;
-          i++;
+          Node node = new Node(this.mainClass, n);
+          node.minimumDistance = gameTile.occupiedCounter;
+          neighbourNodes.add(node);
         }
       }
     }

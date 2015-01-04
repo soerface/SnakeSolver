@@ -135,7 +135,6 @@ class AutoSolver {
 
       if (isDeadEnd) {
         // dead end. Punish nodes on path to try an alternative
-        this.mainClass.print("DEAD END!\n");
         this.finalPath = new ArrayList<Node>();
         this.generateFinalPath(startNode, true);
         for (Node node : this.finalPath) {

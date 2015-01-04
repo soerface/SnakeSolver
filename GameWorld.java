@@ -44,9 +44,9 @@ class GameWorld { //<>// //<>//
       int x = this.mainClass.width / 2;
       int y = this.mainClass.height / 2;
       this.mainClass.fill(0xffffffff);
-      this.mainClass.textSize(32);
+      this.mainClass.textSize(18);
       this.mainClass.text("Press [s] to start the game\n", x, y);
-      this.mainClass.textSize(24);
+      this.mainClass.textSize(14);
       this.mainClass.text(
       "\n[a] to let the computer play automatically" +
       "\n[v] to let the computer play with visualization" +

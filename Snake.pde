@@ -1,10 +1,10 @@
-final static boolean DEBUG = true;
+final static boolean DEBUG = false;
 
 GameWorld gameWorld;
 AutoSolver autoSolver;
 int frames = 0;
-static final int TICKS_PER_FRAME = 1; // decrease this number to speedup the game
-static final int BOARD_HORIZONTAL_SIZE = 30;
+static final int TICKS_PER_FRAME = 10; // decrease this number to speedup the game
+static final int BOARD_HORIZONTAL_SIZE = 34;
 static final int BOARD_VERTICAL_SIZE = 20;
 
 void setup() {

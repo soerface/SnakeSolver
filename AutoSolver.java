@@ -224,7 +224,7 @@ class AutoSolver {
           snakeNodes.remove(i);
         }
       }
-      if (this.checkPathLength(targetNode) > targetNode.minimumDistance) {
+      if (targetNode.getNumberOfParents() > targetNode.minimumDistance) {
         isDeadEnd = false;
       } else {
         this.finalPath = new ArrayList<Node>();
@@ -268,7 +268,7 @@ class AutoSolver {
           Node previousParent = node.parent;
           node.parent = nextNode;
           int newGCost = node.getGCost();
-          if (node.getNumberOfParents() > neighbourNode.minimumDistance) {
+          if (node.getNumberOfParents() > neighbourNode.minimumDistance + 1) {
             node.parent = newGCost < previousGCost ? nextNode : previousParent;
           } else {
             node.parent = previousParent;
@@ -435,7 +435,7 @@ class AutoSolver {
     this.generateFinalPath(targetNode, forceRecursive);
     if (pathChanged) {
       // our path is now longer. is it long enough?
-      if (checkPathLength(targetNode) > targetNode.minimumDistance+1) {
+      if (targetNode.getNumberOfParents() > targetNode.minimumDistance) {
         this.continueGenerateAlternativePath = false;
       } else {
         this.continueGenerateAlternativePath = true;
@@ -457,13 +457,6 @@ class AutoSolver {
       }
     }
     return false;
-  }
-
-  int checkPathLength(Node node) {
-    if (node.parent == null) {
-      return 1;
-    }
-    return checkPathLength(node.parent) + 1;
   }
 
   ArrayList<Node> findAlternativeNodes(Node targetNode, GameTile[] gameTiles, ArrayList<Node> closedList, ArrayList<Node> alternativesList, ArrayList<Integer> alternativesBlackList) {

@@ -15,8 +15,8 @@ class AutoSolver {
   ArrayList<Node> closedList;
   ArrayList<Node> finalPath;
   ArrayList<Node> potentialAlternativesList;
-  ArrayList<Node> snakeNodes;
   ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
+  ArrayList<Integer> punishedTiles;
   boolean pathFound;
   boolean goodLuck;
   boolean visualizationPaused;
@@ -37,6 +37,7 @@ class AutoSolver {
     this.finalPath = new ArrayList<Node>();
     this.potentialAlternativesList = new ArrayList<Node>();
     this.potentialAlternativesBlackList = new ArrayList<Integer>();
+    this.punishedTiles = new ArrayList<Integer>();
     this.pathFound = false;
     this.visualize = false;
     this.visualizationPaused = false;
@@ -74,8 +75,12 @@ class AutoSolver {
     this.openList.add(startNode);
     this.nextNode = startNode;
   }
-
+  
   void checkNode(Node startNode) {
+    checkNode(startNode, false);
+  }
+
+  void checkNode(Node startNode, boolean forceRecursion) {
     if (startNode == null) {
       return;
     }
@@ -122,69 +127,25 @@ class AutoSolver {
     this.closedList.add(startNode);
     // check if this is the target node
     if (x == targetX && y == targetY) {
-      // TODO: We need to check if we are running into a dead end.
-      // in order to do this, we just need to see if we could reach our tail after we arrive at the food
-      // because if we can reach our tail we will be able to reach every other field, too
-      // if we can not reach it, increase the length of our path, so the path before us becomes free.
-      this.generateFinalPath(startNode, true); // force recursive calculation, we need the final path
-      GameTile[] futureGameTiles = this.simulatePath(this.finalPath);
-      int i = 0;
-      int futureSnakeHeadTileId = 0;
-      GameTile futureSnakeHeadTile = futureGameTiles[0];
-      for (GameTile tile : futureGameTiles) {
-        if (futureSnakeHeadTile.occupiedCounter < tile.occupiedCounter) {
-          futureSnakeHeadTile =  tile;
-          futureSnakeHeadTileId = i;
-        }
-        i++;
-      }
-      Node futureStartNode = new Node(this.mainClass, futureSnakeHeadTileId);
-      ArrayList<Integer> blackList = new ArrayList<Integer>();
-      ArrayList<Node> closedList = new ArrayList<Node>();
-      ArrayList<Node> snakeNodes = this.findSnakeNodes(futureStartNode, futureGameTiles, blackList, closedList);
-      this.snakeNodes = snakeNodes;
-      // now that we have the nodes of the snake which are reachable, we just need to find a single
-      // one which we will be able to reach when it becomesfree. Because this is essentially our tail
-      // its basically the same calculation as the generateAlternativePath() method does
-      boolean success = false;
-      while (!success) {
-        Node targetNode = null;
-        for (Node node : snakeNodes) {
-          if (targetNode == null) {
-            targetNode = node;
-          } else {
-            targetNode = node.minimumDistance < targetNode.minimumDistance ? node : targetNode;
-          }
-        }
-        if (targetNode == null) {
-          // all nodes were checked, we cant find a path to the tail
-          break;
-        }
-        for (i = snakeNodes.size () - 1; i>=0; i--) {
-          Node node = snakeNodes.get(i);
-          if (node == targetNode) {
-            snakeNodes.remove(i);
-          }
-        }
-        this.mainClass.print(targetNode.tileId + ": " + this.checkPathLength(targetNode) + " " + targetNode.minimumDistance + "\n");
-        if (this.checkPathLength(targetNode) > targetNode.minimumDistance) {
-          success = true;
-        } else {
-          this.finalPath = new ArrayList<Node>();
-          this.generateFinalPath(targetNode, true);
-          if (this.increasePathLength(futureGameTiles, closedList, snakeNodes, blackList, true)) {
-            success = true;
-          }
-          blackList.add(targetNode.tileId);
-          closedList = new ArrayList<Node>();
-          snakeNodes = this.findSnakeNodes(futureStartNode, futureGameTiles, blackList, closedList);
-        }
-      }
-      if (!success) {
+      boolean isDeadEnd = this.checkForDeadEnd(startNode);
+
+      if (isDeadEnd) {
+        // dead end. Punish nodes on path to try an alternative
         this.mainClass.print("DEAD END!\n");
-        // TODO: change the path to something better...
-      }
-      if (true || success) {
+        this.finalPath = new ArrayList<Node>();
+        this.generateFinalPath(startNode, true);
+        for (Node node : this.finalPath) {
+          this.punishedTiles.add(node.tileId);
+        }
+        this.closedList = new ArrayList<Node>();
+        this.openList = new ArrayList<Node>();
+        this.finalPath = new ArrayList<Node>();
+        this.potentialAlternativesList = new ArrayList<Node>();
+        this.potentialAlternativesBlackList = new ArrayList<Integer>();
+        this.pathFound = false;
+        this.checkNode(nextNode);
+        return;
+      } else {
         // found a path which does not lead into a dead end
         this.nextNode = null;
         this.finalPath = new ArrayList<Node>();
@@ -192,6 +153,7 @@ class AutoSolver {
         this.pathFound = true;
         // we found a path, but we might be faster taking an alternative route
         this.potentialAlternativesBlackList = new ArrayList<Integer>();
+        this.punishedTiles = new ArrayList<Integer>();
         //this.generateAlternativePath(); (not that important to find an even shorter path
         return;
       }
@@ -203,8 +165,8 @@ class AutoSolver {
         this.nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
       }
       // usually, this is recursive. For visualization purposes, we skip it and just remember the next node.
-      if (!this.visualize) {
-        this.checkNode(nextNode);
+      if (!this.visualize || forceRecursion) {
+        this.checkNode(nextNode, forceRecursion);
       }
     } else {
       // okay, we didn't find a path, but there is nothing in the open list
@@ -213,6 +175,66 @@ class AutoSolver {
       this.nextNode = null;
       this.generateAlternativePath();
     }
+  }
+
+  boolean checkForDeadEnd(Node startNode) {
+    // we need to check if we are running into a dead end.
+    // in order to do this, we just need to see if we could reach our tail after we arrive at the food
+    // because if we can reach our tail we will be able to reach every other field, too
+    // if we can not reach it, increase the length of our path, so the path before us becomes free.
+    this.generateFinalPath(startNode, true); // force recursive calculation, we need the final path
+    GameTile[] futureGameTiles = this.simulatePath(this.finalPath);
+    int i = 0;
+    int futureSnakeHeadTileId = 0;
+    GameTile futureSnakeHeadTile = futureGameTiles[0];
+    for (GameTile tile : futureGameTiles) {
+      if (futureSnakeHeadTile.occupiedCounter < tile.occupiedCounter) {
+        futureSnakeHeadTile =  tile;
+        futureSnakeHeadTileId = i;
+      }
+      i++;
+    }
+    Node futureStartNode = new Node(this.mainClass, futureSnakeHeadTileId);
+    ArrayList<Integer> blackList = new ArrayList<Integer>();
+    ArrayList<Node> closedList = new ArrayList<Node>();
+    ArrayList<Node> snakeNodes = this.findSnakeNodes(futureStartNode, futureGameTiles, blackList, closedList);
+    // now that we have the nodes of the snake which are reachable, we just need to find a single
+    // one which we will be able to reach when it becomes free. Because this is essentially our tail
+    // its basically the same calculation as the generateAlternativePath() method does
+    boolean isDeadEnd = true;
+    while (isDeadEnd) {
+      Node targetNode = null;
+      for (Node node : snakeNodes) {
+        if (targetNode == null) {
+          targetNode = node;
+        } else {
+          targetNode = node.minimumDistance < targetNode.minimumDistance ? node : targetNode;
+        }
+      }
+      if (targetNode == null) {
+        // all nodes were checked, we cant find a path to the tail
+        break;
+      }
+      for (i = snakeNodes.size () - 1; i>=0; i--) {
+        Node node = snakeNodes.get(i);
+        if (node == targetNode) {
+          snakeNodes.remove(i);
+        }
+      }
+      if (this.checkPathLength(targetNode) > targetNode.minimumDistance) {
+        isDeadEnd = false;
+      } else {
+        this.finalPath = new ArrayList<Node>();
+        this.generateFinalPath(targetNode, true);
+        if (this.increasePathLength(futureGameTiles, closedList, snakeNodes, blackList, true)) {
+          isDeadEnd = false;
+        }
+        blackList.add(targetNode.tileId);
+        closedList = new ArrayList<Node>();
+        snakeNodes = this.findSnakeNodes(futureStartNode, futureGameTiles, blackList, closedList);
+      }
+    }
+    return isDeadEnd;
   }
 
   ArrayList<Node> findSnakeNodes(Node startNode, GameTile[] gameTiles, ArrayList<Integer> blackList, ArrayList<Node> closedList) {
@@ -468,6 +490,7 @@ class AutoSolver {
   }
 
   Node[] getNeighbourNodes(Node startNode, GameTile[] gameTiles, ArrayList<Node> potentialAlternativesList, ArrayList<Integer> potentialAlternativesBlackList, boolean ignoreMoving) {
+    // nodes which are punished too hard should be handled as dead ends
     int x = startNode.getX();
     int y = startNode.getY();
     int[] potentialNeighbours = new int[] {
@@ -624,11 +647,6 @@ class AutoSolver {
       nextNode.draw(0xff000000);
       if (!this.visualize || !this.visualizationPaused) {
         this.checkNode(nextNode);
-      }
-    }
-    if (this.snakeNodes != null) {
-      for (Node node : this.snakeNodes) {
-        node.draw(0xffff00ff);
       }
     }
     this.mainClass.textAlign(this.mainClass.LEFT, this.mainClass.BOTTOM);

@@ -5,12 +5,14 @@
  * It contains nothing of the snake gamelogic, so you dont need to read it
  * if you are just checking my homework.
  */
+package de.wegenerd;
+
 import java.util.ArrayList;
 
 class AutoSolver {
 
   GameWorld gameWorld;
-  Snake mainClass;
+  Processing mainClass;
   ArrayList<Node> openList;
   ArrayList<Node> closedList;
   ArrayList<Node> finalPath;
@@ -29,7 +31,7 @@ class AutoSolver {
   Node alternativeNode;
   boolean visualize;
 
-  AutoSolver(Snake mainClass, GameWorld gameWorld) {
+  AutoSolver(Processing mainClass, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
     this.mainClass = mainClass;
     this.openList = new ArrayList<Node>();
@@ -188,19 +190,19 @@ class AutoSolver {
     this.generateFinalPath(startNode, true); // force recursive calculation, we need the final path
     GameTile[] futureGameTiles = this.simulatePath(this.finalPath);
     int i = 0;
-    int futureSnakeHeadTileId = 0;
-    GameTile futureSnakeHeadTile = futureGameTiles[0];
+    int futureProcessingHeadTileId = 0;
+    GameTile futureProcessingHeadTile = futureGameTiles[0];
     for (GameTile tile : futureGameTiles) {
-      if (futureSnakeHeadTile.occupiedCounter < tile.occupiedCounter) {
-        futureSnakeHeadTile =  tile;
-        futureSnakeHeadTileId = i;
+      if (futureProcessingHeadTile.occupiedCounter < tile.occupiedCounter) {
+        futureProcessingHeadTile =  tile;
+        futureProcessingHeadTileId = i;
       }
       i++;
     }
-    Node futureStartNode = new Node(this.mainClass, futureSnakeHeadTileId);
+    Node futureStartNode = new Node(this.mainClass, futureProcessingHeadTileId);
     ArrayList<Integer> blackList = new ArrayList<Integer>();
     ArrayList<Node> closedList = new ArrayList<Node>();
-    ArrayList<Node> snakeNodes = this.findSnakeNodes(futureStartNode, futureGameTiles, blackList, closedList);
+    ArrayList<Node> snakeNodes = this.findProcessingNodes(futureStartNode, futureGameTiles, blackList, closedList);
     // now that we have the nodes of the snake which are reachable, we just need to find a single
     // one which we will be able to reach when it becomes free. Because this is essentially our tail
     // its basically the same calculation as the generateAlternativePath() method does
@@ -229,26 +231,26 @@ class AutoSolver {
       } else {
         this.finalPath = new ArrayList<Node>();
         this.generateFinalPath(targetNode, true);
-        if (this.increasePathLength(futureGameTiles, closedList, snakeNodes, blackList, true)) {
+        if (this.increasePathLength(futureGameTiles, closedList, snakeNodes, blackList, true, 6)) {
           isDeadEnd = false;
         }
         blackList.add(targetNode.tileId);
         closedList = new ArrayList<Node>();
-        snakeNodes = this.findSnakeNodes(futureStartNode, futureGameTiles, blackList, closedList);
+        snakeNodes = this.findProcessingNodes(futureStartNode, futureGameTiles, blackList, closedList);
       }
     }
     return isDeadEnd;
   }
 
-  ArrayList<Node> findSnakeNodes(Node startNode, GameTile[] gameTiles, ArrayList<Integer> blackList, ArrayList<Node> closedList) {
+  ArrayList<Node> findProcessingNodes(Node startNode, GameTile[] gameTiles, ArrayList<Integer> blackList, ArrayList<Node> closedList) {
     ArrayList<Node> openList = new ArrayList<Node>();
     ArrayList<Node> snakeNodes = new ArrayList<Node>();
     openList.add(startNode);
-    this.findSnakeNodes(gameTiles, openList, closedList, blackList, snakeNodes);
+    this.findProcessingNodes(gameTiles, openList, closedList, blackList, snakeNodes);
     return snakeNodes;
   }
 
-  void findSnakeNodes(GameTile[] gameTiles, ArrayList<Node> openList, ArrayList<Node> closedList, ArrayList<Integer> blackList, ArrayList<Node> snakeNodes) {
+  void findProcessingNodes(GameTile[] gameTiles, ArrayList<Node> openList, ArrayList<Node> closedList, ArrayList<Integer> blackList, ArrayList<Node> snakeNodes) {
     nextNode = null;
     for (Node node : openList) {
       if (nextNode == null) {
@@ -295,7 +297,7 @@ class AutoSolver {
     }
     closedList.add(nextNode);
 
-    this.findSnakeNodes(gameTiles, openList, closedList, blackList, snakeNodes);
+    this.findProcessingNodes(gameTiles, openList, closedList, blackList, snakeNodes);
   }
 
   GameTile[] simulatePath(ArrayList<Node> path) {
@@ -384,10 +386,10 @@ class AutoSolver {
   }
 
   boolean increasePathLength() {
-    return increasePathLength(this.gameWorld.gameTiles, this.closedList, this.potentialAlternativesList, this.potentialAlternativesBlackList, false);
+    return increasePathLength(this.gameWorld.gameTiles, this.closedList, this.potentialAlternativesList, this.potentialAlternativesBlackList, false, 0);
   }
 
-  boolean increasePathLength(GameTile[] gameTiles, ArrayList<Node> closedList, ArrayList<Node> alternativesList, ArrayList<Integer> alternativesBlackList, boolean forceRecursive) {
+  boolean increasePathLength(GameTile[] gameTiles, ArrayList<Node> closedList, ArrayList<Node> alternativesList, ArrayList<Integer> alternativesBlackList, boolean forceRecursive, int margin) {
     boolean pathChanged = false;
     if (this.finalPath.size() < 1) {
       // not enough space to navigate
@@ -449,12 +451,12 @@ class AutoSolver {
     this.generateFinalPath(targetNode, forceRecursive);
     if (pathChanged) {
       // our path is now longer. is it long enough?
-      if (targetNode.getNumberOfParents() >= targetNode.minimumDistance) {
+      if (targetNode.getNumberOfParents() >= targetNode.minimumDistance + margin) {
         this.continueGenerateAlternativePath = false;
       } else {
         this.continueGenerateAlternativePath = true;
         if (!this.visualize || forceRecursive) {
-          return this.increasePathLength(gameTiles, closedList, alternativesList, alternativesBlackList, forceRecursive);
+          return this.increasePathLength(gameTiles, closedList, alternativesList, alternativesBlackList, forceRecursive, margin);
         }
       }
       return true;

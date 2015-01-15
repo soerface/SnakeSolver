@@ -1,6 +1,8 @@
+package de.wegenerd;
+
 class GameTile {
   
-  static final int TILE_SIZE = 10; // I recommend a value of 20
+  static final int TILE_SIZE = 30; // I recommend a value of 20
   final int x;
   final int y;
   boolean hasFood;
@@ -13,11 +15,11 @@ class GameTile {
     this.y = y;
   }
 
-  void draw(Snake mainClass) {
+  void draw(Processing mainClass) {
     this.draw(mainClass, 0xffffffff, 0xff000000, 0xff333333);
   }
 
-  void draw(Snake mainClass, int occupiedColor, int freeColor, int strokeColor) {
+  void draw(Processing mainClass, int occupiedColor, int freeColor, int strokeColor) {
     int color = this.occupied ? occupiedColor : freeColor;
     mainClass.fill(color);
     mainClass.stroke(strokeColor);

@@ -1,16 +1,15 @@
-/**
- * Part of the AutoSolver
- */
+package de.wegenerd;
+
 class Node {
   int tileId;
   float hCost;
   int minimumDistance;
   Node parent;
-  Snake mainClass;
+  Processing mainClass;
   static int DOT_SIZE = GameTile.TILE_SIZE / 4;
   int costs;
 
-  Node(Snake mainClass, int tileId) {
+  Node(Processing mainClass, int tileId) {
     this.mainClass = mainClass;
     this.tileId = tileId;
     this.minimumDistance = 0;

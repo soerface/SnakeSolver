@@ -15,29 +15,29 @@ class GameTile {
     this.y = y;
   }
 
-  void draw(Processing mainClass) {
-    this.draw(mainClass, 0xffffffff, 0xff000000, 0xff333333);
+  void draw(Processing processing) {
+    this.draw(processing, 0xffffffff, 0xff000000, 0xff333333);
   }
 
-  void draw(Processing mainClass, int occupiedColor, int freeColor, int strokeColor) {
+  void draw(Processing processing, int occupiedColor, int freeColor, int strokeColor) {
     int color = this.occupied ? occupiedColor : freeColor;
-    mainClass.fill(color);
-    mainClass.stroke(strokeColor);
-    mainClass.strokeWeight(1);
+    processing.fill(color);
+    processing.stroke(strokeColor);
+    processing.strokeWeight(1);
     int x = this.x * TILE_SIZE;
     int y = this.y * TILE_SIZE;
-    mainClass.rect(x, y, TILE_SIZE, TILE_SIZE);
+    processing.rect(x, y, TILE_SIZE, TILE_SIZE);
     if (this.hasFood) {
       int margin = TILE_SIZE / 3;
-      mainClass.stroke(0xffffffaa);
-      mainClass.line(x + margin, y + margin, x + TILE_SIZE - margin, y + TILE_SIZE - margin);
-      mainClass.line(x + margin, y + TILE_SIZE - margin, x + TILE_SIZE - margin, y + margin);
+      processing.stroke(0xffffffaa);
+      processing.line(x + margin, y + margin, x + TILE_SIZE - margin, y + TILE_SIZE - margin);
+      processing.line(x + margin, y + TILE_SIZE - margin, x + TILE_SIZE - margin, y + margin);
     }
-    if (mainClass.DEBUG) {
+    if (processing.DEBUG) {
       color = this.occupied ? freeColor : occupiedColor;
-      mainClass.fill(color);
-      mainClass.textAlign(mainClass.LEFT, mainClass.TOP);
-      mainClass.text(this.occupiedCounter, x+1, y);
+      processing.fill(color);
+      processing.textAlign(processing.LEFT, processing.TOP);
+      processing.text(this.occupiedCounter, x+1, y);
     }
   }
 

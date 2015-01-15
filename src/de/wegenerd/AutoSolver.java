@@ -12,7 +12,7 @@ import java.util.ArrayList;
 class AutoSolver {
 
   GameWorld gameWorld;
-  Processing mainClass;
+  Processing processing;
   ArrayList<Node> openList;
   ArrayList<Node> closedList;
   ArrayList<Node> finalPath;
@@ -31,9 +31,9 @@ class AutoSolver {
   Node alternativeNode;
   boolean visualize;
 
-  AutoSolver(Processing mainClass, GameWorld gameWorld) {
+  AutoSolver(Processing processing, GameWorld gameWorld) {
     this.gameWorld = gameWorld;
-    this.mainClass = mainClass;
+    this.processing = processing;
     this.openList = new ArrayList<Node>();
     this.closedList = new ArrayList<Node>();
     this.finalPath = new ArrayList<Node>();
@@ -73,7 +73,7 @@ class AutoSolver {
     if (!foodFound) {
       return;
     }
-    Node startNode = new Node(this.mainClass, startTileId);
+    Node startNode = new Node(this.processing, startTileId);
     this.openList.add(startNode);
     this.nextNode = startNode;
   }
@@ -117,7 +117,7 @@ class AutoSolver {
         neighbourNode.parent = startNode;
         neighbourNode.hCost = this.calcHCost(x, y);
         // do not add nodes which were punished too hard to avoid infinite searches.
-        int maxGCost = this.mainClass.BOARD_HORIZONTAL_SIZE * this.mainClass.BOARD_VERTICAL_SIZE;
+        int maxGCost = this.processing.BOARD_HORIZONTAL_SIZE * this.processing.BOARD_VERTICAL_SIZE;
         if (neighbourNode.getGCost() < maxGCost) {
           this.openList.add(neighbourNode);
         }
@@ -199,7 +199,7 @@ class AutoSolver {
       }
       i++;
     }
-    Node futureStartNode = new Node(this.mainClass, futureProcessingHeadTileId);
+    Node futureStartNode = new Node(this.processing, futureProcessingHeadTileId);
     ArrayList<Integer> blackList = new ArrayList<Integer>();
     ArrayList<Node> closedList = new ArrayList<Node>();
     ArrayList<Node> snakeNodes = this.findProcessingNodes(futureStartNode, futureGameTiles, blackList, closedList);
@@ -545,7 +545,7 @@ class AutoSolver {
             } else {
               // it will not be free, but it might be free if we take a slightly longer path,
               // and still get a shorter total path to the food
-              Node potentialNode = new Node(this.mainClass, n);
+              Node potentialNode = new Node(this.processing, n);
               boolean addToList = true;
               for (Node node : potentialAlternativesList) {
                 if (node.tileId == potentialNode.tileId) {
@@ -568,7 +568,7 @@ class AutoSolver {
           }
         }
         if (!willBeOccupied) {
-          Node node = new Node(this.mainClass, n);
+          Node node = new Node(this.processing, n);
           node.minimumDistance = gameTile.occupiedCounter;
           neighbourNodes.add(node);
         }
@@ -584,7 +584,7 @@ class AutoSolver {
   void generateFinalPath(Node node, boolean forceRecursive) {
     for (Node previousNode : this.finalPath) {
       if (node.tileId == previousNode.tileId) {
-        this.mainClass.print("Invalid path!\n");
+        this.processing.print("Invalid path!\n");
         this.generateFinalPath = false;
         return;
       }
@@ -607,8 +607,8 @@ class AutoSolver {
   float calcHCost(int x, int y) {
     int a = this.targetX - x;
     int b = this.targetY - y;
-    float distance = this.mainClass.sqrt(a*a + b*b);
-    //float distance = this.mainClass.abs(this.targetX - x) + this.mainClass.abs(this.targetY - y);
+    float distance = this.processing.sqrt(a*a + b*b);
+    //float distance = this.processing.abs(this.targetX - x) + this.processing.abs(this.targetY - y);
     return distance;
   }
 
@@ -649,22 +649,22 @@ class AutoSolver {
     if (nextNode != null) {
       int x = nextNode.getX() * GameTile.TILE_SIZE;
       int y = nextNode.getY() * GameTile.TILE_SIZE;
-      this.mainClass.fill(0xffffffff);
-      this.mainClass.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
+      this.processing.fill(0xffffffff);
+      this.processing.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
       nextNode.draw(0xff000000);
       if (!this.visualize || !this.visualizationPaused) {
         this.checkNode(nextNode);
       }
     }
-    this.mainClass.textAlign(this.mainClass.LEFT, this.mainClass.BOTTOM);
-    this.mainClass.textSize(10);
+    this.processing.textAlign(this.processing.LEFT, this.processing.BOTTOM);
+    this.processing.textSize(10);
     String text = "Press [v] to toggle visualization, [i] to toggle interactive mode, [ ] to pause visualization, [n] to step through visualization";
-    float width = this.mainClass.textWidth(text);
-    this.mainClass.fill(0xffffffff);
-    this.mainClass.strokeWeight(0);
-    this.mainClass.rect(1, this.mainClass.height - GameTile.TILE_SIZE, width, GameTile.TILE_SIZE);
-    this.mainClass.fill(0xff000000);
-    this.mainClass.text(text, 5, this.mainClass.height);
+    float width = this.processing.textWidth(text);
+    this.processing.fill(0xffffffff);
+    this.processing.strokeWeight(0);
+    this.processing.rect(1, this.processing.height - GameTile.TILE_SIZE, width, GameTile.TILE_SIZE);
+    this.processing.fill(0xff000000);
+    this.processing.text(text, 5, this.processing.height);
   }
 
   void tick() {

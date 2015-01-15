@@ -13,7 +13,7 @@ class GameWorld { //<>// //<>//
   boolean gameStarted;
   boolean gamePaused;
   boolean spawnFood;
-  Processing mainClass;
+  Processing processing;
   static final int UP = 0;
   static final int RIGHT = 1;
   static final int DOWN = 2;
@@ -23,14 +23,14 @@ class GameWorld { //<>// //<>//
   static final int[] testFoodPositions = new int[] {231, 410, 169, 507, 95, 295, 175, 214, 365, 213, 298, 545, 191, 260, 172, 144, 433, 76, 184, 497, 514, 531, 446, 39, 309, 311, 313, 253, 251, 348, 353, 143, 137, 167, 170, 401, 130, 135, 223, 469, 446, 235, 321, 318, 408, 463, 74, 114, 382, 411, 408, 416, 431, 220, 289, 511, 200, 154, 33, 483, 565, 214, 217, 80, 530, 216, 422, 413, 543, 220, 77, 177, 567, 41, 184, 285, 436, 88, 309, 301, 286, 469, 44, 435, 173, 567, 504, 503, 248, 69, 257, 170, 378, 46, 327, 422, 62, 304, 155, 66, 109, 548, 499, 296, 529, 410, 476, 343, 139, 454, 220, 415, 422, 290, 76, 435, 467, 263, 111, 376, 558, 548, 538, 276, 108, 398, 472, 358, 268, 57, 98, 32, 443, 85, 337, 530, 466, 227, 354, 543, 223, 83, 273, 260, 532, 167, 353, 361, 313, 466, 438, 195, 283, 112, 170, 280, 244, 399, 292, 162, 531, 280, 525, 175, 159, 549, 79, 502, 335, 163, 43, 47, 142, 470, 460, 183, 39, 385, 499, 156, 306, 484, 538, 53, 457, 121, 372, 250, 323, 393, 64, 80, 107, 349, 245, 37, 550, 295, 96, 72, 476, 51, 66, 351, 100, 426, 191, 68, 118, 506, 478, 393, 405, 176, 512, 412, 147, 167, 370, 151, 226, 334, 134, 382, 177, 492, 439, 306, 56, 52, 436, 85, 374, 545, 568, 285, 247, 489, 391, 498, 265, 380, 87, 334, 244, 251, 64, 392, 227, 189, 425, 58, 387, 340, 464, 456, 31, 395, 380, 400, 337, 478, 264, 397, 215, 108, 200, 310, 567, 227, 109, 126, 538, 503, 425, 61, 243, 115, 79, 71, 247, 129, 215, 79, 147, 122, 350, 500, 276, 70, 346, 143, 376, 190, 192, 272, 110, 128};
   int testFoodCounter;
 
-  GameWorld(Processing mainClass) {
-    this.mainClass = mainClass;
+  GameWorld(Processing processing) {
+    this.processing = processing;
     this.gameStarted = false;
     this.gamePaused = false;
     this.spawnFood = true;
     this.foodPositions = new ArrayList<Integer>();
-    int width = mainClass.width;
-    int height = mainClass.height;
+    int width = processing.width;
+    int height = processing.height;
     this.width = width / GameTile.TILE_SIZE;
     this.height = height / GameTile.TILE_SIZE;
     int worldArea = width * height;
@@ -47,21 +47,21 @@ class GameWorld { //<>// //<>//
 
   void draw() {
     if (!this.gameStarted) {
-      this.mainClass.textAlign(this.mainClass.CENTER);
-      int x = this.mainClass.width / 2;
-      int y = this.mainClass.height / 2;
-      this.mainClass.fill(0xffffffff);
-      this.mainClass.textSize(18);
-      this.mainClass.text("Press [s] to start the game\n", x, y);
-      this.mainClass.textSize(14);
-      this.mainClass.text(
-      "\n[a] to let the computer play automatically" +
-      "\n[v] to let the computer play with visualization" +
-      "\n[i] computer, set food interactively with click", x, y);
+      this.processing.textAlign(this.processing.CENTER);
+      int x = this.processing.width / 2;
+      int y = this.processing.height / 2;
+      this.processing.fill(0xffffffff);
+      this.processing.textSize(18);
+      this.processing.text("Press [s] to start the game\n", x, y);
+      this.processing.textSize(14);
+      this.processing.text(
+              "\n[a] to let the computer play automatically" +
+                      "\n[v] to let the computer play with visualization" +
+                      "\n[i] computer, set food interactively with click", x, y);
       return;
     }
     for (GameTile tile : this.gameTiles) {
-      tile.draw(mainClass);
+      tile.draw(processing);
     }
   }
 
@@ -134,10 +134,10 @@ class GameWorld { //<>// //<>//
     }
     int index;
     if (this.testFoodCounter >= this.testFoodPositions.length) {
-      index = (int)this.mainClass.random(0, this.gameTiles.length);
+      index = (int)this.processing.random(0, this.gameTiles.length);
     } else {
       index = this.testFoodPositions[this.testFoodCounter];
-      this.mainClass.print(this.testFoodCounter + "\n");
+      this.processing.print(this.testFoodCounter + "\n");
       this.testFoodCounter++;
     }
     GameTile tile = this.gameTiles[index];
@@ -156,7 +156,7 @@ class GameWorld { //<>// //<>//
   }
 
   void respawn(boolean withWalls) {
-    this.mainClass.print(this.foodPositions + "\n");
+    this.processing.print(this.foodPositions + "\n");
     this.testFoodCounter = 0;
     int i = 0;
     this.snakeLength = 0;

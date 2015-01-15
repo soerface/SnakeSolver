@@ -5,16 +5,16 @@ class Node {
   float hCost;
   int minimumDistance;
   Node parent;
-  Processing mainClass;
+  Processing processing;
   static int DOT_SIZE = GameTile.TILE_SIZE / 4;
   int costs;
 
-  Node(Processing mainClass, int tileId) {
-    this.mainClass = mainClass;
+  Node(Processing processing, int tileId) {
+    this.processing = processing;
     this.tileId = tileId;
     this.minimumDistance = 0;
     this.costs = 1;
-    for (int tile : this.mainClass.autoSolver.punishedTiles) {
+    for (int tile : this.processing.autoSolver.punishedTiles) {
       if (tile == tileId) {
         this.costs*=2;
       }
@@ -41,20 +41,20 @@ class Node {
   }
 
   int getX() {
-    return this.tileId % this.mainClass.gameWorld.width;
+    return this.tileId % this.processing.gameWorld.width;
   }
 
   int getY() {
-    return this.tileId / this.mainClass.gameWorld.width;
+    return this.tileId / this.processing.gameWorld.width;
   }
 
   void draw(int color) {
-    this.mainClass.strokeWeight(0);
-    this.mainClass.fill(color);
+    this.processing.strokeWeight(0);
+    this.processing.fill(color);
     int x = this.getX() * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
     int y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
-    this.mainClass.strokeWeight(1);
-    this.mainClass.stroke(color);
+    this.processing.strokeWeight(1);
+    this.processing.stroke(color);
     if (this.parent != null) {
       int parentX = this.parent.getX() * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       int parentY = this.parent.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
@@ -62,17 +62,17 @@ class Node {
       float vectorY = parentY - y;
       vectorX *= 0.4;
       vectorY *= 0.4;
-      this.mainClass.line(x, y, x+vectorX, y+vectorY);
+      this.processing.line(x, y, x+vectorX, y+vectorY);
     }
-    this.mainClass.ellipse(x, y, DOT_SIZE, DOT_SIZE);
-    if (this.mainClass.DEBUG) {
-      mainClass.fill(color);
-      mainClass.textAlign(mainClass.LEFT, mainClass.BOTTOM);
+    this.processing.ellipse(x, y, DOT_SIZE, DOT_SIZE);
+    if (this.processing.DEBUG) {
+      processing.fill(color);
+      processing.textAlign(processing.LEFT, processing.BOTTOM);
       x = this.getX() * GameTile.TILE_SIZE;
       y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE;
-      mainClass.text(this.getGCost(), x+1, y);
-      mainClass.textAlign(mainClass.RIGHT, mainClass.BOTTOM);
-      mainClass.text(this.tileId, x+GameTile.TILE_SIZE-1, y);
+      processing.text(this.getGCost(), x+1, y);
+      processing.textAlign(processing.RIGHT, processing.BOTTOM);
+      processing.text(this.tileId, x+GameTile.TILE_SIZE-1, y);
     }
   }
 }

@@ -1,5 +1,7 @@
 package de.wegenerd;
 
+import processing.core.PConstants;
+
 class Node {
   int tileId;
   float hCost;
@@ -65,13 +67,13 @@ class Node {
       this.processing.line(x, y, x+vectorX, y+vectorY);
     }
     this.processing.ellipse(x, y, DOT_SIZE, DOT_SIZE);
-    if (this.processing.DEBUG) {
+    if (Processing.DEBUG) {
       processing.fill(color);
-      processing.textAlign(processing.LEFT, processing.BOTTOM);
+      processing.textAlign(PConstants.LEFT, PConstants.BOTTOM);
       x = this.getX() * GameTile.TILE_SIZE;
       y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE;
       processing.text(this.getGCost(), x+1, y);
-      processing.textAlign(processing.RIGHT, processing.BOTTOM);
+      processing.textAlign(PConstants.RIGHT, PConstants.BOTTOM);
       processing.text(this.tileId, x+GameTile.TILE_SIZE-1, y);
     }
   }

@@ -1,5 +1,7 @@
 package de.wegenerd;
 
+import processing.core.PConstants;
+
 class GameTile {
   
   static final int TILE_SIZE = 30; // I recommend a value of 20
@@ -33,10 +35,10 @@ class GameTile {
       processing.line(x + margin, y + margin, x + TILE_SIZE - margin, y + TILE_SIZE - margin);
       processing.line(x + margin, y + TILE_SIZE - margin, x + TILE_SIZE - margin, y + margin);
     }
-    if (processing.DEBUG) {
+    if (Processing.DEBUG) {
       color = this.occupied ? freeColor : occupiedColor;
       processing.fill(color);
-      processing.textAlign(processing.LEFT, processing.TOP);
+      processing.textAlign(PConstants.LEFT, PConstants.TOP);
       processing.text(this.occupiedCounter, x+1, y);
     }
   }

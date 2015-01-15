@@ -1,7 +1,10 @@
 package de.wegenerd;
+import processing.core.PApplet;
+import processing.core.PConstants;
+
 import java.util.ArrayList;
 
-class GameWorld { //<>// //<>//
+class GameWorld {
 
   GameTile[] gameTiles;
   int width;
@@ -47,7 +50,7 @@ class GameWorld { //<>// //<>//
 
   void draw() {
     if (!this.gameStarted) {
-      this.processing.textAlign(this.processing.CENTER);
+      this.processing.textAlign(PConstants.CENTER);
       int x = this.processing.width / 2;
       int y = this.processing.height / 2;
       this.processing.fill(0xffffffff);
@@ -133,11 +136,11 @@ class GameWorld { //<>// //<>//
       return;
     }
     int index;
-    if (this.testFoodCounter >= this.testFoodPositions.length) {
+    if (this.testFoodCounter >= testFoodPositions.length) {
       index = (int)this.processing.random(0, this.gameTiles.length);
     } else {
-      index = this.testFoodPositions[this.testFoodCounter];
-      this.processing.print(this.testFoodCounter + "\n");
+      index = testFoodPositions[this.testFoodCounter];
+      PApplet.print(this.testFoodCounter + "/" + testFoodPositions.length + "\n");
       this.testFoodCounter++;
     }
     GameTile tile = this.gameTiles[index];
@@ -156,9 +159,8 @@ class GameWorld { //<>// //<>//
   }
 
   void respawn(boolean withWalls) {
-    this.processing.print(this.foodPositions + "\n");
+    PApplet.print(this.foodPositions + "\n");
     this.testFoodCounter = 0;
-    int i = 0;
     this.snakeLength = 0;
     for (GameTile tile : this.gameTiles) {
       int rightBorder = this.width - 1;
@@ -181,7 +183,6 @@ class GameWorld { //<>// //<>//
           this.snakeY = tile.y;
           this.snakeDirection = RIGHT;
         }
-        i++;
       }
     }
     this.foodPositions = new ArrayList<Integer>();

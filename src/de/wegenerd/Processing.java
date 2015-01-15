@@ -97,8 +97,8 @@ public class Processing extends PApplet {
             case 'K':
                 // arrow keys
             case UP:
-                if (this.gameWorld.snakeDirection != this.gameWorld.DOWN) {
-                    this.gameWorld.snakeDirection = this.gameWorld.UP;
+                if (this.gameWorld.snakeDirection != GameWorld.DOWN) {
+                    this.gameWorld.snakeDirection = GameWorld.UP;
                 }
                 break;
             case 'a':
@@ -106,8 +106,8 @@ public class Processing extends PApplet {
             case 'h':
             case 'H':
             case LEFT:
-                if (this.gameWorld.snakeDirection != this.gameWorld.RIGHT) {
-                    this.gameWorld.snakeDirection = this.gameWorld.LEFT;
+                if (this.gameWorld.snakeDirection != GameWorld.RIGHT) {
+                    this.gameWorld.snakeDirection = GameWorld.LEFT;
                 }
                 break;
             case 's':
@@ -115,8 +115,8 @@ public class Processing extends PApplet {
             case 'j':
             case 'J':
             case DOWN:
-                if (this.gameWorld.snakeDirection != this.gameWorld.UP) {
-                    this.gameWorld.snakeDirection = this.gameWorld.DOWN;
+                if (this.gameWorld.snakeDirection != GameWorld.UP) {
+                    this.gameWorld.snakeDirection = GameWorld.DOWN;
                 }
                 break;
             case 'd':
@@ -124,8 +124,8 @@ public class Processing extends PApplet {
             case 'l':
             case 'L':
             case RIGHT:
-                if (this.gameWorld.snakeDirection != this.gameWorld.LEFT) {
-                    this.gameWorld.snakeDirection = this.gameWorld.RIGHT;
+                if (this.gameWorld.snakeDirection != GameWorld.LEFT) {
+                    this.gameWorld.snakeDirection = GameWorld.RIGHT;
                 }
                 break;
         }

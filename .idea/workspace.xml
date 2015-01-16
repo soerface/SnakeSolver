@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4173d30c-2b72-447d-9dd8-333f45e86f38" name="Default" comment="Tidy up processing stuf">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/de/wegenerd/GameTile.java" afterPath="$PROJECT_DIR$/src/de/wegenerd/GameTile.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/de/wegenerd/GameWorld.java" afterPath="$PROJECT_DIR$/src/de/wegenerd/GameWorld.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/de/wegenerd/Node.java" afterPath="$PROJECT_DIR$/src/de/wegenerd/Node.java" />
+    <list default="true" id="4173d30c-2b72-447d-9dd8-333f45e86f38" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/de/wegenerd/AutoSolver.java" afterPath="$PROJECT_DIR$/src/de/wegenerd/AutoSolver.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/de/wegenerd/Main.java" afterPath="$PROJECT_DIR$/src/de/wegenerd/Main.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/de/wegenerd/Processing.java" afterPath="$PROJECT_DIR$/src/de/wegenerd/Processing.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" afterPath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="SnakeSolver.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="4173d30c-2b72-447d-9dd8-333f45e86f38" time="1421360443815" ignored="false" />
+    <file path="/Dummy.txt" changelist="4173d30c-2b72-447d-9dd8-333f45e86f38" time="1421360543744" ignored="false" />
     <file path="/GameWorld.java" changelist="4173d30c-2b72-447d-9dd8-333f45e86f38" time="1421360178922" ignored="false" />
+    <file path="/Main.java" changelist="4173d30c-2b72-447d-9dd8-333f45e86f38" time="1421361999405" ignored="false" />
+    <file path="/Processing.java" changelist="4173d30c-2b72-447d-9dd8-333f45e86f38" time="1421364527631" ignored="false" />
+    <file path="/AutoSolver.java" changelist="4173d30c-2b72-447d-9dd8-333f45e86f38" time="1421367819607" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,25 +76,27 @@
       <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/de/wegenerd/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="1" selection-start="191" selection-end="191" vertical-scroll-proportion="0.0">
+            <state line="13" column="0" selection-start="333" selection-end="333" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Processing.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Processing.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/de/wegenerd/Processing.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="40" selection-start="250" selection-end="250" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="11" column="37" selection-start="273" selection-end="273" vertical-scroll-proportion="0.32544377">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GameWorld.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="GameWorld.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/de/wegenerd/GameWorld.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="166" column="41" selection-start="6175" selection-end="6175" vertical-scroll-proportion="0.48380566">
+            <state line="62" column="49" selection-start="3382" selection-end="3382" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -122,8 +125,17 @@
       <file leaf-file-name="AutoSolver.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/de/wegenerd/AutoSolver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="580" column="0" selection-start="25307" selection-end="25307" vertical-scroll-proportion="-4.44">
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#8313#8322#0" expanded="true" />
+                <element signature="e#8376#8382#0" expanded="true" />
+                <element signature="e#10420#10426#0" expanded="true" />
+                <element signature="e#10480#10486#0" expanded="true" />
+                <element signature="e#20206#20212#0" expanded="true" />
+                <element signature="e#22216#22222#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -146,18 +158,18 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/de/wegenerd/Main.java" />
-        <option value="$PROJECT_DIR$/src/de/wegenerd/AutoSolver.java" />
         <option value="$PROJECT_DIR$/src/de/wegenerd/GameWorld.java" />
         <option value="$PROJECT_DIR$/src/de/wegenerd/Node.java" />
         <option value="$PROJECT_DIR$/src/de/wegenerd/GameTile.java" />
+        <option value="$PROJECT_DIR$/src/de/wegenerd/Main.java" />
+        <option value="$PROJECT_DIR$/src/de/wegenerd/AutoSolver.java" />
         <option value="$PROJECT_DIR$/src/de/wegenerd/Processing.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="65" />
-    <option name="y" value="24" />
+    <option name="x" value="353" />
+    <option name="y" value="70" />
     <option name="width" value="1456" />
     <option name="height" value="939" />
   </component>
@@ -214,6 +226,34 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="Snake" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Snake" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Snake" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Snake" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Snake" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="wegenerd" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -383,21 +423,27 @@
       <created>1421335051629</created>
       <updated>1421335051629</updated>
     </task>
+    <task id="LOCAL-00001" summary="Removed warnings shown by IntelliJ">
+      <created>1421360549538</created>
+      <updated>1421360549538</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="24" width="1456" height="939" extended-state="0" />
+    <frame x="353" y="70" width="1456" height="939" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32891566" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32828283" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -409,7 +455,6 @@
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -465,7 +510,7 @@
     <option name="WRAP_WHEN_TYPING_REACHES_RIGHT_MARGIN" value="false" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removed warnings shown by IntelliJ" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -479,6 +524,7 @@
     <option name="UPDATE_FILTER_BY_SCOPE" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
+    <MESSAGE value="Removed warnings shown by IntelliJ" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -498,7 +544,9 @@
     <entry file="file://$PROJECT_DIR$/src/de/wegenerd/Processing.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -528,21 +576,16 @@
     <entry file="file://$PROJECT_DIR$/src/de/wegenerd/AutoSolver.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/de/wegenerd/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="1" selection-start="191" selection-end="191" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/de/wegenerd/AutoSolver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#8313#8322#0" expanded="true" />
+            <element signature="e#8376#8382#0" expanded="true" />
+            <element signature="e#10420#10426#0" expanded="true" />
+            <element signature="e#10480#10486#0" expanded="true" />
+            <element signature="e#20206#20212#0" expanded="true" />
+            <element signature="e#22216#22222#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -560,16 +603,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/de/wegenerd/Processing.java">
+    <entry file="jar:///usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar!/java/util/ArrayList.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="40" selection-start="250" selection-end="250" vertical-scroll-proportion="0.0">
+        <state line="168" column="0" selection-start="6107" selection-end="6107" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/de/wegenerd/GameWorld.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="166" column="41" selection-start="6175" selection-end="6175" vertical-scroll-proportion="0.48380566">
+        <state line="62" column="49" selection-start="3382" selection-end="3382" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/de/wegenerd/AutoSolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="580" column="0" selection-start="25307" selection-end="25307" vertical-scroll-proportion="-4.44">
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#8313#8322#0" expanded="true" />
+            <element signature="e#8376#8382#0" expanded="true" />
+            <element signature="e#10420#10426#0" expanded="true" />
+            <element signature="e#10480#10486#0" expanded="true" />
+            <element signature="e#20206#20212#0" expanded="true" />
+            <element signature="e#22216#22222#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/de/wegenerd/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="333" selection-end="333" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/de/wegenerd/Processing.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="37" selection-start="273" selection-end="273" vertical-scroll-proportion="0.32544377">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

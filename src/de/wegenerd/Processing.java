@@ -2,13 +2,14 @@ package de.wegenerd;
 
 import processing.core.PApplet;
 
+import static java.lang.Thread.sleep;
+
 public class Processing extends PApplet {
     final static boolean DEBUG = false;
 
-    GameWorld gameWorld;
+    public GameWorld gameWorld;
     AutoSolver autoSolver;
-    int frames = 0;
-    static final int TICKS_PER_FRAME = 1; // decrease this number to speedup the game
+    static final int GAME_DELAY = 100; // delay in milliseconds
     static final int BOARD_HORIZONTAL_SIZE = 30;
     static final int BOARD_VERTICAL_SIZE = 20;
 
@@ -16,22 +17,30 @@ public class Processing extends PApplet {
     public void setup() {
         size(BOARD_HORIZONTAL_SIZE * GameTile.TILE_SIZE, BOARD_VERTICAL_SIZE * GameTile.TILE_SIZE);
         this.gameWorld = new GameWorld(this);
+        thread("tick");
+    }
+
+    public void tick() throws InterruptedException {
+        while (true) {
+            if (this.autoSolver != null) {
+                this.autoSolver.tick();
+            }
+            this.gameWorld.tick();
+            sleep(GAME_DELAY);
+        }
     }
 
     @Override
     public void draw() {
         fill(0xff000000);
         rect(0, 0, width, height);
+//        if (this.autoSolver != null) {
+//            this.autoSolver.tick();
+//        }
+//        this.gameWorld.tick();
         gameWorld.draw();
-        frames++;
-        if (frames % TICKS_PER_FRAME == 0) {
-            if (this.autoSolver != null) {
-                this.autoSolver.tick();
-            }
-            gameWorld.tick();
-        }
         if (this.autoSolver != null) {
-            this.autoSolver.draw();
+            //this.autoSolver.draw();
         }
     }
 
@@ -45,23 +54,14 @@ public class Processing extends PApplet {
                 this.gameWorld.gameStarted = true;
                 this.autoSolver = new AutoSolver(this, this.gameWorld);
             }
-            if (key == 'v' || key == 'V') {
-                this.gameWorld.gameStarted = true;
-                this.autoSolver = new AutoSolver(this, this.gameWorld);
-                this.autoSolver.visualize = true;
-            }
             if (key == 'i' || key == 'I') {
                 this.gameWorld.gameStarted = true;
                 this.gameWorld.spawnFood = false;
                 this.autoSolver = new AutoSolver(this, this.gameWorld);
-                this.autoSolver.visualize = true;
             }
             return;
         }
         if (this.autoSolver != null) {
-            if (key == 'v' || key == 'V') {
-                this.autoSolver.visualize = !this.autoSolver.visualize;
-            }
             if (key == 'i' || key == 'I') {
                 this.gameWorld.spawnFood = !this.gameWorld.spawnFood;
                 if (this.gameWorld.spawnFood) {
@@ -74,12 +74,6 @@ public class Processing extends PApplet {
                     this.gameWorld.spawnFood();
                 }
             }
-            if (key == ' ') {
-                this.autoSolver.visualizationPaused = !this.autoSolver.visualizationPaused;
-            }
-            if ((key == 'n' || key == 'N')) {
-                this.autoSolver.nextVisualization();
-            }
             return;
         }
 
@@ -88,7 +82,7 @@ public class Processing extends PApplet {
         if (key == CODED) {
             pressedKey = keyCode;
         }
-        switch(pressedKey) {
+        switch (pressedKey) {
             // regular controls
             case 'w':
             case 'W':

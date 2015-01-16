@@ -43,11 +43,11 @@ class Node {
   }
 
   int getX() {
-    return this.tileId % this.processing.gameWorld.width;
+    return this.tileId % GameWorld.width;
   }
 
   int getY() {
-    return this.tileId / this.processing.gameWorld.width;
+    return this.tileId / GameWorld.width;
   }
 
   void draw(int color) {

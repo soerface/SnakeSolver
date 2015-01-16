@@ -31,7 +31,7 @@ class AutoSolver {
     int targetY;
     Node nextNode;
     Node alternativeNode;
-    static int ANIMATION_DELAY = 10;
+    static int ANIMATION_DELAY = 1;
     final Object drawLock = new Object();
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
@@ -84,7 +84,9 @@ class AutoSolver {
     }
 
     void checkNode(Node startNode) throws InterruptedException {
-        sleep(ANIMATION_DELAY);
+        if (ANIMATION_DELAY > 0) {
+            sleep(ANIMATION_DELAY);
+        }
         if (startNode == null) {
             return;
         }
@@ -587,7 +589,9 @@ class AutoSolver {
     }
 
     void generateFinalPath(Node node) throws InterruptedException {
-        sleep(ANIMATION_DELAY);
+        if (ANIMATION_DELAY > 0) {
+            sleep(ANIMATION_DELAY);
+        }
         for (Node previousNode : this.finalPath) {
             if (node.tileId == previousNode.tileId) {
                 PApplet.print("Invalid path!\n");

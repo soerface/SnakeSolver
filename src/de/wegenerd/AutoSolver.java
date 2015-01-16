@@ -31,7 +31,8 @@ class AutoSolver {
     int targetY;
     Node nextNode;
     Node alternativeNode;
-    static int ANIMATION_DELAY = 50;
+    static int ANIMATION_DELAY = 10;
+    final Object drawLock = new Object();
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
         this.gameWorld = gameWorld;
@@ -52,16 +53,10 @@ class AutoSolver {
         if (this.nextNode != null) {
             return;
         }
-        synchronized (this.openList) {
+        synchronized (this.drawLock) {
             this.openList = new ArrayList<Node>();
-        }
-        synchronized (this.closedList) {
             this.closedList = new ArrayList<Node>();
-        }
-        synchronized (this.finalPath) {
             this.finalPath = new ArrayList<Node>();
-        }
-        synchronized (this.potentialAlternativesList) {
             this.potentialAlternativesList = new ArrayList<Node>();
         }
         int x = this.gameWorld.snakeX;
@@ -81,7 +76,7 @@ class AutoSolver {
             return;
         }
         Node startNode = new Node(this.processing, startTileId);
-        synchronized (this.openList) {
+        synchronized (this.drawLock) {
             this.openList.add(startNode);
         }
         this.nextNode = startNode;
@@ -126,22 +121,20 @@ class AutoSolver {
                 // do not add nodes which were punished too hard to avoid infinite searches.
                 int maxGCost = Processing.BOARD_HORIZONTAL_SIZE * Processing.BOARD_VERTICAL_SIZE;
                 if (neighbourNode.getGCost() < maxGCost) {
-                    synchronized (this.openList) {
+                    synchronized (this.drawLock) {
                         this.openList.add(neighbourNode);
                     }
                 }
             }
         }
         // move node from the open list to the closed list
-        synchronized (this.openList) {
+        synchronized (this.drawLock) {
             for (int i = this.openList.size() - 1; i >= 0; i--) {
                 Node node = this.openList.get(i);
                 if (node == startNode) {
                     this.openList.remove(i);
                 }
             }
-        }
-        synchronized (this.closedList) {
             this.closedList.add(startNode);
         }
         // check if this is the target node
@@ -150,23 +143,17 @@ class AutoSolver {
 
             if (isDeadEnd) {
                 // dead end. Punish nodes on path to try an alternative
-                synchronized (this.finalPath) {
+                synchronized (this.drawLock) {
                     this.finalPath = new ArrayList<Node>();
                 }
                 this.generateFinalPath(startNode);
                 for (Node node : this.finalPath) {
                     this.punishedTiles.add(node.tileId);
                 }
-                synchronized (this.openList) {
+                synchronized (this.drawLock) {
                     this.openList = new ArrayList<Node>();
-                }
-                synchronized (this.closedList) {
                     this.closedList = new ArrayList<Node>();
-                }
-                synchronized (this.finalPath) {
                     this.finalPath = new ArrayList<Node>();
-                }
-                synchronized (this.potentialAlternativesList) {
                     this.potentialAlternativesList = new ArrayList<Node>();
                 }
                 this.potentialAlternativesBlackList = new ArrayList<Integer>();
@@ -176,7 +163,7 @@ class AutoSolver {
             } else {
                 // found a path which does not lead into a dead end
                 this.nextNode = null;
-                synchronized (this.finalPath) {
+                synchronized (this.drawLock) {
                     this.finalPath = new ArrayList<Node>();
                 }
                 this.generateFinalPath(startNode);
@@ -190,7 +177,7 @@ class AutoSolver {
         }
         // else, continue with the node with the least F cost
         if (this.openList.size() > 0) {
-            synchronized (this.nextNode) {
+            synchronized (this.drawLock) {
                 this.nextNode = this.openList.get(0);
                 for (Node node : this.openList) {
                     this.nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
@@ -201,7 +188,7 @@ class AutoSolver {
             // okay, we didn't find a path, but there is nothing in the open list
             // the food must be hidden behind us.
             // try to find an alternative path by making the path longer and therefore escape
-            synchronized (this.nextNode) {
+            synchronized (this.drawLock) {
                 this.nextNode = null;
             }
             this.generateAlternativePath();
@@ -255,7 +242,7 @@ class AutoSolver {
             if (targetNode.getNumberOfParents() >= targetNode.minimumDistance) {
                 isDeadEnd = false;
             } else {
-                synchronized (this.finalPath) {
+                synchronized (this.drawLock) {
                     this.finalPath = new ArrayList<Node>();
                 }
                 this.generateFinalPath(targetNode);
@@ -282,7 +269,7 @@ class AutoSolver {
         if (this.nextNode == null) {
             this.nextNode = new Node(this.processing, -1); // dummy node for synchronizing
         }
-        synchronized (this.nextNode) {
+        synchronized (this.drawLock) {
             this.nextNode = null;
             for (Node node : openList) {
                 if (this.nextNode == null) {
@@ -468,7 +455,7 @@ class AutoSolver {
             }
         }
         Node targetNode = this.finalPath.get(0);
-        synchronized (this.finalPath) {
+        synchronized (this.drawLock) {
             this.finalPath = new ArrayList<Node>();
         }
         this.pathFound = true;
@@ -580,7 +567,7 @@ class AutoSolver {
                                 }
                             }
                             if (addToList) {
-                                synchronized (potentialAlternativesList) {
+                                synchronized (this.drawLock) {
                                     potentialAlternativesList.add(potentialNode);
                                     potentialNode.parent = startNode;
                                     potentialNode.minimumDistance = gameTile.occupiedCounter;
@@ -608,7 +595,7 @@ class AutoSolver {
                 return;
             }
         }
-        synchronized (this.finalPath) {
+        synchronized (this.drawLock) {
             this.finalPath.add(node);
         }
         if (node.parent != null) {
@@ -627,28 +614,20 @@ class AutoSolver {
     }
 
     void draw() {
-        synchronized (this.openList) {
+        synchronized (this.drawLock) {
             for (Node node : this.openList) {
                 node.draw(0xaa00ff00);
             }
-        }
-        synchronized (this.closedList) {
             for (Node node : this.closedList) {
                 node.draw(0xaaff0000);
             }
-        }
-        synchronized (this.potentialAlternativesList) {
             for (Node node : this.potentialAlternativesList) {
                 node.draw(0xaa0000ff);
             }
-        }
-        synchronized (this.finalPath) {
             for (Node node : this.finalPath) {
                 node.draw(0xffffff00);
             }
-        }
-        if (this.nextNode != null) {
-            synchronized (this.nextNode) {
+            if (this.nextNode != null) {
                 int x = this.nextNode.getX() * GameTile.TILE_SIZE;
                 int y = this.nextNode.getY() * GameTile.TILE_SIZE;
                 this.processing.fill(0xffffffff);
@@ -680,7 +659,7 @@ class AutoSolver {
             if (this.finalPath.size() <= 1) {
                 // we end up in a dead end. Just give up, theres nothing more to do
                 this.goodLuck = false;
-                synchronized (this.finalPath) {
+                synchronized (this.drawLock) {
                     this.finalPath = new ArrayList<Node>();
                 }
                 return;
@@ -700,12 +679,10 @@ class AutoSolver {
             } else if (toY < fromY) {
                 this.gameWorld.snakeDirection = GameWorld.UP;
             }
-            synchronized (this.finalPath) {
+            synchronized (this.drawLock) {
                 this.finalPath.remove(lastElement);
-            }
-            if (this.goodLuck) {
-                this.goodLuck = false;
-                synchronized (this.finalPath) {
+                if (this.goodLuck) {
+                    this.goodLuck = false;
                     this.finalPath = new ArrayList<Node>();
                 }
             }

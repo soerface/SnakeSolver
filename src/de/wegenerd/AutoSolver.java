@@ -12,6 +12,8 @@ import processing.core.PConstants;
 
 import java.util.ArrayList;
 
+import static java.lang.Thread.sleep;
+
 class AutoSolver {
 
     GameWorld gameWorld;
@@ -28,8 +30,8 @@ class AutoSolver {
     int targetX;
     int targetY;
     Node nextNode;
-    Node nextPathNode;
     Node alternativeNode;
+    static int ANIMATION_DELAY = 50;
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
         this.gameWorld = gameWorld;
@@ -46,14 +48,22 @@ class AutoSolver {
         this.goodLuck = false;
     }
 
-    void calculatePath() {
+    void calculatePath() throws InterruptedException {
         if (this.nextNode != null) {
             return;
         }
-        this.openList = new ArrayList<Node>();
-        this.closedList = new ArrayList<Node>();
-        this.finalPath = new ArrayList<Node>();
-        this.potentialAlternativesList = new ArrayList<Node>();
+        synchronized (this.openList) {
+            this.openList = new ArrayList<Node>();
+        }
+        synchronized (this.closedList) {
+            this.closedList = new ArrayList<Node>();
+        }
+        synchronized (this.finalPath) {
+            this.finalPath = new ArrayList<Node>();
+        }
+        synchronized (this.potentialAlternativesList) {
+            this.potentialAlternativesList = new ArrayList<Node>();
+        }
         int x = this.gameWorld.snakeX;
         int y = this.gameWorld.snakeY;
         int startTileId = this.getTileId(x, y);
@@ -71,12 +81,15 @@ class AutoSolver {
             return;
         }
         Node startNode = new Node(this.processing, startTileId);
-        this.openList.add(startNode);
+        synchronized (this.openList) {
+            this.openList.add(startNode);
+        }
         this.nextNode = startNode;
         this.checkNode(this.nextNode);
     }
 
-    void checkNode(Node startNode) {
+    void checkNode(Node startNode) throws InterruptedException {
+        sleep(ANIMATION_DELAY);
         if (startNode == null) {
             return;
         }
@@ -113,33 +126,49 @@ class AutoSolver {
                 // do not add nodes which were punished too hard to avoid infinite searches.
                 int maxGCost = Processing.BOARD_HORIZONTAL_SIZE * Processing.BOARD_VERTICAL_SIZE;
                 if (neighbourNode.getGCost() < maxGCost) {
-                    this.openList.add(neighbourNode);
+                    synchronized (this.openList) {
+                        this.openList.add(neighbourNode);
+                    }
                 }
             }
         }
         // move node from the open list to the closed list
-        for (int i = this.openList.size() - 1; i >= 0; i--) {
-            Node node = this.openList.get(i);
-            if (node == startNode) {
-                this.openList.remove(i);
+        synchronized (this.openList) {
+            for (int i = this.openList.size() - 1; i >= 0; i--) {
+                Node node = this.openList.get(i);
+                if (node == startNode) {
+                    this.openList.remove(i);
+                }
             }
         }
-        this.closedList.add(startNode);
+        synchronized (this.closedList) {
+            this.closedList.add(startNode);
+        }
         // check if this is the target node
         if (x == targetX && y == targetY) {
             boolean isDeadEnd = this.checkForDeadEnd(startNode);
 
             if (isDeadEnd) {
                 // dead end. Punish nodes on path to try an alternative
-                this.finalPath = new ArrayList<Node>();
+                synchronized (this.finalPath) {
+                    this.finalPath = new ArrayList<Node>();
+                }
                 this.generateFinalPath(startNode);
                 for (Node node : this.finalPath) {
                     this.punishedTiles.add(node.tileId);
                 }
-                this.closedList = new ArrayList<Node>();
-                this.openList = new ArrayList<Node>();
-                this.finalPath = new ArrayList<Node>();
-                this.potentialAlternativesList = new ArrayList<Node>();
+                synchronized (this.openList) {
+                    this.openList = new ArrayList<Node>();
+                }
+                synchronized (this.closedList) {
+                    this.closedList = new ArrayList<Node>();
+                }
+                synchronized (this.finalPath) {
+                    this.finalPath = new ArrayList<Node>();
+                }
+                synchronized (this.potentialAlternativesList) {
+                    this.potentialAlternativesList = new ArrayList<Node>();
+                }
                 this.potentialAlternativesBlackList = new ArrayList<Integer>();
                 this.pathFound = false;
                 this.checkNode(this.nextNode);
@@ -147,7 +176,9 @@ class AutoSolver {
             } else {
                 // found a path which does not lead into a dead end
                 this.nextNode = null;
-                this.finalPath = new ArrayList<Node>();
+                synchronized (this.finalPath) {
+                    this.finalPath = new ArrayList<Node>();
+                }
                 this.generateFinalPath(startNode);
                 this.pathFound = true;
                 // we found a path, but we might be faster taking an alternative route
@@ -159,21 +190,25 @@ class AutoSolver {
         }
         // else, continue with the node with the least F cost
         if (this.openList.size() > 0) {
-            this.nextNode = this.openList.get(0);
-            for (Node node : this.openList) {
-                this.nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
+            synchronized (this.nextNode) {
+                this.nextNode = this.openList.get(0);
+                for (Node node : this.openList) {
+                    this.nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
+                }
             }
             this.checkNode(nextNode);
         } else {
             // okay, we didn't find a path, but there is nothing in the open list
             // the food must be hidden behind us.
             // try to find an alternative path by making the path longer and therefore escape
-            this.nextNode = null;
+            synchronized (this.nextNode) {
+                this.nextNode = null;
+            }
             this.generateAlternativePath();
         }
     }
 
-    boolean checkForDeadEnd(Node startNode) {
+    boolean checkForDeadEnd(Node startNode) throws InterruptedException {
         // we need to check if we are running into a dead end.
         // in order to do this, we just need to see if we could reach our tail after we arrive at the food
         // because if we can reach our tail we will be able to reach every other field, too
@@ -220,7 +255,9 @@ class AutoSolver {
             if (targetNode.getNumberOfParents() >= targetNode.minimumDistance) {
                 isDeadEnd = false;
             } else {
-                this.finalPath = new ArrayList<Node>();
+                synchronized (this.finalPath) {
+                    this.finalPath = new ArrayList<Node>();
+                }
                 this.generateFinalPath(targetNode);
                 if (this.increasePathLength(futureGameTiles, closedList, snakeNodes, blackList, 6)) {
                     isDeadEnd = false;
@@ -242,15 +279,20 @@ class AutoSolver {
     }
 
     void findSnakeNodes(GameTile[] gameTiles, ArrayList<Node> openList, ArrayList<Node> closedList, ArrayList<Integer> blackList, ArrayList<Node> snakeNodes) {
-        this.nextNode = null;
-        for (Node node : openList) {
-            if (this.nextNode == null) {
-                this.nextNode = node;
-            }
-            this.nextNode = node.getGCost() < this.nextNode.getGCost() ? node : this.nextNode;
-        }
         if (this.nextNode == null) {
-            return;
+            this.nextNode = new Node(this.processing, -1); // dummy node for synchronizing
+        }
+        synchronized (this.nextNode) {
+            this.nextNode = null;
+            for (Node node : openList) {
+                if (this.nextNode == null) {
+                    this.nextNode = node;
+                }
+                this.nextNode = node.getGCost() < this.nextNode.getGCost() ? node : this.nextNode;
+            }
+            if (this.nextNode == null) {
+                return;
+            }
         }
         for (Node neighbourNode : getNeighbourNodes(this.nextNode, gameTiles, snakeNodes, blackList, true)) {
             boolean addToList = true;
@@ -321,7 +363,7 @@ class AutoSolver {
         return newTiles;
     }
 
-    void generateAlternativePath() {
+    void generateAlternativePath() throws InterruptedException {
         // find the alternative node which will be the first one not beeing occupied
         if (this.potentialAlternativesList.size() > 0) {
 
@@ -366,11 +408,11 @@ class AutoSolver {
         }
     }
 
-    boolean increasePathLength() {
+    boolean increasePathLength() throws InterruptedException {
         return increasePathLength(this.gameWorld.gameTiles, this.closedList, this.potentialAlternativesList, this.potentialAlternativesBlackList, 0);
     }
 
-    boolean increasePathLength(GameTile[] gameTiles, ArrayList<Node> closedList, ArrayList<Node> alternativesList, ArrayList<Integer> alternativesBlackList, int margin) {
+    boolean increasePathLength(GameTile[] gameTiles, ArrayList<Node> closedList, ArrayList<Node> alternativesList, ArrayList<Integer> alternativesBlackList, int margin) throws InterruptedException {
         boolean pathChanged = false;
         if (this.finalPath.size() < 1) {
             // not enough space to navigate
@@ -426,7 +468,9 @@ class AutoSolver {
             }
         }
         Node targetNode = this.finalPath.get(0);
-        this.finalPath = new ArrayList<Node>();
+        synchronized (this.finalPath) {
+            this.finalPath = new ArrayList<Node>();
+        }
         this.pathFound = true;
         this.generateFinalPath(targetNode);
         if (pathChanged) {
@@ -536,9 +580,11 @@ class AutoSolver {
                                 }
                             }
                             if (addToList) {
-                                potentialAlternativesList.add(potentialNode);
-                                potentialNode.parent = startNode;
-                                potentialNode.minimumDistance = gameTile.occupiedCounter;
+                                synchronized (potentialAlternativesList) {
+                                    potentialAlternativesList.add(potentialNode);
+                                    potentialNode.parent = startNode;
+                                    potentialNode.minimumDistance = gameTile.occupiedCounter;
+                                }
                             }
                         }
                     }
@@ -553,7 +599,8 @@ class AutoSolver {
         return neighbourNodes;
     }
 
-    void generateFinalPath(Node node) {
+    void generateFinalPath(Node node) throws InterruptedException {
+        sleep(ANIMATION_DELAY);
         for (Node previousNode : this.finalPath) {
             if (node.tileId == previousNode.tileId) {
                 PApplet.print("Invalid path!\n");
@@ -561,7 +608,9 @@ class AutoSolver {
                 return;
             }
         }
-        this.finalPath.add(node);
+        synchronized (this.finalPath) {
+            this.finalPath.add(node);
+        }
         if (node.parent != null) {
             this.generateFinalPath(node.parent);
         } else {
@@ -578,25 +627,34 @@ class AutoSolver {
     }
 
     void draw() {
-        for (Node node : this.openList) {
-            node.draw(0xaa00ff00);
+        synchronized (this.openList) {
+            for (Node node : this.openList) {
+                node.draw(0xaa00ff00);
+            }
         }
-        for (Node node : this.closedList) {
-            node.draw(0xaaff0000);
+        synchronized (this.closedList) {
+            for (Node node : this.closedList) {
+                node.draw(0xaaff0000);
+            }
         }
-        for (Node node : this.potentialAlternativesList) {
-            node.draw(0xaa0000ff);
+        synchronized (this.potentialAlternativesList) {
+            for (Node node : this.potentialAlternativesList) {
+                node.draw(0xaa0000ff);
+            }
         }
-        for (Node node : this.finalPath) {
-            node.draw(0xffffff00);
+        synchronized (this.finalPath) {
+            for (Node node : this.finalPath) {
+                node.draw(0xffffff00);
+            }
         }
-        if (nextNode != null) {
-            int x = nextNode.getX() * GameTile.TILE_SIZE;
-            int y = nextNode.getY() * GameTile.TILE_SIZE;
-            this.processing.fill(0xffffffff);
-            this.processing.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
-            nextNode.draw(0xff000000);
-            //this.checkNode(nextNode);
+        if (this.nextNode != null) {
+            synchronized (this.nextNode) {
+                int x = this.nextNode.getX() * GameTile.TILE_SIZE;
+                int y = this.nextNode.getY() * GameTile.TILE_SIZE;
+                this.processing.fill(0xffffffff);
+                this.processing.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
+                this.nextNode.draw(0xff000000);
+            }
         }
         this.processing.textAlign(PConstants.LEFT, PConstants.BOTTOM);
         this.processing.textSize(10);
@@ -609,7 +667,7 @@ class AutoSolver {
         this.processing.text(text, 5, this.processing.height);
     }
 
-    void tick() {
+    void tick() throws InterruptedException {
         if (!this.pathFound && !this.goodLuck && !this.generateFinalPath) {
             this.gameWorld.gamePaused = true;
             this.calculatePath();
@@ -622,7 +680,9 @@ class AutoSolver {
             if (this.finalPath.size() <= 1) {
                 // we end up in a dead end. Just give up, theres nothing more to do
                 this.goodLuck = false;
-                this.finalPath = new ArrayList<Node>();
+                synchronized (this.finalPath) {
+                    this.finalPath = new ArrayList<Node>();
+                }
                 return;
             }
             Node fromNode = this.finalPath.get(lastElement);
@@ -640,10 +700,14 @@ class AutoSolver {
             } else if (toY < fromY) {
                 this.gameWorld.snakeDirection = GameWorld.UP;
             }
-            this.finalPath.remove(lastElement);
+            synchronized (this.finalPath) {
+                this.finalPath.remove(lastElement);
+            }
             if (this.goodLuck) {
                 this.goodLuck = false;
-                this.finalPath = new ArrayList<Node>();
+                synchronized (this.finalPath) {
+                    this.finalPath = new ArrayList<Node>();
+                }
             }
         }
     }

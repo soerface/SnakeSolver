@@ -9,7 +9,7 @@ public class Processing extends PApplet {
 
     public GameWorld gameWorld;
     AutoSolver autoSolver;
-    static final int GAME_DELAY = 100; // delay in milliseconds
+    static int GAME_DELAY = 20; // delay in milliseconds
     static final int BOARD_HORIZONTAL_SIZE = 30;
     static final int BOARD_VERTICAL_SIZE = 20;
 
@@ -34,13 +34,9 @@ public class Processing extends PApplet {
     public void draw() {
         fill(0xff000000);
         rect(0, 0, width, height);
-//        if (this.autoSolver != null) {
-//            this.autoSolver.tick();
-//        }
-//        this.gameWorld.tick();
-        gameWorld.draw();
+        this.gameWorld.draw();
         if (this.autoSolver != null) {
-            //this.autoSolver.draw();
+            this.autoSolver.draw();
         }
     }
 

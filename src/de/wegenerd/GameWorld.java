@@ -123,6 +123,13 @@ class GameWorld {
         }
     }
 
+    static int getTileId(int x, int y) {
+        if (x < 0 || y < 0 || x >= GameWorld.width || y >= GameWorld.height) {
+            return -1;
+        }
+        return x + y * GameWorld.width;
+    }
+
     void spawnFood(int x, int y) {
         int tileId = x % width + y * width;
         this.spawnFood(tileId);
@@ -180,7 +187,7 @@ class GameWorld {
             // startposition of snake in the middle of the world
             if (tile.x > width / 2 - INITIAL_SNAKE_LENGTH - 1 && tile.x < width / 2 && tile.y == height / 2) {
                 tile.occupied = true;
-                tile.parent = this.gameTiles[tile.tileId-1];
+                tile.parent = this.gameTiles[tile.tileId - 1];
                 this.snakeLength++;
                 tile.occupiedCounter = snakeLength;
                 // reached the head of the snake; save this position

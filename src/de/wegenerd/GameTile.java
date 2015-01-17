@@ -24,6 +24,15 @@ class GameTile {
         return y * GameWorld.width + x;
     }
 
+    int[] getNeighbourTileIds() {
+        return new int[]{
+                GameWorld.getTileId(this.x - 1, this.y),
+                GameWorld.getTileId(this.x, this.y - 1),
+                GameWorld.getTileId(this.x + 1, this.y),
+                GameWorld.getTileId(this.x, this.y + 1)
+        };
+    }
+
     void draw(Processing processing) {
         this.draw(processing, 0xffffffff, 0xff000000, 0xffffffff);
     }
@@ -36,17 +45,16 @@ class GameTile {
         if (this.occupied && this.occupiedCounter < 0) {
             processing.fill(occupiedColor);
             processing.rect(x, y, TILE_SIZE, TILE_SIZE);
-        }
-        else if (this.occupied) {
+        } else if (this.occupied) {
             int innerSize = TILE_SIZE / 2;
             processing.fill(occupiedColor);
-            processing.rect(x + innerSize/2, y + innerSize/2, innerSize, innerSize);
+            processing.rect(x + innerSize / 2, y + innerSize / 2, innerSize, innerSize);
             if (this.parent != null && this.parent.occupied && this.parent.occupiedCounter == this.occupiedCounter - 1) {
                 int parentX = parent.x * TILE_SIZE;
                 int parentY = parent.y * TILE_SIZE;
                 int deltaX = (parentX - x) / 2;
                 int deltaY = (parentY - y) / 2;
-                processing.rect(x + deltaX + innerSize/2, y + deltaY + innerSize/2, innerSize, innerSize);
+                processing.rect(x + deltaX + innerSize / 2, y + deltaY + innerSize / 2, innerSize, innerSize);
             }
         }
         if (this.hasFood) {

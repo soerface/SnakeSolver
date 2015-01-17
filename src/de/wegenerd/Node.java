@@ -3,7 +3,7 @@ package de.wegenerd;
 import processing.core.PConstants;
 
 class Node {
-  int tileId;
+  GameTile tile;
   float hCost;
   int minimumDistance;
   Node parent;
@@ -11,13 +11,13 @@ class Node {
   static int DOT_SIZE = GameTile.TILE_SIZE / 4;
   int costs;
 
-  Node(Processing processing, int tileId) {
+  Node(Processing processing, GameTile tile) {
     this.processing = processing;
-    this.tileId = tileId;
-    this.minimumDistance = 0;
+    this.tile = tile;
+    this.minimumDistance = tile.occupied ? tile.occupiedCounter : 0;
     this.costs = 1;
-    for (int tile : this.processing.autoSolver.punishedTiles) {
-      if (tile == tileId) {
+    for (int tileId : this.processing.autoSolver.punishedTiles) {
+      if (tileId == this.tile.tileId) {
         this.costs*=2;
       }
     }
@@ -43,11 +43,11 @@ class Node {
   }
 
   int getX() {
-    return this.tileId % GameWorld.width;
+    return this.tile.x;
   }
 
   int getY() {
-    return this.tileId / GameWorld.width;
+    return this.tile.y;
   }
 
   void draw(int color) {
@@ -74,7 +74,7 @@ class Node {
       y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE;
       processing.text(this.getGCost(), x+1, y);
       processing.textAlign(PConstants.RIGHT, PConstants.BOTTOM);
-      processing.text(this.tileId, x+GameTile.TILE_SIZE-1, y);
+      processing.text(this.tile.tileId, x+GameTile.TILE_SIZE-1, y);
     }
   }
 }

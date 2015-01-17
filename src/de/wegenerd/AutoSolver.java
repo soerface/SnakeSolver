@@ -29,7 +29,7 @@ class AutoSolver {
     int targetY;
     Node nextNode;
     Node alternativeNode;
-    static int ANIMATION_DELAY = 1;
+    static int ANIMATION_DELAY = 100;
     final Object drawLock = new Object();
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
@@ -53,7 +53,7 @@ class AutoSolver {
         }
         int x = this.gameWorld.snakeX;
         int y = this.gameWorld.snakeY;
-        int startTileId = this.getTileId(x, y);
+        int startTileId = GameTile.getTileIdByCoordinates(x, y);
         // search for tile with food to set it as target
         boolean foodFound = false;
         for (GameTile tile : this.gameWorld.gameTiles) {
@@ -67,14 +67,21 @@ class AutoSolver {
         if (!foodFound) {
             return;
         }
-        Node startNode = new Node(this.processing, startTileId);
+        int endTileId = GameTile.getTileIdByCoordinates(this.targetX, this.targetY);
+        /*Node startNode = new Node(this.processing, startTileId);
         synchronized (this.drawLock) {
             this.openList.add(startNode);
         }
-        this.nextNode = startNode;
-        this.checkNode(this.nextNode);
+        this.nextNode = startNode;*/
+        //this.checkNode(this.nextNode);
+        AStar aStar = new AStar(this.processing, this.gameWorld.gameTiles, startTileId, endTileId);
+        ArrayList<Node> path = aStar.getPath();
+        if (path != null) {
+            this.finalPath = path;
+            this.pathFound = true;
+        }
     }
-
+/*
     void checkNode(Node startNode) throws InterruptedException {
         if (ANIMATION_DELAY > 0) {
             sleep(ANIMATION_DELAY);
@@ -188,8 +195,10 @@ class AutoSolver {
             this.generateAlternativePath();
         }
     }
+    */
 
     boolean checkForDeadEnd(Node startNode) throws InterruptedException {
+        /*
         // we need to check if we are running into a dead end.
         // in order to do this, we just need to see if we could reach our tail after we arrive at the food
         // because if we can reach our tail we will be able to reach every other field, too
@@ -248,7 +257,8 @@ class AutoSolver {
                 snakeNodes = this.findProcessingNodes(futureStartNode, futureGameTiles, blackList, closedList);
             }
         }
-        return isDeadEnd;
+        return isDeadEnd;*/
+        return false;
     }
 
     ArrayList<Node> findProcessingNodes(Node startNode, GameTile[] gameTiles, ArrayList<Integer> blackList, ArrayList<Node> closedList) {
@@ -260,9 +270,7 @@ class AutoSolver {
     }
 
     void findSnakeNodes(GameTile[] gameTiles, ArrayList<Node> openList, ArrayList<Node> closedList, ArrayList<Integer> blackList, ArrayList<Node> snakeNodes) {
-        if (this.nextNode == null) {
-            this.nextNode = new Node(this.processing, -1); // dummy node for synchronizing
-        }
+        /*
         synchronized (this.drawLock) {
             this.nextNode = null;
             for (Node node : openList) {
@@ -311,9 +319,9 @@ class AutoSolver {
         }
         closedList.add(this.nextNode);
 
-        this.findSnakeNodes(gameTiles, openList, closedList, blackList, snakeNodes);
+        this.findSnakeNodes(gameTiles, openList, closedList, blackList, snakeNodes);*/
     }
-
+/*
     GameTile[] simulatePath(ArrayList<Node> path) {
         GameTile[] newTiles = new GameTile[this.gameWorld.gameTiles.length];
         int pathLength = path.size() - 1;
@@ -593,14 +601,7 @@ class AutoSolver {
             this.generateFinalPath(node.parent);
         }
     }
-
-    float calcHCost(int x, int y) {
-        int a = this.targetX - x;
-        int b = this.targetY - y;
-        float distance = PApplet.sqrt(a * a + b * b);
-        //float distance = this.processing.abs(this.targetX - x) + this.processing.abs(this.targetY - y);
-        return distance;
-    }
+*/
 
     void draw() {
         synchronized (this.drawLock) {

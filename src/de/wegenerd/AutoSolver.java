@@ -25,13 +25,12 @@ class AutoSolver {
     ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
-    boolean goodLuck;
     boolean generateFinalPath;
     int targetX;
     int targetY;
     Node nextNode;
     Node alternativeNode;
-    static int ANIMATION_DELAY = 1;
+    static int ANIMATION_DELAY = 0;
     final Object drawLock = new Object();
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
@@ -45,8 +44,6 @@ class AutoSolver {
         this.punishedTiles = new ArrayList<Integer>();
         this.pathFound = false;
         this.generateFinalPath = false;
-        // in case we cant find a path
-        this.goodLuck = false;
     }
 
     void calculatePath() throws InterruptedException {
@@ -366,7 +363,6 @@ class AutoSolver {
             }
             if (this.alternativeNode == null) {
                 // we couldn't find an alternative node... just give up
-                this.goodLuck = true;
                 this.generateFinalPath(this.closedList.get(0));
                 return;
             }
@@ -382,7 +378,6 @@ class AutoSolver {
                 //this.generateAlternativePath();
                 this.pathFound = false;
                 this.generateFinalPath = false;
-                this.goodLuck = false;
                 this.calculatePath();
                 this.checkNode(this.nextNode);
             } else {
@@ -392,7 +387,6 @@ class AutoSolver {
             }
         } else {
             // there are no alternatives. Give up.
-            this.goodLuck = true;
             this.generateFinalPath(this.closedList.get(0));
         }
     }
@@ -651,7 +645,7 @@ class AutoSolver {
     }
 
     void tick() throws InterruptedException {
-        if (!this.pathFound && !this.goodLuck && !this.generateFinalPath) {
+        if (!this.pathFound && !this.generateFinalPath) {
             this.gameWorld.gamePaused = true;
             this.calculatePath();
         } else {
@@ -661,8 +655,6 @@ class AutoSolver {
                 this.pathFound = false;
             }
             if (this.finalPath.size() <= 1) {
-                // we end up in a dead end. Just give up, theres nothing more to do
-                this.goodLuck = false;
                 synchronized (this.drawLock) {
                     this.finalPath = new ArrayList<Node>();
                 }
@@ -685,10 +677,6 @@ class AutoSolver {
             }
             synchronized (this.drawLock) {
                 this.finalPath.remove(lastElement);
-                if (this.goodLuck) {
-                    this.goodLuck = false;
-                    this.finalPath = new ArrayList<Node>();
-                }
             }
         }
     }

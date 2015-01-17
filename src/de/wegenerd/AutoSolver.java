@@ -25,12 +25,11 @@ class AutoSolver {
     ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
-    boolean generateFinalPath;
     int targetX;
     int targetY;
     Node nextNode;
     Node alternativeNode;
-    static int ANIMATION_DELAY = 0;
+    static int ANIMATION_DELAY = 1;
     final Object drawLock = new Object();
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
@@ -43,13 +42,9 @@ class AutoSolver {
         this.potentialAlternativesBlackList = new ArrayList<Integer>();
         this.punishedTiles = new ArrayList<Integer>();
         this.pathFound = false;
-        this.generateFinalPath = false;
     }
 
     void calculatePath() throws InterruptedException {
-        if (this.nextNode != null) {
-            return;
-        }
         synchronized (this.drawLock) {
             this.openList = new ArrayList<Node>();
             this.closedList = new ArrayList<Node>();
@@ -377,7 +372,6 @@ class AutoSolver {
                 this.potentialAlternativesBlackList.add(this.alternativeNode.tileId);
                 //this.generateAlternativePath();
                 this.pathFound = false;
-                this.generateFinalPath = false;
                 this.calculatePath();
                 this.checkNode(this.nextNode);
             } else {
@@ -589,7 +583,6 @@ class AutoSolver {
         for (Node previousNode : this.finalPath) {
             if (node.tileId == previousNode.tileId) {
                 PApplet.print("Invalid path!\n");
-                this.generateFinalPath = false;
                 return;
             }
         }
@@ -598,8 +591,6 @@ class AutoSolver {
         }
         if (node.parent != null) {
             this.generateFinalPath(node.parent);
-        } else {
-            this.generateFinalPath = false;
         }
     }
 
@@ -645,7 +636,7 @@ class AutoSolver {
     }
 
     void tick() throws InterruptedException {
-        if (!this.pathFound && !this.generateFinalPath) {
+        if (!this.pathFound) {
             this.gameWorld.gamePaused = true;
             this.calculatePath();
         } else {

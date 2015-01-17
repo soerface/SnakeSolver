@@ -5,11 +5,11 @@ import processing.core.PApplet;
 import static java.lang.Thread.sleep;
 
 public class Processing extends PApplet {
-    final static boolean DEBUG = false;
+    final static boolean DEBUG = true;
 
     public GameWorld gameWorld;
     AutoSolver autoSolver;
-    static int GAME_DELAY = 100; // delay in milliseconds
+    static int GAME_DELAY = 10; // delay in milliseconds
     static final int BOARD_HORIZONTAL_SIZE = 30;
     static final int BOARD_VERTICAL_SIZE = 20;
 

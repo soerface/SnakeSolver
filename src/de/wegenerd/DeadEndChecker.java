@@ -12,6 +12,7 @@ public class DeadEndChecker {
     private GameTile[] gameTiles;
     private ArrayList<Node> path;
     private int snakeLength;
+    private TailPathFinder tailPathFinder;
 
     public DeadEndChecker(Processing processing, GameTile[] gameTiles, ArrayList<Node> path) {
         this.processing = processing;
@@ -29,9 +30,10 @@ public class DeadEndChecker {
                 gameTile.draw(this.processing, 0xdd5C95FF, 0xff000000, 0xff000000);
             }
         }
+        this.tailPathFinder.draw();
     }
 
-    GameTile[] simulatePath(GameTile[] gameTiles) {
+    private GameTile[] simulatePath(GameTile[] gameTiles) {
         GameTile[] newTiles = new GameTile[gameTiles.length];
         int pathLength = this.path.size() - 1;
         int i = 0;
@@ -59,5 +61,22 @@ public class DeadEndChecker {
             i++;
         }
         return newTiles;
+    }
+
+    boolean isDeadEnd() throws InterruptedException {
+        GameTile snakeHeadTile = null;
+        for (GameTile tile : this.gameTiles) {
+            if (!tile.occupied || tile.occupiedCounter < 0) {
+                continue;
+            }
+            if (snakeHeadTile == null) {
+                snakeHeadTile = tile;
+            }
+            else if (tile.occupiedCounter > snakeHeadTile.occupiedCounter) {
+                snakeHeadTile = tile;
+            }
+        }
+        this.tailPathFinder = new TailPathFinder(this.processing, this.gameTiles, snakeHeadTile);
+        return this.tailPathFinder.getPath() == null;
     }
 }

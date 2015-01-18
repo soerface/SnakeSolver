@@ -25,7 +25,7 @@ class AutoSolver {
     ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
-    static int ANIMATION_DELAY = 20;
+    static int ANIMATION_DELAY = 10;
     AStarPathFinder aStarPathFinder;
     TailPathFinder tailPathFinder;
     DeadEndChecker deadEndChecker;
@@ -80,7 +80,9 @@ class AutoSolver {
         if (path != null) {
             this.deadEndChecker = new DeadEndChecker(this.processing, this.gameWorld.gameTiles, path);
             this.finalPath = path;
-            this.pathFound = true;
+            if (!this.deadEndChecker.isDeadEnd()) {
+                this.pathFound = true;
+            }
         }
     }
 /*
@@ -198,70 +200,6 @@ class AutoSolver {
         }
     }
     */
-
-    boolean checkForDeadEnd(Node startNode) throws InterruptedException {
-        /*
-        // we need to check if we are running into a dead end.
-        // in order to do this, we just need to see if we could reach our tail after we arrive at the food
-        // because if we can reach our tail we will be able to reach every other field, too
-        // if we can not reach it, increase the length of our path, so the path before us becomes free.
-        this.generateFinalPath(startNode); // force recursive calculation, we need the final path
-        GameTile[] futureGameTiles = this.simulatePath(this.finalPath);
-        int i = 0;
-        int futureProcessingHeadTileId = 0;
-        GameTile futureProcessingHeadTile = futureGameTiles[0];
-        for (GameTile tile : futureGameTiles) {
-            if (futureProcessingHeadTile.occupiedCounter < tile.occupiedCounter) {
-                futureProcessingHeadTile = tile;
-                futureProcessingHeadTileId = i;
-            }
-            i++;
-        }
-        Node futureStartNode = new Node(this.processing, futureProcessingHeadTileId);
-        ArrayList<Integer> blackList = new ArrayList<Integer>();
-        ArrayList<Node> closedList = new ArrayList<Node>();
-        ArrayList<Node> snakeNodes = this.findProcessingNodes(futureStartNode, futureGameTiles, blackList, closedList);
-        // now that we have the nodes of the snake which are reachable, we just need to find a single
-        // one which we will be able to reach when it becomes free. Because this is essentially our tail
-        // its basically the same calculation as the generateAlternativePath() method does
-        boolean isDeadEnd = true;
-        while (isDeadEnd) {
-            Node targetNode = null;
-            for (Node node : snakeNodes) {
-                if (targetNode == null) {
-                    targetNode = node;
-                } else {
-                    targetNode = node.minimumDistance < targetNode.minimumDistance ? node : targetNode;
-                }
-            }
-            if (targetNode == null) {
-                // all nodes were checked, we cant find a path to the tail
-                break;
-            }
-            for (i = snakeNodes.size() - 1; i >= 0; i--) {
-                Node node = snakeNodes.get(i);
-                if (node == targetNode) {
-                    snakeNodes.remove(i);
-                }
-            }
-            if (targetNode.getNumberOfParents() >= targetNode.minimumDistance) {
-                isDeadEnd = false;
-            } else {
-                synchronized (this.drawLock) {
-                    this.finalPath = new ArrayList<Node>();
-                }
-                this.generateFinalPath(targetNode);
-                if (this.increasePathLength(futureGameTiles, closedList, snakeNodes, blackList, 6)) {
-                    isDeadEnd = false;
-                }
-                blackList.add(targetNode.tileId);
-                closedList = new ArrayList<Node>();
-                snakeNodes = this.findProcessingNodes(futureStartNode, futureGameTiles, blackList, closedList);
-            }
-        }
-        return isDeadEnd;*/
-        return false;
-    }
 
     void draw() {
         synchronized (this.drawLock) {

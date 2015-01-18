@@ -1,5 +1,7 @@
 package de.wegenerd;
 
+import processing.core.PApplet;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -36,10 +38,10 @@ public class TailPathFinder {
             }
             this.aStarPathFinder = new AStarPathFinder(this.processing, this.gameTiles, this.startTile, snakeTiles.remove(0));
             path = this.aStarPathFinder.getPath();
-            this.aStarPathFinder.exploreAll();
             while (path != null) {
                 Node targetNode = path.get(0);
                 if (path.size() <= targetNode.minimumDistance) {
+                    this.aStarPathFinder.exploreAll();
                     path = this.increasePathLength(path, this.aStarPathFinder.closedList);
                     if (path != null) {
                         // our alternative path used all nodes in the closed list.
@@ -59,7 +61,7 @@ public class TailPathFinder {
     }
 
     private ArrayList<Node> increasePathLength(ArrayList<Node> path, ArrayList<Node> nodeList) throws InterruptedException {
-        sleep(AutoSolver.ANIMATION_DELAY * 10);
+        sleep(AutoSolver.ANIMATION_DELAY);
         boolean pathChanged = false;
         for (Node node : path) {
             if (node.parent == null) {
@@ -144,6 +146,8 @@ public class TailPathFinder {
     }
 
     public void draw() {
-        this.aStarPathFinder.draw();
+        if (this.aStarPathFinder != null) {
+            this.aStarPathFinder.draw();
+        }
     }
 }

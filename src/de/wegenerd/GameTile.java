@@ -2,7 +2,9 @@ package de.wegenerd;
 
 import processing.core.PConstants;
 
-class GameTile {
+import java.util.Comparator;
+
+class GameTile implements Comparable<GameTile> {
 
     static final int TILE_SIZE = 40;
     final int x;
@@ -78,5 +80,10 @@ class GameTile {
         if (this.occupiedCounter == 0) {
             this.occupied = false;
         }
+    }
+
+    @Override
+    public int compareTo(GameTile gameTile) {
+        return this.occupiedCounter - gameTile.occupiedCounter;
     }
 }

@@ -11,6 +11,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static java.lang.Thread.sleep;
 
@@ -25,10 +26,7 @@ class AutoSolver {
     ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
-    int targetX;
-    int targetY;
     Node nextNode;
-    Node alternativeNode;
     static int ANIMATION_DELAY = 100;
     final Object drawLock = new Object();
 
@@ -53,28 +51,23 @@ class AutoSolver {
         }
         int x = this.gameWorld.snakeX;
         int y = this.gameWorld.snakeY;
-        int startTileId = GameTile.getTileIdByCoordinates(x, y);
-        // search for tile with food to set it as target
-        boolean foodFound = false;
-        for (GameTile tile : this.gameWorld.gameTiles) {
-            if (tile.hasFood) {
-                foodFound = true;
-                this.targetX = tile.x;
-                this.targetY = tile.y;
-                break;
+        GameTile snakeHeadGameTile = this.gameWorld.gameTiles[GameTile.getTileIdByCoordinates(x, y)];
+        // search for tile with food and generate a list of all snake tiles
+        ArrayList<GameTile> snakeTiles = new ArrayList<GameTile>();
+        GameTile foodGameTile = null;
+        for (GameTile gameTile : this.gameWorld.gameTiles) {
+            if (gameTile.hasFood) {
+                foodGameTile = gameTile;
+            }
+            if (gameTile.occupied && gameTile.occupiedCounter > 0) {
+                snakeTiles.add(gameTile);
             }
         }
-        if (!foodFound) {
+        if (foodGameTile == null) {
             return;
         }
-        int endTileId = GameTile.getTileIdByCoordinates(this.targetX, this.targetY);
-        /*Node startNode = new Node(this.processing, startTileId);
-        synchronized (this.drawLock) {
-            this.openList.add(startNode);
-        }
-        this.nextNode = startNode;*/
-        //this.checkNode(this.nextNode);
-        AStar aStar = new AStar(this.processing, this.gameWorld.gameTiles, startTileId, endTileId);
+        Collections.sort(snakeTiles);
+        AStar aStar = new AStar(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile, foodGameTile);
         ArrayList<Node> path = aStar.getPath();
         if (path != null) {
             this.finalPath = path;

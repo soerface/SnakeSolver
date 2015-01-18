@@ -12,17 +12,15 @@ public class AStar {
     private GameTile endTile;
     private ArrayList<Node> openList;
     private ArrayList<Node> closedList;
-    private ArrayList<Node> finalPath;
     private final Object drawLock = new Object();
 
-    AStar(Processing processing, GameTile[] gameTiles, int startTileId, int endTileId) {
+    AStar(Processing processing, GameTile[] gameTiles, GameTile startTile, GameTile endTile) {
         this.processing = processing;
         this.gameTiles = gameTiles;
-        this.startTile = gameTiles[startTileId];
-        this.endTile = gameTiles[endTileId];
+        this.startTile = startTile;
+        this.endTile = endTile;
         this.openList = new ArrayList<Node>();
         this.closedList = new ArrayList<Node>();
-        this.finalPath = new ArrayList<Node>();
     }
 
     ArrayList<Node> getPath() {
@@ -51,6 +49,9 @@ public class AStar {
             Node neighbourNode;
             if (tileId > -1) {
                 neighbourNode = new Node(this.processing, this.gameTiles[tileId]);
+                if (neighbourNode.minimumDistance == -1) {
+                    continue;
+                }
                 if (currentNode.getNumberOfParents() + 1 < neighbourNode.minimumDistance) {
                     continue;
                 }

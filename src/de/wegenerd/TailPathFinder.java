@@ -11,7 +11,7 @@ public class TailPathFinder {
     private GameTile[] gameTiles;
     private GameTile startTile;
     private ArrayList<GameTile> snakeTiles;
-    private AStarPathFinder aStarPathFinder;
+    public AStarPathFinder aStarPathFinder;
     public int padding;
 
     TailPathFinder(Processing processing, GameTile[] gameTiles, GameTile startTile) {

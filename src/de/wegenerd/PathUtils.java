@@ -18,6 +18,9 @@ public final class PathUtils {
                 continue;
             }
             Node originalParent = node.parent;
+            Node firstNeighbourOriginalParent = null;
+            Node secondNeighbourOriginalParent = null;
+            Node thirdNeighbourOriginalParent = null;
             for (Node firstNeighbourNode : findNeighbourNodes(node, nodeList)) {
                 // make sure we process a node which is not yet part of our path
                 if (nodeInList(firstNeighbourNode, path)) {
@@ -29,23 +32,46 @@ public final class PathUtils {
                     }
                     for (Node thirdNeighbourNode : findNeighbourNodes(secondNeighbourNode, nodeList)) {
                         if (thirdNeighbourNode == originalParent) {
+                            firstNeighbourOriginalParent = firstNeighbourNode.parent;
+                            secondNeighbourOriginalParent = secondNeighbourNode.parent;
                             node.parent = firstNeighbourNode;
                             firstNeighbourNode.parent = secondNeighbourNode;
                             secondNeighbourNode.parent = originalParent;
-                            pathChanged = true;
-                            break;
+                            // make sure we dont get to a tile which is occupied
+                            if (firstNeighbourNode.getNumberOfParents() < firstNeighbourNode.minimumDistance ||
+                                    secondNeighbourNode.getNumberOfParents() < secondNeighbourNode.minimumDistance) {
+                                firstNeighbourNode.parent = firstNeighbourOriginalParent;
+                                secondNeighbourNode.parent = secondNeighbourOriginalParent;
+                                node.parent = originalParent;
+                            } else {
+                                pathChanged = true;
+                                break;
+                            }
                         } else {
                             if (nodeInList(thirdNeighbourNode, path)) {
                                 continue;
                             }
                             for (Node fourthNeighbourNode : findNeighbourNodes(thirdNeighbourNode, nodeList)) {
                                 if (fourthNeighbourNode == originalParent) {
+                                    firstNeighbourOriginalParent = firstNeighbourNode.parent;
+                                    secondNeighbourOriginalParent = secondNeighbourNode.parent;
+                                    thirdNeighbourOriginalParent = thirdNeighbourNode.parent;
                                     node.parent = firstNeighbourNode;
                                     firstNeighbourNode.parent = secondNeighbourNode;
                                     secondNeighbourNode.parent = thirdNeighbourNode;
                                     thirdNeighbourNode.parent = originalParent;
-                                    pathChanged = true;
-                                    break;
+                                    // make sure we dont get to a tile which is occupied
+                                    if (firstNeighbourNode.getNumberOfParents() < firstNeighbourNode.minimumDistance ||
+                                            secondNeighbourNode.getNumberOfParents() < secondNeighbourNode.minimumDistance ||
+                                            thirdNeighbourNode.getNumberOfParents() < thirdNeighbourNode.minimumDistance) {
+                                        firstNeighbourNode.parent = firstNeighbourOriginalParent;
+                                        secondNeighbourNode.parent = secondNeighbourOriginalParent;
+                                        thirdNeighbourNode.parent = thirdNeighbourOriginalParent;
+                                        node.parent = originalParent;
+                                    } else {
+                                        pathChanged = true;
+                                        break;
+                                    }
                                 }
                             }
                         }

@@ -21,8 +21,6 @@ class AutoSolver {
     ArrayList<Node> openList;
     ArrayList<Node> closedList;
     ArrayList<Node> finalPath;
-    ArrayList<Node> potentialAlternativesList;
-    ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
     static int ANIMATION_DELAY = 0;
@@ -37,8 +35,6 @@ class AutoSolver {
         this.openList = new ArrayList<Node>();
         this.closedList = new ArrayList<Node>();
         this.finalPath = new ArrayList<Node>();
-        this.potentialAlternativesList = new ArrayList<Node>();
-        this.potentialAlternativesBlackList = new ArrayList<Integer>();
         this.punishedTiles = new ArrayList<Integer>();
         this.pathFound = false;
     }
@@ -48,7 +44,6 @@ class AutoSolver {
             this.openList = new ArrayList<Node>();
             this.closedList = new ArrayList<Node>();
             this.finalPath = new ArrayList<Node>();
-            this.potentialAlternativesList = new ArrayList<Node>();
             this.tailPathFinder = null;
         }
         int x = this.gameWorld.snakeX;
@@ -78,8 +73,11 @@ class AutoSolver {
                 this.tailPathFinder = new TailPathFinder(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile);
             }
             path = this.tailPathFinder.getPath();
-        }
-        if (path != null) {
+            if (path != null) {
+                this.pathFound = true;
+                this.finalPath = path;
+            }
+        } else {
             // direct path possible; check if following the path would lead to a dead end
             synchronized (this.drawLock) {
                 this.deadEndChecker = new DeadEndChecker(this.processing, this.gameWorld.gameTiles, path);
@@ -90,18 +88,10 @@ class AutoSolver {
                 this.pathFound = true;
                 this.punishedTiles = new ArrayList<Integer>();
             } else {
-//                this.tailPathFinder = new TailPathFinder(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile);
-//                path = this.tailPathFinder.getPath();
-//                if (path != null) {
-//                    this.finalPath = path;
-//                    this.pathFound = true;
-//                }
-                // not a good path. Change the edge weights to get a new path in the next iteration
-                this.pathFound = false;
+                // change the edge weights to get a new path in the next iteration
                 for (Node node : path) {
                     this.punishedTiles.add(node.tile.tileId);
                 }
-                PApplet.print("punish:" + this.punishedTiles.size() + "\n");
             }
         }
     }

@@ -12,7 +12,7 @@ public class DeadEndChecker {
     private GameTile[] gameTiles;
     private ArrayList<Node> path;
     private int snakeLength;
-    private TailPathFinder tailPathFinder;
+    public TailPathFinder tailPathFinder;
 
     public DeadEndChecker(Processing processing, GameTile[] gameTiles, ArrayList<Node> path) {
         this.processing = processing;
@@ -77,7 +77,7 @@ public class DeadEndChecker {
             }
         }
         this.tailPathFinder = new TailPathFinder(this.processing, this.gameTiles, snakeHeadTile);
-        this.tailPathFinder.padding = 5;
+        this.tailPathFinder.padding = 1;
         return this.tailPathFinder.getPath() == null;
     }
 }

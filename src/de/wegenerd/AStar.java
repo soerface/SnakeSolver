@@ -15,6 +15,7 @@ public class AStar {
     private ArrayList<Node> openList;
     private ArrayList<Node> closedList;
     private final Object drawLock = new Object();
+    private Node currentNode; // just a member for drawing purposes
 
     AStar(Processing processing, GameTile[] gameTiles, GameTile startTile, GameTile endTile) {
         this.processing = processing;
@@ -45,6 +46,7 @@ public class AStar {
     }
 
     private Node checkNode(Node currentNode) throws InterruptedException {
+        this.currentNode = currentNode;
         sleep(AutoSolver.ANIMATION_DELAY);
         int x = currentNode.getX();
         int y = currentNode.getY();
@@ -138,10 +140,20 @@ public class AStar {
     public void draw() {
         synchronized (this.drawLock) {
             for (Node node : this.openList) {
-                node.draw(0xaa00ff00);
+                node.draw(0xff00ff00);
             }
             for (Node node : this.closedList) {
-                node.draw(0xaaff0000);
+                node.draw(0xffff0000);
+            }
+            processing.stroke(0xaa00ffff);
+            processing.strokeWeight(5);
+            int fromX = this.startTile.x * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+            int fromY = this.startTile.y * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+            int toX = this.endTile.x * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+            int toY = this.endTile.y * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
+            this.processing.line(fromX, fromY, toX, toY);
+            if (currentNode != null) {
+                currentNode.draw(0xffdddddd);
             }
         }
         /*for (Node node : this.potentialAlternativesList) {

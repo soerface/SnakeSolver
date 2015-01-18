@@ -1,7 +1,5 @@
 package de.wegenerd;
 
-import processing.core.PApplet;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -33,10 +31,8 @@ public class TailPathFinder {
     public ArrayList<Node> getPath() throws InterruptedException {
         ArrayList<Node> path = null;
         while (path == null) {
-            // no direct path to food possible. Try to find a way to our tail
             if (snakeTiles.size() == 0) {
-                PApplet.print("Couldn't find a way out\n");
-                break;
+                return null;
             }
             this.aStarPathFinder = new AStarPathFinder(this.processing, this.gameTiles, this.startTile, snakeTiles.remove(0));
             path = this.aStarPathFinder.getPath();
@@ -46,8 +42,12 @@ public class TailPathFinder {
                 if (path.size() <= targetNode.minimumDistance) {
                     path = this.increasePathLength(path, this.aStarPathFinder.closedList);
                     if (path != null) {
+                        // our alternative path used all nodes in the closed list.
+                        // since we iterate through our snake sorted (first nodes are those which will disappear first),
+                        // it will not be possible to get a better path if path.size() == closedList.size().
+                        // therefore, return null to indicate that it is not possible to escape from this situation
                         if (path.size() == this.aStarPathFinder.closedList.size()) {
-                            PApplet.print("unescapable\n");
+                            return null;
                         }
                     }
                 } else {

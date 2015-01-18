@@ -45,7 +45,7 @@ public class DeadEndChecker {
             } else if (tile.occupied && tile.occupiedCounter - pathLength > 0) {
                 // tiles which will still be occupied after moving
                 newTiles[i].occupied = true;
-                newTiles[i].occupiedCounter = tile.occupiedCounter - pathLength;
+                newTiles[i].occupiedCounter = tile.occupiedCounter - pathLength + 1; // + 1 since we will have collected food when arriving
             }
             i++;
         }

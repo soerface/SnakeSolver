@@ -24,7 +24,7 @@ class AutoSolver {
     ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
-    static int ANIMATION_DELAY = 5;
+    static int ANIMATION_DELAY = 0;
     AStarPathFinder aStarPathFinder;
     TailPathFinder tailPathFinder;
     DeadEndChecker deadEndChecker;
@@ -70,6 +70,7 @@ class AutoSolver {
         }
         path = this.aStarPathFinder.getPath();
         if (path == null) {
+            // no direct path to food possible. Find the tail of the snake
             synchronized (drawLock) {
                 this.aStarPathFinder = null;
                 this.tailPathFinder = new TailPathFinder(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile);
@@ -77,134 +78,28 @@ class AutoSolver {
             path = this.tailPathFinder.getPath();
         }
         if (path != null) {
+            // direct path possible; check if following the path would lead to a dead end
             synchronized (this.drawLock) {
                 this.deadEndChecker = new DeadEndChecker(this.processing, this.gameWorld.gameTiles, path);
             }
             if (!this.deadEndChecker.isDeadEnd()) {
+                // its save to take the path; go for it!
                 this.finalPath = path;
                 this.pathFound = true;
+                this.punishedTiles = new ArrayList<Integer>();
                 synchronized (this.drawLock) {
                     this.deadEndChecker = null;
                     this.tailPathFinder = null;
                 }
-            }
-        }
-    }
-/*
-    void checkNode(Node startNode) throws InterruptedException {
-        if (ANIMATION_DELAY > 0) {
-            sleep(ANIMATION_DELAY);
-        }
-        if (startNode == null) {
-            return;
-        }
-        int x = startNode.getX();
-        int y = startNode.getY();
-        for (Node neighbourNode : this.getNeighbourNodes(startNode, this.gameWorld.gameTiles, this.potentialAlternativesList, this.potentialAlternativesBlackList)) {
-            // check if the node is already in the open list
-            boolean alreadyInOpenList = false;
-            for (Node node : this.openList) {
-                if (node.tileId == neighbourNode.tileId) {
-                    alreadyInOpenList = true;
-                    // if we get faster to this node using the new one, change the parent accordingly...
-                    int previousGCost = node.getGCost();
-                    Node previousParent = node.parent;
-                    node.parent = startNode;
-                    int newGCost = node.getGCost();
-                    // but keep in mind that some nodes are only reachable after walking a certain distance (disappearing snake)
-                    if (node.getNumberOfParents() >= neighbourNode.minimumDistance) {
-                        node.parent = newGCost < previousGCost ? startNode : previousParent;
-                    } else {
-                        node.parent = previousParent;
-                    }
-                }
-            }
-            boolean alreadyInClosedList = false;
-            for (Node node : this.closedList) {
-                if (node.tileId == neighbourNode.tileId) {
-                    alreadyInClosedList = true;
-                }
-            }
-            if (!alreadyInOpenList && !alreadyInClosedList) {
-                neighbourNode.parent = startNode;
-                neighbourNode.hCost = this.calcHCost(x, y);
-                // do not add nodes which were punished too hard to avoid infinite searches.
-                int maxGCost = Processing.BOARD_HORIZONTAL_SIZE * Processing.BOARD_VERTICAL_SIZE;
-                if (neighbourNode.getGCost() < maxGCost) {
-                    synchronized (this.drawLock) {
-                        this.openList.add(neighbourNode);
-                    }
-                }
-            }
-        }
-        // move node from the open list to the closed list
-        synchronized (this.drawLock) {
-            for (int i = this.openList.size() - 1; i >= 0; i--) {
-                Node node = this.openList.get(i);
-                if (node == startNode) {
-                    this.openList.remove(i);
-                }
-            }
-            this.closedList.add(startNode);
-        }
-        // check if this is the target node
-        if (x == targetX && y == targetY) {
-            boolean isDeadEnd = this.checkForDeadEnd(startNode);
-
-            if (isDeadEnd) {
-                // dead end. Punish nodes on path to try an alternative
-                synchronized (this.drawLock) {
-                    this.finalPath = new ArrayList<Node>();
-                }
-                this.generateFinalPath(startNode);
-                for (Node node : this.finalPath) {
-                    this.punishedTiles.add(node.tileId);
-                }
-                synchronized (this.drawLock) {
-                    this.openList = new ArrayList<Node>();
-                    this.closedList = new ArrayList<Node>();
-                    this.finalPath = new ArrayList<Node>();
-                    this.potentialAlternativesList = new ArrayList<Node>();
-                }
-                this.potentialAlternativesBlackList = new ArrayList<Integer>();
-                this.pathFound = false;
-                this.checkNode(this.nextNode);
-                return;
             } else {
-                // found a path which does not lead into a dead end
-                this.nextNode = null;
-                synchronized (this.drawLock) {
-                    this.finalPath = new ArrayList<Node>();
-                }
-                this.generateFinalPath(startNode);
-                this.pathFound = true;
-                // we found a path, but we might be faster taking an alternative route
-                this.potentialAlternativesBlackList = new ArrayList<Integer>();
-                this.punishedTiles = new ArrayList<Integer>();
-                //this.generateAlternativePath(); (not that important to find an even shorter path
-                return;
-            }
-        }
-        // else, continue with the node with the least F cost
-        if (this.openList.size() > 0) {
-            synchronized (this.drawLock) {
-                this.nextNode = this.openList.get(0);
-                for (Node node : this.openList) {
-                    this.nextNode = node.getFCost() < nextNode.getFCost() ? node : nextNode;
+                // not a good path. Change the edge weights to get a new path in the next iteration
+                this.pathFound = false;
+                for (Node node : path) {
+                    this.punishedTiles.add(node.tile.tileId);
                 }
             }
-            this.checkNode(nextNode);
-        } else {
-            // okay, we didn't find a path, but there is nothing in the open list
-            // the food must be hidden behind us.
-            // try to find an alternative path by making the path longer and therefore escape
-            synchronized (this.drawLock) {
-                this.nextNode = null;
-            }
-            this.generateAlternativePath();
         }
     }
-    */
 
     void draw() {
         synchronized (this.drawLock) {
@@ -225,25 +120,6 @@ class AutoSolver {
             if (this.deadEndChecker != null) {
                 this.deadEndChecker.draw();
             }
-//            for (Node node : this.openList) {
-//                node.draw(0xaa00ff00);
-//            }
-//            for (Node node : this.closedList) {
-//                node.draw(0xaaff0000);
-//            }
-//            for (Node node : this.potentialAlternativesList) {
-//                node.draw(0xaa0000ff);
-//            }
-//            for (Node node : this.finalPath) {
-//                node.draw(0xffffff00);
-//            }
-//            if (this.nextNode != null) {
-//                int x = this.nextNode.getX() * GameTile.TILE_SIZE;
-//                int y = this.nextNode.getY() * GameTile.TILE_SIZE;
-//                this.processing.fill(0xffffffff);
-//                this.processing.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
-//                this.nextNode.draw(0xff000000);
-//            }
         }
         this.processing.textAlign(PConstants.LEFT, PConstants.BOTTOM);
         this.processing.textSize(10);

@@ -25,7 +25,7 @@ class GameWorld {
     static final int INITIAL_SNAKE_LENGTH = 5;
     ArrayList<Integer> foodPositions;
     static final int[] testFoodPositions = new int[]{231, 410, 169, 507, 95, 295, 175, 214, 365, 213, 298, 545, 191, 260, 172, 144, 433, 76, 184, 497, 514, 531, 446, 39, 309, 311, 313, 253, 251, 348, 353, 143, 137, 167, 170, 401, 130, 135, 223, 469, 446, 235, 321, 318, 408, 463, 74, 114, 382, 411, 408, 416, 431, 220, 289, 511, 200, 154, 33, 483, 565, 214, 217, 80, 530, 216, 422, 413, 543, 220, 77, 177, 567, 41, 184, 285, 436, 88, 309, 301, 286, 469, 44, 435, 173, 567, 504, 503, 248, 69, 257, 170, 378, 46, 327, 422, 62, 304, 155, 66, 109, 548, 499, 296, 529, 410, 476, 343, 139, 454, 220, 415, 422, 290, 76, 435, 467, 263, 111, 376, 558, 548, 538, 276, 108, 398, 472, 358, 268, 57, 98, 32, 443, 85, 337, 530, 466, 227, 354, 543, 223, 83, 273, 260, 532, 167, 353, 361, 313, 466, 438, 195, 283, 112, 170, 280, 244, 399, 292, 162, 531, 280, 525, 175, 159, 549, 79, 502, 335, 163, 43, 47, 142, 470, 460, 183, 39, 385, 499, 156, 306, 484, 538, 53, 457, 121, 372, 250, 323, 393, 64, 80, 107, 349, 245, 37, 550, 295, 96, 72, 476, 51, 66, 351, 100, 426, 191, 68, 118, 506, 478, 393, 405, 176, 512, 412, 147, 167, 370, 151, 226, 334, 134, 382, 177, 492, 439, 306, 56, 52, 436, 85, 374, 545, 568, 285, 247, 489, 391, 498, 265, 380, 87, 334, 244, 251, 64, 392, 227, 189, 425, 58, 387, 340, 464, 456, 31, 395, 380, 400, 337, 478, 264, 397, 215, 108, 200, 310, 567, 227, 109, 126, 538, 503, 425, 61, 243, 115, 79, 71, 247, 129, 215, 79, 147, 122, 350, 500, 276, 70, 346, 143, 376, 190, 192, 272, 110, 128};
-    int testFoodCounter;
+    static int testFoodCounter;
 
     GameWorld(Processing processing) {
         this.processing = processing;
@@ -148,14 +148,14 @@ class GameWorld {
             return;
         }
         int index;
-        if (this.testFoodCounter >= testFoodPositions.length) {
+        if (testFoodCounter >= testFoodPositions.length) {
             index = (int) this.processing.random(0, this.gameTiles.length);
         } else {
-            index = testFoodPositions[this.testFoodCounter];
-            PApplet.print(this.testFoodCounter + "/" + testFoodPositions.length + "\n");
-            this.testFoodCounter++;
-            if (this.testFoodCounter > 78) {
-                AutoSolver.ANIMATION_DELAY = 10;
+            index = testFoodPositions[testFoodCounter];
+            PApplet.print(testFoodCounter + "/" + testFoodPositions.length + "\n");
+            testFoodCounter++;
+            if (testFoodCounter > 133) {
+                AutoSolver.ANIMATION_DELAY = 20;
                 Processing.GAME_DELAY = 100;
             }
         }
@@ -176,7 +176,7 @@ class GameWorld {
 
     void respawn(boolean withWalls) {
         PApplet.print(this.foodPositions + "\n");
-        this.testFoodCounter = 0;
+        testFoodCounter = 0;
         this.snakeLength = 0;
         for (GameTile tile : this.gameTiles) {
             int rightBorder = width - 1;

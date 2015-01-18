@@ -1,7 +1,5 @@
 package de.wegenerd;
 
-import processing.core.PApplet;
-
 import java.util.ArrayList;
 import java.util.Collections;
 

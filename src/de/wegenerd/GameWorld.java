@@ -136,6 +136,12 @@ class GameWorld {
     }
 
     void spawnFood(int tileId) {
+        // do not spawn food if there is already some
+        for (GameTile tile : this.gameTiles) {
+            if (tile.hasFood) {
+                return;
+            }
+        }
         GameTile tile = this.gameTiles[tileId];
         if (!tile.occupied) {
             tile.hasFood = true;

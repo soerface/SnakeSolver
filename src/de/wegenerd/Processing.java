@@ -9,7 +9,7 @@ public class Processing extends PApplet {
 
     public GameWorld gameWorld;
     AutoSolver autoSolver;
-    static int GAME_DELAY = 0; // delay in milliseconds
+    static int GAME_DELAY = 100; // delay in milliseconds
     static final int BOARD_HORIZONTAL_SIZE = 30;
     static final int BOARD_VERTICAL_SIZE = 20;
 
@@ -51,8 +51,9 @@ public class Processing extends PApplet {
                 this.autoSolver = new AutoSolver(this, this.gameWorld);
             }
             if (key == 'i' || key == 'I') {
-                this.gameWorld.gameStarted = true;
                 this.gameWorld.spawnFood = false;
+                this.gameWorld.gameStarted = true;
+                this.gameWorld.respawn();
                 this.autoSolver = new AutoSolver(this, this.gameWorld);
             }
             return;

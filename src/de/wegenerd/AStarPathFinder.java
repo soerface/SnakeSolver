@@ -164,8 +164,8 @@ public class AStarPathFinder {
     float calcHCost(int x, int y) {
         int a = this.endTile.x - x;
         int b = this.endTile.y - y;
-        float distance = PApplet.sqrt(a * a + b * b);
-        //float distance = this.processing.abs(this.targetX - x) + this.processing.abs(this.targetY - y);
+        //float distance = PApplet.sqrt(a * a + b * b);
+        float distance = PApplet.abs(this.endTile.x - x) + PApplet.abs(this.endTile.y - y);
         return distance;
     }
 

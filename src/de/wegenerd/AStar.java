@@ -4,12 +4,14 @@ import processing.core.PApplet;
 
 import java.util.ArrayList;
 
+import static java.lang.Thread.sleep;
+
 public class AStar {
 
     private final GameTile[] gameTiles;
     private final Processing processing;
-    private GameTile startTile;
-    private GameTile endTile;
+    private final GameTile startTile;
+    private final GameTile endTile;
     private ArrayList<Node> openList;
     private ArrayList<Node> closedList;
     private final Object drawLock = new Object();
@@ -23,7 +25,7 @@ public class AStar {
         this.closedList = new ArrayList<Node>();
     }
 
-    ArrayList<Node> getPath() {
+    ArrayList<Node> getPath() throws InterruptedException {
         Node node = new Node(this.processing, this.startTile);
         //finalPath.add(node);
         Node finalNode = checkNode(node);
@@ -42,7 +44,8 @@ public class AStar {
         return path;
     }
 
-    private Node checkNode(Node currentNode) {
+    private Node checkNode(Node currentNode) throws InterruptedException {
+        sleep(AutoSolver.ANIMATION_DELAY);
         int x = currentNode.getX();
         int y = currentNode.getY();
         for (int tileId : currentNode.tile.getNeighbourTileIds()) {
@@ -130,5 +133,22 @@ public class AStar {
         float distance = PApplet.sqrt(a * a + b * b);
         //float distance = this.processing.abs(this.targetX - x) + this.processing.abs(this.targetY - y);
         return distance;
+    }
+
+    public void draw() {
+        synchronized (this.drawLock) {
+            for (Node node : this.openList) {
+                node.draw(0xaa00ff00);
+            }
+            for (Node node : this.closedList) {
+                node.draw(0xaaff0000);
+            }
+        }
+        /*for (Node node : this.potentialAlternativesList) {
+            node.draw(0xaa0000ff);
+        }
+        for (Node node : this.finalPath) {
+            node.draw(0xffffff00);
+        }*/
     }
 }

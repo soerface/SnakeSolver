@@ -27,7 +27,8 @@ class AutoSolver {
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
     Node nextNode;
-    static int ANIMATION_DELAY = 100;
+    static int ANIMATION_DELAY = 3;
+    AStar aStar;
     final Object drawLock = new Object();
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
@@ -67,8 +68,22 @@ class AutoSolver {
             return;
         }
         Collections.sort(snakeTiles);
-        AStar aStar = new AStar(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile, foodGameTile);
-        ArrayList<Node> path = aStar.getPath();
+        ArrayList<Node> path;
+        synchronized (drawLock) {
+            this.aStar = new AStar(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile, foodGameTile);
+        }
+        path = this.aStar.getPath();
+        while (path == null) {
+            // no direct path to food possible. Try to find a way to our tail
+            if (snakeTiles.size() == 0) {
+                PApplet.print("Couldn't find a way out\n");
+                break;
+            }
+            synchronized (drawLock) {
+                this.aStar = new AStar(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile, snakeTiles.remove(0));
+            }
+            path = this.aStar.getPath();
+        }
         if (path != null) {
             this.finalPath = path;
             this.pathFound = true;
@@ -598,25 +613,28 @@ class AutoSolver {
 
     void draw() {
         synchronized (this.drawLock) {
-            for (Node node : this.openList) {
-                node.draw(0xaa00ff00);
+            if (this.aStar != null) {
+                this.aStar.draw();
             }
-            for (Node node : this.closedList) {
-                node.draw(0xaaff0000);
-            }
-            for (Node node : this.potentialAlternativesList) {
-                node.draw(0xaa0000ff);
-            }
-            for (Node node : this.finalPath) {
-                node.draw(0xffffff00);
-            }
-            if (this.nextNode != null) {
-                int x = this.nextNode.getX() * GameTile.TILE_SIZE;
-                int y = this.nextNode.getY() * GameTile.TILE_SIZE;
-                this.processing.fill(0xffffffff);
-                this.processing.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
-                this.nextNode.draw(0xff000000);
-            }
+//            for (Node node : this.openList) {
+//                node.draw(0xaa00ff00);
+//            }
+//            for (Node node : this.closedList) {
+//                node.draw(0xaaff0000);
+//            }
+//            for (Node node : this.potentialAlternativesList) {
+//                node.draw(0xaa0000ff);
+//            }
+//            for (Node node : this.finalPath) {
+//                node.draw(0xffffff00);
+//            }
+//            if (this.nextNode != null) {
+//                int x = this.nextNode.getX() * GameTile.TILE_SIZE;
+//                int y = this.nextNode.getY() * GameTile.TILE_SIZE;
+//                this.processing.fill(0xffffffff);
+//                this.processing.rect(x, y, GameTile.TILE_SIZE, GameTile.TILE_SIZE);
+//                this.nextNode.draw(0xff000000);
+//            }
         }
         this.processing.textAlign(PConstants.LEFT, PConstants.BOTTOM);
         this.processing.textSize(10);

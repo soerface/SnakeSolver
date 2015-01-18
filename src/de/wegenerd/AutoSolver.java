@@ -87,10 +87,6 @@ class AutoSolver {
                 this.finalPath = path;
                 this.pathFound = true;
                 this.punishedTiles = new ArrayList<Integer>();
-                synchronized (this.drawLock) {
-                    this.deadEndChecker = null;
-                    this.tailPathFinder = null;
-                }
             } else {
                 // not a good path. Change the edge weights to get a new path in the next iteration
                 this.pathFound = false;
@@ -98,6 +94,10 @@ class AutoSolver {
                     this.punishedTiles.add(node.tile.tileId);
                 }
             }
+        }
+        synchronized (this.drawLock) {
+            this.deadEndChecker = null;
+            this.tailPathFinder = null;
         }
     }
 

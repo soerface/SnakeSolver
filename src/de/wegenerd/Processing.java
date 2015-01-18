@@ -9,7 +9,7 @@ public class Processing extends PApplet {
 
     public GameWorld gameWorld;
     AutoSolver autoSolver;
-    static int GAME_DELAY = 1; // delay in milliseconds
+    static int GAME_DELAY = 100; // delay in milliseconds
     static final int BOARD_HORIZONTAL_SIZE = 30;
     static final int BOARD_VERTICAL_SIZE = 20;
 

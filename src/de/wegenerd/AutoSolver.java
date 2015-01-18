@@ -25,10 +25,10 @@ class AutoSolver {
     ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
-    Node nextNode;
-    static int ANIMATION_DELAY = 1;
+    static int ANIMATION_DELAY = 20;
     AStarPathFinder aStarPathFinder;
     TailPathFinder tailPathFinder;
+    DeadEndChecker deadEndChecker;
     final Object drawLock = new Object();
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
@@ -78,6 +78,7 @@ class AutoSolver {
             path = this.tailPathFinder.getPath();
         }
         if (path != null) {
+            this.deadEndChecker = new DeadEndChecker(this.processing, this.gameWorld.gameTiles, path);
             this.finalPath = path;
             this.pathFound = true;
         }
@@ -272,6 +273,9 @@ class AutoSolver {
             }
             for (Node node : this.finalPath) {
                 node.draw(0xffffff00);
+            }
+            if (this.deadEndChecker != null) {
+                this.deadEndChecker.draw();
             }
 //            for (Node node : this.openList) {
 //                node.draw(0xaa00ff00);

@@ -34,16 +34,16 @@ public class AStar {
         //finalPath.add(node);
         Node finalNode = checkNode(node);
         if (finalNode != null) {
-            return generatePath(finalNode);
+            return this.generatePath(finalNode);
         }
         return null;
     }
 
-    static ArrayList<Node> generatePath(Node node) {
+    ArrayList<Node> generatePath(Node node) throws InterruptedException {
         ArrayList<Node> path = new ArrayList<Node>();
         path.add(node);
         if (node.parent != null) {
-            path.addAll(generatePath(node.parent));
+            path.addAll(this.generatePath(node.parent));
         }
         return path;
     }
@@ -148,22 +148,19 @@ public class AStar {
             for (Node node : this.closedList) {
                 node.draw(0xffff0000);
             }
-            processing.stroke(0xaa00ffff);
+            processing.stroke(0xaaff00ff);
             processing.strokeWeight(5);
             int fromX = this.startTile.x * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
             int fromY = this.startTile.y * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
             int toX = this.endTile.x * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
             int toY = this.endTile.y * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
             this.processing.line(fromX, fromY, toX, toY);
-            if (currentNode != null) {
-                currentNode.draw(0xffdddddd);
+            Node checkingNode = currentNode;
+            while (checkingNode != null) {
+                checkingNode.draw(0xffffff00);
+                checkingNode = checkingNode.parent;
             }
+
         }
-        /*for (Node node : this.potentialAlternativesList) {
-            node.draw(0xaa0000ff);
-        }
-        for (Node node : this.finalPath) {
-            node.draw(0xffffff00);
-        }*/
     }
 }

@@ -37,6 +37,7 @@ public class AStarPathFinder {
         }
         if (this.targetNode == null) {
             Node node = new Node(this.processing, this.startTile);
+            node.punish();
             this.checkNode(node, false);
         }
         if (this.targetNode != null) {
@@ -72,6 +73,12 @@ public class AStarPathFinder {
             Node neighbourNode;
             if (tileId > -1) {
                 neighbourNode = new Node(this.processing, this.gameTiles[tileId]);
+                if (!exploreAll) {
+                    // try to not punish the target node; except if it is directly besides us
+                    //if (tileId != this.endTile.tileId || currentNode.getNumberOfParents() < 1) {
+                        neighbourNode.punish();
+                    //}
+                }
                 // do not walk into tiles which are occupied; except if it is the desired target
                 if (neighbourNode.minimumDistance == -1) {
                     continue;

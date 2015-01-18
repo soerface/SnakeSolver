@@ -7,7 +7,6 @@
  */
 package de.wegenerd;
 
-import processing.core.PApplet;
 import processing.core.PConstants;
 
 import java.util.ArrayList;
@@ -27,8 +26,9 @@ class AutoSolver {
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
     Node nextNode;
-    static int ANIMATION_DELAY = 20;
-    AStar aStar;
+    static int ANIMATION_DELAY = 1;
+    AStarPathFinder aStarPathFinder;
+    TailPathFinder tailPathFinder;
     final Object drawLock = new Object();
 
     AutoSolver(Processing processing, GameWorld gameWorld) {
@@ -49,54 +49,35 @@ class AutoSolver {
             this.closedList = new ArrayList<Node>();
             this.finalPath = new ArrayList<Node>();
             this.potentialAlternativesList = new ArrayList<Node>();
+            this.tailPathFinder = null;
         }
         int x = this.gameWorld.snakeX;
         int y = this.gameWorld.snakeY;
         GameTile snakeHeadGameTile = this.gameWorld.gameTiles[GameTile.getTileIdByCoordinates(x, y)];
-        // search for tile with food and generate a list of all snake tiles
-        ArrayList<GameTile> snakeTiles = new ArrayList<GameTile>();
+        // search for tile with food
         GameTile foodGameTile = null;
         for (GameTile gameTile : this.gameWorld.gameTiles) {
             if (gameTile.hasFood) {
                 foodGameTile = gameTile;
             }
-            if (gameTile.occupied && gameTile.occupiedCounter > 0) {
-                snakeTiles.add(gameTile);
-            }
         }
         if (foodGameTile == null) {
             return;
         }
-        Collections.sort(snakeTiles);
+
         ArrayList<Node> path;
         synchronized (drawLock) {
-            this.aStar = new AStar(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile, foodGameTile);
+            this.aStarPathFinder = new AStarPathFinder(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile, foodGameTile);
         }
-        path = this.aStar.getPath();
-        while (path == null) {
-            // no direct path to food possible. Try to find a way to our tail
-            if (snakeTiles.size() == 0) {
-                PApplet.print("Couldn't find a way out\n");
-                break;
-            }
+        path = this.aStarPathFinder.getPath();
+        if (path == null) {
             synchronized (drawLock) {
-                this.aStar = new AStar(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile, snakeTiles.remove(0));
+                this.aStarPathFinder = null;
+                this.tailPathFinder = new TailPathFinder(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile);
             }
-            path = this.aStar.getPath();
-            this.aStar.exploreAll();
-            while (path != null) {
-                Node targetNode = path.get(0);
-                if (path.size() <= targetNode.minimumDistance) {
-                    PApplet.print("Not long enough: " + path.size() + " (" + targetNode.minimumDistance + ")\n");
-                    path = increasePathLength(path, aStar.closedList);
-                    if (path != null) {
-                        PApplet.print("Current size is: " + path.size() + "\n");
-                    }
-                }
-            }
+            path = this.tailPathFinder.getPath();
         }
         if (path != null) {
-            PApplet.print("found!\n");
             this.finalPath = path;
             this.pathFound = true;
         }
@@ -418,107 +399,11 @@ class AutoSolver {
             return increasePathLength(this.gameWorld.gameTiles, this.closedList, this.potentialAlternativesList, this.potentialAlternativesBlackList, 0);
         }
     */
-    ArrayList<Node> increasePathLength(ArrayList<Node> path, ArrayList<Node> nodeList) throws InterruptedException {
-        sleep(ANIMATION_DELAY);
-        boolean pathChanged = false;
-        for (Node node : path) {
-            if (node.parent == null) {
-                continue;
-            }
-            Node originalParent = node.parent;
-            for (Node firstNeighbourNode : this.findNeighbourNodes(node, nodeList)) {
-                // make sure we process a node which is not yet part of our path
-                if (this.nodeInList(firstNeighbourNode, path)) {
-                    continue;
-                }
-                for (Node secondNeighbourNode : this.findNeighbourNodes(firstNeighbourNode, nodeList)) {
-                    if (this.nodeInList(secondNeighbourNode, path)) {
-                        continue;
-                    }
-                    for (Node thirdNeighbourNode : this.findNeighbourNodes(secondNeighbourNode, nodeList)) {
-                        if (thirdNeighbourNode == originalParent) {
-                            node.parent = firstNeighbourNode;
-                            firstNeighbourNode.parent = secondNeighbourNode;
-                            secondNeighbourNode.parent = originalParent;
-                            pathChanged = true;
-                            break;
-                        } else {
-                            if (this.nodeInList(thirdNeighbourNode, path)) {
-                                continue;
-                            }
-                            for (Node fourthNeighbourNode : this.findNeighbourNodes(thirdNeighbourNode, nodeList)) {
-                                if (fourthNeighbourNode == originalParent) {
-                                    node.parent = firstNeighbourNode;
-                                    firstNeighbourNode.parent = secondNeighbourNode;
-                                    secondNeighbourNode.parent = thirdNeighbourNode;
-                                    thirdNeighbourNode.parent = originalParent;
-                                    pathChanged = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (pathChanged) {
-                        break;
-                    }
-                }
-                if (pathChanged) {
-                    break;
-                }
-            }
-            if (pathChanged) {
-                break;
-            }
-        }
-        if (pathChanged) {
-            return AStar.generatePath(path.get(0));
-        }
-        return null;
-//        Node targetNode = this.finalPath.get(0);
-//        synchronized (this.drawLock) {
-//            this.finalPath = new ArrayList<Node>();
-//        }
-//        this.pathFound = true;
-//        this.generateFinalPath(targetNode);
-//        if (pathChanged) {
-//            // our path is now longer. is it long enough?
-//            if (targetNode.getNumberOfParents() >= targetNode.minimumDistance + margin) {
-//                //this.continueGenerateAlternativePath = false;
-//            } else {
-//                return this.increasePathLength(gameTiles, nodeList, alternativesList, alternativesBlackList, margin);
-//            }
-//            return true;
-//        } else {
-//            return false;
-//        }
-    }
 
-    boolean nodeInList(Node node, ArrayList<Node> list) {
-        for (Node listNode : list) {
-            if (node == listNode) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    ArrayList<Node> findNeighbourNodes(Node targetNode, ArrayList<Node> nodeList) {
-        ArrayList<Node> neighbourNodes = new ArrayList<Node>();
-        if (targetNode.parent == null) {
-            // doesnt make sense to change the starting node (snake head)
-            return neighbourNodes;
-        }
-        // add all nodes from the passed list to the result if it is a neighbour
-        int[] neighbourTileIds = targetNode.tile.getNeighbourTileIds();
-        for (Node node : nodeList) {
-            for (int tileId : neighbourTileIds) {
-                if (node.tile.tileId == tileId) {
-                    neighbourNodes.add(node);
-                }
-            }
-        }
-        return neighbourNodes;
-    }
+
+
+
 /*
     int getTileId(int x, int y) {
         return x + y * this.gameWorld.width;
@@ -626,8 +511,14 @@ class AutoSolver {
 
     void draw() {
         synchronized (this.drawLock) {
-            if (this.aStar != null) {
-                this.aStar.draw();
+            if (this.tailPathFinder != null) {
+                this.tailPathFinder.draw();
+            }
+            if (this.aStarPathFinder != null) {
+                this.aStarPathFinder.draw();
+            }
+            for (Node node : this.finalPath) {
+                node.draw(0xffffff00);
             }
 //            for (Node node : this.openList) {
 //                node.draw(0xaa00ff00);

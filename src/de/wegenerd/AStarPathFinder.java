@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
 
-public class AStar {
+public class AStarPathFinder {
 
     private final GameTile[] gameTiles;
     private final Processing processing;
@@ -18,7 +18,7 @@ public class AStar {
     private Node currentNode;
     private Node targetNode;
 
-    AStar(Processing processing, GameTile[] gameTiles, GameTile startTile, GameTile endTile) {
+    AStarPathFinder(Processing processing, GameTile[] gameTiles, GameTile startTile, GameTile endTile) {
         this.processing = processing;
         this.gameTiles = gameTiles;
         this.startTile = startTile;
@@ -180,12 +180,6 @@ public class AStar {
                 checkingNode.draw(0xffffffff);
                 checkingNode = checkingNode.parent;
             }
-            checkingNode = this.targetNode;
-            while (checkingNode != null) {
-                checkingNode.draw(0xffffff00);
-                checkingNode = checkingNode.parent;
-            }
-
         }
     }
 }

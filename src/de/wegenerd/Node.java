@@ -73,8 +73,8 @@ class Node {
       x = this.getX() * GameTile.TILE_SIZE;
       y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE;
       processing.text(this.getGCost(), x+1, y);
-      processing.textAlign(PConstants.RIGHT, PConstants.BOTTOM);
-      processing.text(this.tile.tileId, x+GameTile.TILE_SIZE-1, y);
+      //processing.textAlign(PConstants.RIGHT, PConstants.BOTTOM);
+      //processing.text(this.tile.tileId, x+GameTile.TILE_SIZE-1, y);
     }
   }
 }

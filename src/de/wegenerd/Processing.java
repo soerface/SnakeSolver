@@ -5,7 +5,7 @@ import processing.core.PApplet;
 import static java.lang.Thread.sleep;
 
 public class Processing extends PApplet {
-    final static boolean DEBUG = false;
+    final static boolean DEBUG = true;
 
     public GameWorld gameWorld;
     AutoSolver autoSolver;

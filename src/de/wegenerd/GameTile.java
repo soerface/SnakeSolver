@@ -65,9 +65,8 @@ class GameTile implements Comparable<GameTile> {
             processing.line(x + margin, y + margin, x + TILE_SIZE - margin, y + TILE_SIZE - margin);
             processing.line(x + margin, y + TILE_SIZE - margin, x + TILE_SIZE - margin, y + margin);
         }
-        if (Processing.DEBUG) {
-            int color = this.occupied ? freeColor : occupiedColor;
-            processing.fill(color);
+        if (Processing.DEBUG && this.occupied) {
+            processing.fill(freeColor);
             processing.textAlign(PConstants.CENTER, PConstants.CENTER);
             processing.text(this.occupiedCounter, x + TILE_SIZE / 2, y + TILE_SIZE / 2);
         }

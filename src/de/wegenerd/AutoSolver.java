@@ -27,7 +27,7 @@ class AutoSolver {
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
     Node nextNode;
-    static int ANIMATION_DELAY = 200;
+    static int ANIMATION_DELAY = 1;
     AStar aStar;
     final Object drawLock = new Object();
 

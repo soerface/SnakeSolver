@@ -27,6 +27,9 @@ public class AStar {
     }
 
     ArrayList<Node> getPath() throws InterruptedException {
+        if (this.startTile == this.endTile) {
+            return null;
+        }
         Node node = new Node(this.processing, this.startTile);
         //finalPath.add(node);
         Node finalNode = checkNode(node);

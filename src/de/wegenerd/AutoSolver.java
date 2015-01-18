@@ -96,6 +96,7 @@ class AutoSolver {
             }
         }
         if (path != null) {
+            PApplet.print("found!\n");
             this.finalPath = path;
             this.pathFound = true;
         }

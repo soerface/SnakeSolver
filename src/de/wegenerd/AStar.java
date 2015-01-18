@@ -104,14 +104,17 @@ public class AStar {
                     alreadyInClosedList = true;
                 }
             }
-            if (!alreadyInOpenList && !alreadyInClosedList) {
-                neighbourNode.parent = currentNode;
-                neighbourNode.hCost = this.calcHCost(x, y);
-                // do not add nodes which were punished too hard to avoid infinite searches.
-                int maxGCost = Processing.BOARD_HORIZONTAL_SIZE * Processing.BOARD_VERTICAL_SIZE;
-                if (neighbourNode.getGCost() < maxGCost) {
-                    synchronized (this.drawLock) {
-                        this.openList.add(neighbourNode);
+            // we do not want neighbours of the target node in our open list, if the target node is occupied
+            if (currentNode.tile != this.endTile || currentNode.minimumDistance <= currentNode.getNumberOfParents()) {
+                if (!alreadyInOpenList && !alreadyInClosedList) {
+                    neighbourNode.parent = currentNode;
+                    neighbourNode.hCost = this.calcHCost(x, y);
+                    // do not add nodes which were punished too hard to avoid infinite searches.
+                    int maxGCost = Processing.BOARD_HORIZONTAL_SIZE * Processing.BOARD_VERTICAL_SIZE;
+                    if (neighbourNode.getGCost() < maxGCost) {
+                        synchronized (this.drawLock) {
+                            this.openList.add(neighbourNode);
+                        }
                     }
                 }
             }

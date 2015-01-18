@@ -7,6 +7,7 @@
  */
 package de.wegenerd;
 
+import processing.core.PApplet;
 import processing.core.PConstants;
 
 import java.util.ArrayList;
@@ -89,24 +90,23 @@ class AutoSolver {
                 this.pathFound = true;
                 this.punishedTiles = new ArrayList<Integer>();
             } else {
-                this.tailPathFinder = new TailPathFinder(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile);
-                path = this.tailPathFinder.getPath();
-                if (path != null) {
-                    this.finalPath = path;
-                    this.pathFound = true;
-                }
-//                // not a good path. Change the edge weights to get a new path in the next iteration
-//                this.pathFound = false;
-//                for (Node node : path) {
-//                    this.punishedTiles.add(node.tile.tileId);
+//                this.tailPathFinder = new TailPathFinder(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile);
+//                path = this.tailPathFinder.getPath();
+//                if (path != null) {
+//                    this.finalPath = path;
+//                    this.pathFound = true;
 //                }
+                // not a good path. Change the edge weights to get a new path in the next iteration
+                this.pathFound = false;
+                for (Node node : path) {
+                    this.punishedTiles.add(node.tile.tileId);
+                }
+                PApplet.print("punish:" + this.punishedTiles.size() + "\n");
             }
         }
     }
 
     void draw() {
-        if (true)
-        return;
         synchronized (this.drawLock) {
             if (this.tailPathFinder != null) {
                 this.tailPathFinder.draw();

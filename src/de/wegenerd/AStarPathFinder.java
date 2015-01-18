@@ -183,7 +183,7 @@ public class AStarPathFinder {
             this.processing.line(fromX, fromY, toX, toY);
             Node checkingNode = this.currentNode;
             while (checkingNode != null) {
-                checkingNode.draw(0xffffffff, this.alpha);
+                checkingNode.draw(0xffffff00, this.alpha);
                 checkingNode = checkingNode.parent;
             }
         }

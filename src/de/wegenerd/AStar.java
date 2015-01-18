@@ -13,9 +13,10 @@ public class AStar {
     private final GameTile startTile;
     private final GameTile endTile;
     private ArrayList<Node> openList;
-    private ArrayList<Node> closedList;
+    public ArrayList<Node> closedList;
     private final Object drawLock = new Object();
-    private Node currentNode; // just a member for drawing purposes
+    private Node currentNode;
+    private Node targetNode;
 
     AStar(Processing processing, GameTile[] gameTiles, GameTile startTile, GameTile endTile) {
         this.processing = processing;
@@ -24,31 +25,43 @@ public class AStar {
         this.endTile = endTile;
         this.openList = new ArrayList<Node>();
         this.closedList = new ArrayList<Node>();
+        this.currentNode = null;
+        this.targetNode = null;
     }
 
     ArrayList<Node> getPath() throws InterruptedException {
         if (this.startTile == this.endTile) {
             return null;
         }
-        Node node = new Node(this.processing, this.startTile);
-        //finalPath.add(node);
-        Node finalNode = checkNode(node);
-        if (finalNode != null) {
-            return this.generatePath(finalNode);
+        if (this.targetNode == null) {
+            Node node = new Node(this.processing, this.startTile);
+            this.checkNode(node, false);
+        }
+        if (this.targetNode != null) {
+            return generatePath(this.targetNode);
         }
         return null;
     }
 
-    ArrayList<Node> generatePath(Node node) throws InterruptedException {
+    void exploreAll() throws InterruptedException {
+        if (this.openList.size() > 0) {
+            this.checkNode(this.openList.get(0), true);
+        } else if (this.currentNode == null) {
+            Node node = new Node(this.processing, this.startTile);
+            this.checkNode(node, false);
+        }
+    }
+
+    static ArrayList<Node> generatePath(Node node) throws InterruptedException {
         ArrayList<Node> path = new ArrayList<Node>();
         path.add(node);
         if (node.parent != null) {
-            path.addAll(this.generatePath(node.parent));
+            path.addAll(generatePath(node.parent));
         }
         return path;
     }
 
-    private Node checkNode(Node currentNode) throws InterruptedException {
+    private Node checkNode(Node currentNode, boolean exploreAll) throws InterruptedException {
         this.currentNode = currentNode;
         sleep(AutoSolver.ANIMATION_DELAY);
         int x = currentNode.getX();
@@ -115,7 +128,10 @@ public class AStar {
         }
         // check if this is the target node
         if (x == this.endTile.x && y == this.endTile.y) {
-            return currentNode;
+            this.targetNode = currentNode;
+            if (!exploreAll) {
+                return currentNode;
+            }
         }
         // else, continue with the node with the least F cost
         if (this.openList.size() > 0) {
@@ -127,7 +143,7 @@ public class AStar {
                 }
             }
             if (nextNode != null) {
-                return this.checkNode(nextNode);
+                return this.checkNode(nextNode, exploreAll);
             }
         }
         return null;
@@ -156,7 +172,12 @@ public class AStar {
             int toX = this.endTile.x * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
             int toY = this.endTile.y * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
             this.processing.line(fromX, fromY, toX, toY);
-            Node checkingNode = currentNode;
+            Node checkingNode = this.currentNode;
+            while (checkingNode != null) {
+                checkingNode.draw(0xffffffff);
+                checkingNode = checkingNode.parent;
+            }
+            checkingNode = this.targetNode;
             while (checkingNode != null) {
                 checkingNode.draw(0xffffff00);
                 checkingNode = checkingNode.parent;

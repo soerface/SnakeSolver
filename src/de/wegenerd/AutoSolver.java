@@ -27,7 +27,7 @@ class AutoSolver {
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
     Node nextNode;
-    static int ANIMATION_DELAY = 200;
+    static int ANIMATION_DELAY = 20;
     AStar aStar;
     final Object drawLock = new Object();
 
@@ -83,6 +83,17 @@ class AutoSolver {
                 this.aStar = new AStar(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile, snakeTiles.remove(0));
             }
             path = this.aStar.getPath();
+            this.aStar.exploreAll();
+            while (path != null) {
+                Node targetNode = path.get(0);
+                if (path.size() <= targetNode.minimumDistance) {
+                    PApplet.print("Not long enough: " + path.size() + " (" + targetNode.minimumDistance + ")\n");
+                    path = increasePathLength(path, aStar.closedList);
+                    if (path != null) {
+                        PApplet.print("Current size is: " + path.size() + "\n");
+                    }
+                }
+            }
         }
         if (path != null) {
             this.finalPath = path;
@@ -329,103 +340,101 @@ class AutoSolver {
 
         this.findSnakeNodes(gameTiles, openList, closedList, blackList, snakeNodes);*/
     }
-/*
-    GameTile[] simulatePath(ArrayList<Node> path) {
-        GameTile[] newTiles = new GameTile[this.gameWorld.gameTiles.length];
-        int pathLength = path.size() - 1;
-        int i = 0;
-        for (GameTile tile : this.gameWorld.gameTiles) {
-            newTiles[i] = new GameTile(tile.x, tile.y);
-            if (tile.occupied && tile.occupiedCounter == -1) {
-                // tile which are forever occupied
-                newTiles[i].occupied = true;
-            } else if (tile.occupied && tile.occupiedCounter - pathLength > 0) {
-                // tiles which will still be occupied after moving
-                newTiles[i].occupied = true;
-                newTiles[i].occupiedCounter = tile.occupiedCounter - pathLength;
-            }
-            i++;
-        }
-        i = 0;
-        for (Node node : path) {
-            GameTile tile = newTiles[node.tileId];
-            if (this.gameWorld.snakeLength - i > 0) {
-                tile.occupied = true;
-                tile.occupiedCounter = this.gameWorld.snakeLength - i + 1; // + 1 since we will have collected food when arriving
-            } else {
-                break;
-            }
-            i++;
-        }
-        return newTiles;
-    }
 
-    void generateAlternativePath() throws InterruptedException {
-        // find the alternative node which will be the first one not beeing occupied
-        if (this.potentialAlternativesList.size() > 0) {
-
-            this.alternativeNode = null;
-            for (Node node : this.potentialAlternativesList) {
-                if (this.alternativeNode == null) {
-                    this.alternativeNode = node;
-                } else {
-                    this.alternativeNode = node.minimumDistance < this.alternativeNode.minimumDistance ? node : this.alternativeNode;
+    /*
+        GameTile[] simulatePath(ArrayList<Node> path) {
+            GameTile[] newTiles = new GameTile[this.gameWorld.gameTiles.length];
+            int pathLength = path.size() - 1;
+            int i = 0;
+            for (GameTile tile : this.gameWorld.gameTiles) {
+                newTiles[i] = new GameTile(tile.x, tile.y);
+                if (tile.occupied && tile.occupiedCounter == -1) {
+                    // tile which are forever occupied
+                    newTiles[i].occupied = true;
+                } else if (tile.occupied && tile.occupiedCounter - pathLength > 0) {
+                    // tiles which will still be occupied after moving
+                    newTiles[i].occupied = true;
+                    newTiles[i].occupiedCounter = tile.occupiedCounter - pathLength;
                 }
+                i++;
             }
-            if (this.alternativeNode == null) {
-                // we couldn't find an alternative node... just give up
-                this.generateFinalPath(this.closedList.get(0));
-                return;
+            i = 0;
+            for (Node node : path) {
+                GameTile tile = newTiles[node.tileId];
+                if (this.gameWorld.snakeLength - i > 0) {
+                    tile.occupied = true;
+                    tile.occupiedCounter = this.gameWorld.snakeLength - i + 1; // + 1 since we will have collected food when arriving
+                } else {
+                    break;
+                }
+                i++;
             }
-            // find a path to the alternative node.
-            this.generateFinalPath(this.alternativeNode);
-            // we need to change the path so that it gets long enough when reaching this node
-            boolean ret;
-            ret = this.increasePathLength();
-            if (!ret) {
-                // it was not possible to generate a longer path.
-                // remove our alternative node from the alternative nodes list to try it again
-                this.potentialAlternativesBlackList.add(this.alternativeNode.tileId);
-                //this.generateAlternativePath();
-                this.pathFound = false;
-                this.calculatePath();
-                this.checkNode(this.nextNode);
+            return newTiles;
+        }
+
+        void generateAlternativePath() throws InterruptedException {
+            // find the alternative node which will be the first one not beeing occupied
+            if (this.potentialAlternativesList.size() > 0) {
+
+                this.alternativeNode = null;
+                for (Node node : this.potentialAlternativesList) {
+                    if (this.alternativeNode == null) {
+                        this.alternativeNode = node;
+                    } else {
+                        this.alternativeNode = node.minimumDistance < this.alternativeNode.minimumDistance ? node : this.alternativeNode;
+                    }
+                }
+                if (this.alternativeNode == null) {
+                    // we couldn't find an alternative node... just give up
+                    this.generateFinalPath(this.closedList.get(0));
+                    return;
+                }
+                // find a path to the alternative node.
+                this.generateFinalPath(this.alternativeNode);
+                // we need to change the path so that it gets long enough when reaching this node
+                boolean ret;
+                ret = this.increasePathLength();
+                if (!ret) {
+                    // it was not possible to generate a longer path.
+                    // remove our alternative node from the alternative nodes list to try it again
+                    this.potentialAlternativesBlackList.add(this.alternativeNode.tileId);
+                    //this.generateAlternativePath();
+                    this.pathFound = false;
+                    this.calculatePath();
+                    this.checkNode(this.nextNode);
+                } else {
+                    // theres a solution. Clear the blacklist and the punishlist
+                    this.potentialAlternativesBlackList = new ArrayList<Integer>();
+                    this.punishedTiles = new ArrayList<Integer>();
+                }
             } else {
-                // theres a solution. Clear the blacklist and the punishlist
-                this.potentialAlternativesBlackList = new ArrayList<Integer>();
-                this.punishedTiles = new ArrayList<Integer>();
+                // there are no alternatives. Give up.
+                this.generateFinalPath(this.closedList.get(0));
             }
-        } else {
-            // there are no alternatives. Give up.
-            this.generateFinalPath(this.closedList.get(0));
         }
-    }
 
-    boolean increasePathLength() throws InterruptedException {
-        return increasePathLength(this.gameWorld.gameTiles, this.closedList, this.potentialAlternativesList, this.potentialAlternativesBlackList, 0);
-    }
-
-    boolean increasePathLength(GameTile[] gameTiles, ArrayList<Node> closedList, ArrayList<Node> alternativesList, ArrayList<Integer> alternativesBlackList, int margin) throws InterruptedException {
+        boolean increasePathLength() throws InterruptedException {
+            return increasePathLength(this.gameWorld.gameTiles, this.closedList, this.potentialAlternativesList, this.potentialAlternativesBlackList, 0);
+        }
+    */
+    ArrayList<Node> increasePathLength(ArrayList<Node> path, ArrayList<Node> nodeList) throws InterruptedException {
+        sleep(ANIMATION_DELAY);
         boolean pathChanged = false;
-        if (this.finalPath.size() < 1) {
-            // not enough space to navigate
-            return false;
-        }
-        for (Node node : this.finalPath) {
+        for (Node node : path) {
             if (node.parent == null) {
                 continue;
             }
             Node originalParent = node.parent;
-            for (Node firstNeighbourNode : this.findAlternativeNodes(node, gameTiles, closedList, alternativesList, alternativesBlackList)) {
+            for (Node firstNeighbourNode : this.findNeighbourNodes(node, nodeList)) {
                 // make sure we process a node which is not yet part of our path
-                if (this.nodeInList(firstNeighbourNode, this.finalPath)) {
+                if (this.nodeInList(firstNeighbourNode, path)) {
                     continue;
                 }
-                for (Node secondNeighbourNode : this.findAlternativeNodes(firstNeighbourNode, gameTiles, closedList, alternativesList, alternativesBlackList)) {
-                    if (this.nodeInList(secondNeighbourNode, this.finalPath)) {
+                for (Node secondNeighbourNode : this.findNeighbourNodes(firstNeighbourNode, nodeList)) {
+                    if (this.nodeInList(secondNeighbourNode, path)) {
                         continue;
                     }
-                    for (Node thirdNeighbourNode : this.findAlternativeNodes(secondNeighbourNode, gameTiles, closedList, alternativesList, alternativesBlackList)) {
+                    for (Node thirdNeighbourNode : this.findNeighbourNodes(secondNeighbourNode, nodeList)) {
                         if (thirdNeighbourNode == originalParent) {
                             node.parent = firstNeighbourNode;
                             firstNeighbourNode.parent = secondNeighbourNode;
@@ -433,10 +442,10 @@ class AutoSolver {
                             pathChanged = true;
                             break;
                         } else {
-                            if (this.nodeInList(thirdNeighbourNode, this.finalPath)) {
+                            if (this.nodeInList(thirdNeighbourNode, path)) {
                                 continue;
                             }
-                            for (Node fourthNeighbourNode : this.findAlternativeNodes(thirdNeighbourNode, gameTiles, closedList, alternativesList, alternativesBlackList)) {
+                            for (Node fourthNeighbourNode : this.findNeighbourNodes(thirdNeighbourNode, nodeList)) {
                                 if (fourthNeighbourNode == originalParent) {
                                     node.parent = firstNeighbourNode;
                                     firstNeighbourNode.parent = secondNeighbourNode;
@@ -460,23 +469,27 @@ class AutoSolver {
                 break;
             }
         }
-        Node targetNode = this.finalPath.get(0);
-        synchronized (this.drawLock) {
-            this.finalPath = new ArrayList<Node>();
-        }
-        this.pathFound = true;
-        this.generateFinalPath(targetNode);
         if (pathChanged) {
-            // our path is now longer. is it long enough?
-            if (targetNode.getNumberOfParents() >= targetNode.minimumDistance + margin) {
-                //this.continueGenerateAlternativePath = false;
-            } else {
-                return this.increasePathLength(gameTiles, closedList, alternativesList, alternativesBlackList, margin);
-            }
-            return true;
-        } else {
-            return false;
+            return AStar.generatePath(path.get(0));
         }
+        return null;
+//        Node targetNode = this.finalPath.get(0);
+//        synchronized (this.drawLock) {
+//            this.finalPath = new ArrayList<Node>();
+//        }
+//        this.pathFound = true;
+//        this.generateFinalPath(targetNode);
+//        if (pathChanged) {
+//            // our path is now longer. is it long enough?
+//            if (targetNode.getNumberOfParents() >= targetNode.minimumDistance + margin) {
+//                //this.continueGenerateAlternativePath = false;
+//            } else {
+//                return this.increasePathLength(gameTiles, nodeList, alternativesList, alternativesBlackList, margin);
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
     }
 
     boolean nodeInList(Node node, ArrayList<Node> list) {
@@ -488,25 +501,24 @@ class AutoSolver {
         return false;
     }
 
-    ArrayList<Node> findAlternativeNodes(Node targetNode, GameTile[] gameTiles, ArrayList<Node> closedList, ArrayList<Node> alternativesList, ArrayList<Integer> alternativesBlackList) {
-        ArrayList<Node> alternativeNodes = new ArrayList<Node>();
+    ArrayList<Node> findNeighbourNodes(Node targetNode, ArrayList<Node> nodeList) {
+        ArrayList<Node> neighbourNodes = new ArrayList<Node>();
         if (targetNode.parent == null) {
             // doesnt make sense to change the starting node (snake head)
-            return alternativeNodes;
+            return neighbourNodes;
         }
-        // is there another node in the closed list around us besides the one that is the parent?
-        int[] neighbourTileIds = this.getNeighbourTileIds(targetNode);
-        int i = 0;
-        for (Node node : closedList) {
+        // add all nodes from the passed list to the result if it is a neighbour
+        int[] neighbourTileIds = targetNode.tile.getNeighbourTileIds();
+        for (Node node : nodeList) {
             for (int tileId : neighbourTileIds) {
-                if (node.tileId == tileId) {
-                    alternativeNodes.add(node);
+                if (node.tile.tileId == tileId) {
+                    neighbourNodes.add(node);
                 }
             }
         }
-        return alternativeNodes;
+        return neighbourNodes;
     }
-
+/*
     int getTileId(int x, int y) {
         return x + y * this.gameWorld.width;
     }

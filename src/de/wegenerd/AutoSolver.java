@@ -10,7 +10,6 @@ package de.wegenerd;
 import processing.core.PConstants;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import static java.lang.Thread.sleep;
 
@@ -25,7 +24,7 @@ class AutoSolver {
     ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
-    static int ANIMATION_DELAY = 10;
+    static int ANIMATION_DELAY = 5;
     AStarPathFinder aStarPathFinder;
     TailPathFinder tailPathFinder;
     DeadEndChecker deadEndChecker;
@@ -78,10 +77,16 @@ class AutoSolver {
             path = this.tailPathFinder.getPath();
         }
         if (path != null) {
-            this.deadEndChecker = new DeadEndChecker(this.processing, this.gameWorld.gameTiles, path);
-            this.finalPath = path;
+            synchronized (this.drawLock) {
+                this.deadEndChecker = new DeadEndChecker(this.processing, this.gameWorld.gameTiles, path);
+            }
             if (!this.deadEndChecker.isDeadEnd()) {
+                this.finalPath = path;
                 this.pathFound = true;
+                synchronized (this.drawLock) {
+                    this.deadEndChecker = null;
+                    this.tailPathFinder = null;
+                }
             }
         }
     }
@@ -207,10 +212,15 @@ class AutoSolver {
                 this.tailPathFinder.draw();
             }
             if (this.aStarPathFinder != null) {
+                if (this.deadEndChecker != null) {
+                    this.aStarPathFinder.alpha = 0x33;
+                } else {
+                    this.aStarPathFinder.alpha = 0xff;
+                }
                 this.aStarPathFinder.draw();
             }
             for (Node node : this.finalPath) {
-                node.draw(0xffffff00);
+                node.draw(0xffff00);
             }
             if (this.deadEndChecker != null) {
                 this.deadEndChecker.draw();

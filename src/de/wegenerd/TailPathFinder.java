@@ -146,8 +146,12 @@ public class TailPathFinder {
     }
 
     public void draw() {
+        this.draw(-1);
+    }
+
+    public void draw(int color) {
         if (this.aStarPathFinder != null) {
-            this.aStarPathFinder.draw();
+            this.aStarPathFinder.draw(color);
         }
     }
 }

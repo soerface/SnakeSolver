@@ -154,6 +154,10 @@ class GameWorld {
             index = testFoodPositions[this.testFoodCounter];
             PApplet.print(this.testFoodCounter + "/" + testFoodPositions.length + "\n");
             this.testFoodCounter++;
+            if (this.testFoodCounter > 78) {
+                AutoSolver.ANIMATION_DELAY = 10;
+                Processing.GAME_DELAY = 100;
+            }
         }
         GameTile tile = this.gameTiles[index];
         if (tile.occupied) {

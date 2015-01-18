@@ -17,6 +17,7 @@ public class AStarPathFinder {
     private final Object drawLock = new Object();
     private Node currentNode;
     private Node targetNode;
+    public int alpha;
 
     AStarPathFinder(Processing processing, GameTile[] gameTiles, GameTile startTile, GameTile endTile) {
         this.processing = processing;
@@ -27,6 +28,7 @@ public class AStarPathFinder {
         this.closedList = new ArrayList<Node>();
         this.currentNode = null;
         this.targetNode = null;
+        this.alpha = 0xff;
     }
 
     ArrayList<Node> getPath() throws InterruptedException {
@@ -161,14 +163,18 @@ public class AStarPathFinder {
     }
 
     public void draw() {
+        this.draw(-1);
+    }
+
+    public void draw(int color) {
         synchronized (this.drawLock) {
             for (Node node : this.openList) {
-                node.draw(0xff00ff00);
+                node.draw(color != -1 ? color : 0xff00ff00, this.alpha);
             }
             for (Node node : this.closedList) {
-                node.draw(0xffff0000);
+                node.draw(color != -1 ? color : 0xffff0000, this.alpha);
             }
-            processing.stroke(0xaaff00ff);
+            processing.stroke(color != -1 ? color : 0xaaff00ff, this.alpha);
             processing.strokeWeight(5);
             int fromX = this.startTile.x * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
             int fromY = this.startTile.y * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
@@ -177,7 +183,7 @@ public class AStarPathFinder {
             this.processing.line(fromX, fromY, toX, toY);
             Node checkingNode = this.currentNode;
             while (checkingNode != null) {
-                checkingNode.draw(0xffffffff);
+                checkingNode.draw(0xffffffff, this.alpha);
                 checkingNode = checkingNode.parent;
             }
         }

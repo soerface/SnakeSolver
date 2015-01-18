@@ -3,13 +3,13 @@ package de.wegenerd;
 import processing.core.PConstants;
 
 class Node {
-  GameTile tile;
-  float hCost;
-  int minimumDistance;
-  Node parent;
-  Processing processing;
-  static int DOT_SIZE = GameTile.TILE_SIZE / 4;
-  int costs;
+  public GameTile tile;
+  public float hCost;
+  public int minimumDistance;
+  public Node parent;
+  private Processing processing;
+  private static int DOT_SIZE = GameTile.TILE_SIZE / 4;
+  private int costs;
 
   Node(Processing processing, GameTile tile) {
     this.processing = processing;
@@ -51,12 +51,16 @@ class Node {
   }
 
   void draw(int color) {
+    this.draw(color, 0xff);
+  }
+
+  void draw(int color, int alpha) {
     this.processing.strokeWeight(0);
-    this.processing.fill(color);
+    this.processing.fill(color, alpha);
     int x = this.getX() * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
     int y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
     this.processing.strokeWeight(1);
-    this.processing.stroke(color);
+    this.processing.stroke(color, alpha);
     if (this.parent != null) {
       int parentX = this.parent.getX() * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
       int parentY = this.parent.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE / 2;
@@ -68,7 +72,7 @@ class Node {
     }
     this.processing.ellipse(x, y, DOT_SIZE, DOT_SIZE);
     if (Processing.DEBUG) {
-      processing.fill(color);
+      processing.fill(color, alpha);
       processing.textAlign(PConstants.LEFT, PConstants.BOTTOM);
       x = this.getX() * GameTile.TILE_SIZE;
       y = this.getY() * GameTile.TILE_SIZE + GameTile.TILE_SIZE;

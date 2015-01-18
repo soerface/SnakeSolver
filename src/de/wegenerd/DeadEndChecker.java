@@ -25,12 +25,12 @@ public class DeadEndChecker {
     }
 
     public void draw() {
+        this.tailPathFinder.draw(0xff5C95FF);
         for (GameTile gameTile : this.gameTiles) {
             if (gameTile.occupiedCounter > -1) {
                 gameTile.draw(this.processing, 0xdd5C95FF, 0xff000000, 0xff000000);
             }
         }
-        this.tailPathFinder.draw();
     }
 
     private GameTile[] simulatePath(GameTile[] gameTiles) {

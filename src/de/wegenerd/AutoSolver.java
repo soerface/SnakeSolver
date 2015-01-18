@@ -24,7 +24,7 @@ class AutoSolver {
     ArrayList<Integer> potentialAlternativesBlackList; // just contains tile ids
     ArrayList<Integer> punishedTiles;
     boolean pathFound;
-    static int ANIMATION_DELAY = 50;
+    static int ANIMATION_DELAY = 0;
     AStarPathFinder aStarPathFinder;
     TailPathFinder tailPathFinder;
     DeadEndChecker deadEndChecker;
@@ -89,16 +89,24 @@ class AutoSolver {
                 this.pathFound = true;
                 this.punishedTiles = new ArrayList<Integer>();
             } else {
-                // not a good path. Change the edge weights to get a new path in the next iteration
-                this.pathFound = false;
-                for (Node node : path) {
-                    this.punishedTiles.add(node.tile.tileId);
+                this.tailPathFinder = new TailPathFinder(this.processing, this.gameWorld.gameTiles, snakeHeadGameTile);
+                path = this.tailPathFinder.getPath();
+                if (path != null) {
+                    this.finalPath = path;
+                    this.pathFound = true;
                 }
+//                // not a good path. Change the edge weights to get a new path in the next iteration
+//                this.pathFound = false;
+//                for (Node node : path) {
+//                    this.punishedTiles.add(node.tile.tileId);
+//                }
             }
         }
     }
 
     void draw() {
+        if (true)
+        return;
         synchronized (this.drawLock) {
             if (this.tailPathFinder != null) {
                 this.tailPathFinder.draw();

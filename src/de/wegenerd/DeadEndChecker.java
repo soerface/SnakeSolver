@@ -77,6 +77,7 @@ public class DeadEndChecker {
             }
         }
         this.tailPathFinder = new TailPathFinder(this.processing, this.gameTiles, snakeHeadTile);
+        this.tailPathFinder.padding = 5;
         return this.tailPathFinder.getPath() == null;
     }
 }

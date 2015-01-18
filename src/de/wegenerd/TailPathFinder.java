@@ -12,12 +12,14 @@ public class TailPathFinder {
     private GameTile startTile;
     private ArrayList<GameTile> snakeTiles;
     private AStarPathFinder aStarPathFinder;
+    public int padding;
 
     TailPathFinder(Processing processing, GameTile[] gameTiles, GameTile startTile) {
         this.processing = processing;
         this.gameTiles = gameTiles;
         this.startTile = startTile;
         this.snakeTiles = new ArrayList<GameTile>();
+        this.padding = 0;
 
         // generate a list of all snake tiles
         for (GameTile gameTile : this.gameTiles) {
@@ -35,10 +37,11 @@ public class TailPathFinder {
                 return null;
             }
             this.aStarPathFinder = new AStarPathFinder(this.processing, this.gameTiles, this.startTile, snakeTiles.remove(0));
+            this.aStarPathFinder.ignoreMoving = true;
             path = this.aStarPathFinder.getPath();
             while (path != null) {
                 Node targetNode = path.get(0);
-                if (path.size() <= targetNode.minimumDistance) {
+                if (targetNode.getNumberOfParents() < targetNode.minimumDistance + this.padding) {
                     this.aStarPathFinder.exploreAll();
                     path = this.increasePathLength(path, this.aStarPathFinder.closedList);
                     if (path != null) {
@@ -46,7 +49,7 @@ public class TailPathFinder {
                         // since we iterate through our snake sorted (first nodes are those which will disappear first),
                         // it will not be possible to get a better path if path.size() == closedList.size().
                         // therefore, return null to indicate that it is not possible to escape from this situation
-                        if (path.size() == this.aStarPathFinder.closedList.size()) {
+                        if (path.size() == this.aStarPathFinder.closedList.size() && targetNode.getNumberOfParents() < targetNode.minimumDistance + this.padding) {
                             return null;
                         }
                     }
@@ -58,7 +61,7 @@ public class TailPathFinder {
         return path;
     }
 
-    private ArrayList<Node> increasePathLength(ArrayList<Node> path, ArrayList<Node> nodeList) throws InterruptedException {
+    static private ArrayList<Node> increasePathLength(ArrayList<Node> path, ArrayList<Node> nodeList) throws InterruptedException {
         sleep(AutoSolver.ANIMATION_DELAY);
         boolean pathChanged = false;
         for (Node node : path) {
@@ -66,16 +69,16 @@ public class TailPathFinder {
                 continue;
             }
             Node originalParent = node.parent;
-            for (Node firstNeighbourNode : this.findNeighbourNodes(node, nodeList)) {
+            for (Node firstNeighbourNode : findNeighbourNodes(node, nodeList)) {
                 // make sure we process a node which is not yet part of our path
-                if (this.nodeInList(firstNeighbourNode, path)) {
+                if (nodeInList(firstNeighbourNode, path)) {
                     continue;
                 }
-                for (Node secondNeighbourNode : this.findNeighbourNodes(firstNeighbourNode, nodeList)) {
-                    if (this.nodeInList(secondNeighbourNode, path)) {
+                for (Node secondNeighbourNode : findNeighbourNodes(firstNeighbourNode, nodeList)) {
+                    if (nodeInList(secondNeighbourNode, path)) {
                         continue;
                     }
-                    for (Node thirdNeighbourNode : this.findNeighbourNodes(secondNeighbourNode, nodeList)) {
+                    for (Node thirdNeighbourNode : findNeighbourNodes(secondNeighbourNode, nodeList)) {
                         if (thirdNeighbourNode == originalParent) {
                             node.parent = firstNeighbourNode;
                             firstNeighbourNode.parent = secondNeighbourNode;
@@ -83,10 +86,10 @@ public class TailPathFinder {
                             pathChanged = true;
                             break;
                         } else {
-                            if (this.nodeInList(thirdNeighbourNode, path)) {
+                            if (nodeInList(thirdNeighbourNode, path)) {
                                 continue;
                             }
-                            for (Node fourthNeighbourNode : this.findNeighbourNodes(thirdNeighbourNode, nodeList)) {
+                            for (Node fourthNeighbourNode : findNeighbourNodes(thirdNeighbourNode, nodeList)) {
                                 if (fourthNeighbourNode == originalParent) {
                                     node.parent = firstNeighbourNode;
                                     firstNeighbourNode.parent = secondNeighbourNode;
@@ -116,7 +119,7 @@ public class TailPathFinder {
         return null;
     }
 
-    private ArrayList<Node> findNeighbourNodes(Node targetNode, ArrayList<Node> nodeList) {
+    static private ArrayList<Node> findNeighbourNodes(Node targetNode, ArrayList<Node> nodeList) {
         ArrayList<Node> neighbourNodes = new ArrayList<Node>();
         if (targetNode.parent == null) {
             // doesnt make sense to change the starting node (snake head)
@@ -134,7 +137,7 @@ public class TailPathFinder {
         return neighbourNodes;
     }
 
-    private boolean nodeInList(Node node, ArrayList<Node> list) {
+    static private boolean nodeInList(Node node, ArrayList<Node> list) {
         for (Node listNode : list) {
             if (node == listNode) {
                 return true;

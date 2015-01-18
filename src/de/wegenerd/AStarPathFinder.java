@@ -18,6 +18,7 @@ public class AStarPathFinder {
     private Node currentNode;
     private Node targetNode;
     public int alpha;
+    public boolean ignoreMoving;
 
     AStarPathFinder(Processing processing, GameTile[] gameTiles, GameTile startTile, GameTile endTile) {
         this.processing = processing;
@@ -28,6 +29,7 @@ public class AStarPathFinder {
         this.closedList = new ArrayList<Node>();
         this.currentNode = null;
         this.targetNode = null;
+        this.ignoreMoving = false;
         this.alpha = 0xff;
     }
 
@@ -76,15 +78,21 @@ public class AStarPathFinder {
                 if (!exploreAll) {
                     // try to not punish the target node; except if it is directly besides us
                     //if (tileId != this.endTile.tileId || currentNode.getNumberOfParents() < 1) {
-                        neighbourNode.punish();
+                    neighbourNode.punish();
                     //}
                 }
                 // do not walk into tiles which are occupied; except if it is the desired target
                 if (neighbourNode.minimumDistance == -1) {
                     continue;
                 }
-                if (tileId != this.endTile.tileId && currentNode.getNumberOfParents() + 1 < neighbourNode.minimumDistance) {
-                    continue;
+                if (tileId != this.endTile.tileId) {
+                    if (currentNode.getNumberOfParents() + 1 < neighbourNode.minimumDistance) {
+                        continue;
+                    }
+                    // mode to ignore any occupied tile, regardless if it will be free. Usefull for following tail.
+                    if (this.ignoreMoving && neighbourNode.tile.occupied) {
+                        continue;
+                    }
                 }
             } else {
                 continue;
